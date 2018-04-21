@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="qzone_db.db">
+  <database-model serializer="dbm" rdbms="SQLITE" format-version="4.7">
+    <root id="1"/>
+    <schema id="2" parent="1" name="main">
+      <Current>1</Current>
+      <Visible>1</Visible>
+    </schema>
+    <collation id="3" parent="1" name="BINARY"/>
+    <collation id="4" parent="1" name="NOCASE"/>
+    <collation id="5" parent="1" name="RTRIM"/>
+    <table id="6" parent="2" name="comment"/>
+    <table id="7" parent="2" name="comment_memo"/>
+    <table id="8" parent="2" name="like_thumb"/>
+    <table id="9" parent="2" name="media"/>
+    <table id="10" parent="2" name="media_memo"/>
+    <table id="11" parent="2" name="message"/>
+    <table id="12" parent="2" name="message_memo"/>
+    <table id="13" parent="2" name="qq"/>
+    <table id="14" parent="2" name="rt"/>
+    <table id="15" parent="2" name="sqlite_master">
+      <System>1</System>
+    </table>
+    <table id="16" parent="2" name="sqlite_sequence">
+      <System>1</System>
+    </table>
+    <column id="17" parent="6" name="catch_time">
+      <Position>1</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="18" parent="6" name="tid">
+      <Position>2</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="19" parent="6" name="commentid">
+      <Position>3</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="20" parent="6" name="replyid">
+      <Position>4</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="21" parent="6" name="qq">
+      <Position>5</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="22" parent="6" name="reply_target_qq">
+      <Position>6</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="23" parent="6" name="post_time">
+      <Position>7</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="24" parent="6" name="content">
+      <Position>8</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="25" parent="6" name="picnum">
+      <Position>9</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="26" parent="6" name="pic">
+      <Position>10</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="27" parent="6" name="likenum">
+      <Position>11</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="28" parent="6" name="replynum">
+      <Position>12</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <index id="29" parent="6" name="sqlite_autoindex_comment_1">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>catch_time
+tid
+commentid
+replyid</ColNames>
+      <ColumnCollations>
+
+
+</ColumnCollations>
+      <Unique>1</Unique>
+    </index>
+    <key id="30" parent="6">
+      <ColNames>catch_time
+tid
+commentid
+replyid</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_comment_1</UnderlyingIndexName>
+    </key>
+    <column id="31" parent="7" name="id">
+      <Position>1</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="32" parent="7" name="tid">
+      <Position>2</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="33" parent="7" name="commentid">
+      <Position>3</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="34" parent="7" name="replyid">
+      <Position>4</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="35" parent="7" name="memo">
+      <Position>5</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="36" parent="7">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="37" parent="8" name="tid">
+      <Position>1</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="38" parent="8" name="commentid">
+      <Position>2</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="39" parent="8" name="qq">
+      <Position>3</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="40" parent="8" name="sqlite_autoindex_like_thumb_1">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>tid
+commentid
+qq</ColNames>
+      <ColumnCollations>
+
+</ColumnCollations>
+      <Unique>1</Unique>
+    </index>
+    <key id="41" parent="8">
+      <ColNames>tid
+commentid
+qq</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_like_thumb_1</UnderlyingIndexName>
+    </key>
+    <column id="42" parent="9" name="id">
+      <Position>1</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="43" parent="9" name="type">
+      <Position>2</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="44" parent="9" name="url">
+      <Position>3</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="45" parent="9" name="thumb">
+      <Position>4</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="46" parent="9" name="time">
+      <Position>5</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <index id="47" parent="9" name="sqlite_autoindex_media_1">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>url</ColNames>
+      <ColumnCollations></ColumnCollations>
+      <Unique>1</Unique>
+    </index>
+    <key id="48" parent="9">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="49" parent="9">
+      <ColNames>url</ColNames>
+      <UnderlyingIndexName>sqlite_autoindex_media_1</UnderlyingIndexName>
+    </key>
+    <column id="50" parent="10" name="id">
+      <Position>1</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="51" parent="10" name="media_id">
+      <Position>2</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="52" parent="10" name="memo">
+      <Position>3</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="53" parent="10">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="54" parent="11" name="catch_time">
+      <Position>1</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="55" parent="11" name="tid">
+      <Position>2</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="56" parent="11" name="qq">
+      <Position>3</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="57" parent="11" name="post_time">
+      <Position>4</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="58" parent="11" name="rt_tid">
+      <Position>5</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="59" parent="11" name="content">
+      <Position>6</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="60" parent="11" name="picnum">
+      <Position>7</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="61" parent="11" name="videonum">
+      <Position>8</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="62" parent="11" name="sharelink">
+      <Position>9</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="63" parent="11" name="piclist">
+      <Position>10</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="64" parent="11" name="video">
+      <Position>11</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="65" parent="11" name="voice">
+      <Position>12</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="66" parent="11" name="device">
+      <Position>13</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="67" parent="11" name="location_user">
+      <Position>14</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="68" parent="11" name="location_real">
+      <Position>15</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="69" parent="11" name="longitude">
+      <Position>16</Position>
+      <DataType>REAL|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="70" parent="11" name="latitude">
+      <Position>17</Position>
+      <DataType>REAL|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="71" parent="11" name="altitude">
+      <Position>18</Position>
+      <DataType>REAL|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="72" parent="11" name="photo_time">
+      <Position>19</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="73" parent="11" name="viewnum">
+      <Position>20</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="74" parent="11" name="likenum">
+      <Position>21</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="75" parent="11" name="forwardnum">
+      <Position>22</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="76" parent="11" name="commentnum">
+      <Position>23</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <index id="77" parent="11" name="sqlite_autoindex_message_1">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>catch_time
+tid</ColNames>
+      <ColumnCollations>
+</ColumnCollations>
+      <Unique>1</Unique>
+    </index>
+    <key id="78" parent="11">
+      <ColNames>catch_time
+tid</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_message_1</UnderlyingIndexName>
+    </key>
+    <column id="79" parent="12" name="id">
+      <Position>1</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="80" parent="12" name="tid">
+      <Position>2</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="81" parent="12" name="memo">
+      <Position>3</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="82" parent="12">
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="83" parent="13" name="qq">
+      <Position>1</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="84" parent="13" name="name">
+      <Position>2</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="85" parent="13" name="memo">
+      <Position>3</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <key id="86" parent="13">
+      <ColNames>qq</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="87" parent="14" name="tid">
+      <Position>1</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="88" parent="14" name="qq">
+      <Position>2</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="89" parent="14" name="post_time">
+      <Position>3</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="90" parent="14" name="content">
+      <Position>4</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="91" parent="14" name="picnum">
+      <Position>5</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="92" parent="14" name="videonum">
+      <Position>6</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="93" parent="14" name="pic">
+      <Position>7</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="94" parent="14" name="video">
+      <Position>8</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="95" parent="14" name="device">
+      <Position>9</Position>
+      <DataType>TEXT|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <column id="96" parent="14" name="forwardnum">
+      <Position>10</Position>
+      <DataType>INTEGER|0s</DataType>
+      <DefaultExpression>NULL</DefaultExpression>
+    </column>
+    <index id="97" parent="14" name="sqlite_autoindex_rt_1">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>tid</ColNames>
+      <ColumnCollations></ColumnCollations>
+      <Unique>1</Unique>
+    </index>
+    <key id="98" parent="14">
+      <ColNames>tid</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_rt_1</UnderlyingIndexName>
+    </key>
+    <column id="99" parent="15" name="type">
+      <Position>1</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="100" parent="15" name="name">
+      <Position>2</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="101" parent="15" name="tbl_name">
+      <Position>3</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="102" parent="15" name="rootpage">
+      <Position>4</Position>
+      <DataType>integer|0s</DataType>
+    </column>
+    <column id="103" parent="15" name="sql">
+      <Position>5</Position>
+      <DataType>text|0s</DataType>
+    </column>
+    <column id="104" parent="16" name="name">
+      <Position>1</Position>
+    </column>
+    <column id="105" parent="16" name="seq">
+      <Position>2</Position>
+    </column>
+  </database-model>
+</dataSource>
