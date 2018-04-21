@@ -56,9 +56,8 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         parse['voice']['time'] = rough_json['voice'][0]['time']
     else:
         parse['voice'] = None
-    # TODO：分享链接
     parse['sharelink'] = None
-    if 'source_name' in rough_json:
+    if 'source_name' in rough_json and rough_json['source_name'] != '':
         parse['device'] = rough_json['source_name']
     else:
         parse['device'] = None
@@ -94,9 +93,7 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         parse['photo_time'] = rough_json['story_info']['time']
     else:
         parse['photo_time'] = None
-    if rough_json['commentlist'] is None:
-        parse['comment'] = None
-    else:
+    if 'commentlist' in rough_json and rough_json['commentlist']:
         parse['comment'] = []
         for comment in rough_json['commentlist']:
             one_comment = {'commentid': comment['tid'], 'qq': comment['uin'],
@@ -138,6 +135,8 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
             else:
                 one_comment['reply'] = None
             parse['comment'].append(one_comment)
+    else:
+        parse['comment'] = None
     logger.info('Successfully parse rough data of message which tid is %s' % parse['tid'])
     logger.debug('Returned JSON in Python format is %s' % parse)
     return parse
@@ -149,6 +148,10 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
     msgdata = fine_json['data']
     parse = {'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
              'post_time': rough_json['created_time']}
+    if svar.emotionParse:
+        parse['name'] = emotion_parse(rough_json['name'])
+    else:
+        parse['name'] = rough_json['name']
     if 'rt_tid' in rough_json:
         parse['rt_tid'] = rough_json['rt_tid']
     else:
@@ -159,7 +162,8 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         else:
             content = msgdata['cell_summary']['summary']
         if 'cell_permission' in msgdata:
-            if msgdata['cell_permission']['cell_permission_info'] == '仅自己可见':
+            if 'cell_permission_info' in msgdata['cell_permission'] and \
+                    msgdata['cell_permission']['cell_permission_info'] == '仅自己可见':
                 content = content[0:content.rfind('[仅自己可见]')]
         parse['content'] = content
     else:
@@ -205,7 +209,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
     else:
         parse['voice'] = None
     parse['sharelink'] = None
-    if 'source_name' in rough_json:
+    if 'source_name' in rough_json and rough_json['source_name'] != '':
         parse['device'] = rough_json['source_name']
     else:
         parse['device'] = None
@@ -247,14 +251,87 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['viewnum'] = 0
     if 'cell_like' in msgdata:
         parse['likenum'] = msgdata['cell_like']['num']
+        if 'likemans' in msgdata['cell_like'] and msgdata['cell_like']['likemans']:
+            parse['like'] = []
+            for likeman in msgdata['cell_like']['likemans']:
+                one_likeman = {'qq': likeman['user']['uin']}
+                if svar.emotionParse:
+                    one_likeman['name'] = emotion_parse(likeman['user']['nickname'])
+                else:
+                    one_likeman['name'] = likeman['user']['nickname']
+                parse['like'].append(one_likeman)
+        else:
+            parse['like'] = None
     else:
         parse['likenum'] = 0
     parse['forwardnum'] = msgdata['cell_forward_list']['num']
+    if msgdata['cell_forward_list']['fwdmans']:
+        forward = []
+        for forwardman in msgdata['cell_forward_list']['fwdmans']:
+            one_forward = {'qq': forwardman['uin']}
+            if svar.emotionParse:
+                one_forward['name'] = emotion_parse(forwardman['nickname'])
+            else:
+                one_forward['name'] = forwardman['nickname']
+            forward.append(one_forward)
+    else:
+        forward = None
     if 'cell_comment' in msgdata:
         parse['commentnum'] = msgdata['cell_comment']['num']
+        parse['comment'] = []
+        for comment in msgdata['cell_comment']['comments']:
+            one_comment = {'commentid': int(comment['commentid']), 'qq': comment['user']['uin'],
+                           'post_time': comment['date'], 'replynum': comment['replynum'], 'likenum': comment['likeNum']}
+            if svar.emotionParse:
+                one_comment['name'] = emotion_parse(comment['user']['nickname'])
+            else:
+                one_comment['name'] = comment['user']['nickname']
+            if 'content' in comment and comment['content'] != '':
+                if svar.emotionParse:
+                    one_comment['content'] = emotion_parse(comment['content'])
+                else:
+                    one_comment['content'] = comment['content']
+            else:
+                one_comment['content'] = None
+            if 'commentpic' in comment and comment['commentpic']:
+                one_comment['picnum'] = len(comment['commentpic'])
+                one_comment['pic'] = []
+                for pic in comment['commentpic']:
+                    one_pic = {'url': pic['photourl']['0']['url'], 'thumb': pic['photourl']['11']['url']}
+                    one_comment['pic'].append(one_pic)
+            else:
+                one_comment['picnum'] = 0
+                one_comment['pic'] = None
+            if 'likemans' in comment and comment['likemans']:
+                one_comment['like'] = []
+                for likeman in comment['likemans']:
+                    one_comment_likeman = {'qq': likeman['user']['uin']}
+                    if svar.emotionParse:
+                        one_comment_likeman['name'] = emotion_parse(likeman['user']['nickname'])
+                    else:
+                        one_comment_likeman['name'] = likeman['nickname']
+                    one_comment['like'].append(one_comment_likeman)
+            else:
+                one_comment['like'] = None
+            if 'replys' in comment and comment['replys']:
+                one_comment['reply'] = []
+                for reply in comment['replys']:
+                    one_reply = {'replyid': reply['replyid'], 'qq': reply['user']['uin'],
+                                 'name': reply['user']['nickname'], 'post_time': reply['date'],
+                                 'reply_target_qq': reply['target']['uin']}
+                    if svar.emotionParse:
+                        one_reply['reply_target_name'] = emotion_parse(reply['target']['nickname'])
+                        one_reply['content'] = emotion_parse(reply['content'])
+                    else:
+                        one_reply['reply_target_name'] = reply['target']['nickname']
+                        one_reply['content'] = reply['content']
+                    one_comment['reply'].append(one_reply)
+            else:
+                one_comment['reply'] = None
+            parse['comment'].append(one_comment)
     else:
         parse['commentnum'] = 0
-    # TODO：点赞、转发、评论
+        parse['comment'] = None
     logger.info('Successfully parse fine data of message which tid is %s' % parse['tid'])
     logger.debug('Returned JSON in Python format is %s' % parse)
     return parse
