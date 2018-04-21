@@ -90,9 +90,7 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
     else:
         parse['photo_time'] = None
     parse['commentnum'] = rough_json['cmtnum']
-    # logger.info('解析tid为 %s 的说说粗数据成功' % parse['tid'])
     logger.info('Successfully parse rough data of message which tid is %s' % parse['tid'])
-    # logger.debug('解析得到的Python形式的JSON为 %s' % parse)
     logger.debug('Returned JSON in Python format is %s' % parse)
     return parse
 
@@ -204,9 +202,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['commentnum'] = msgdata['cell_comment']['num']
     else:
         parse['commentnum'] = 0
-    # logger.info('解析tid为 %s 的说说细数据成功' % parse['tid'])
     logger.info('Successfully parse fine data of message which tid is %s' % parse['tid'])
-    # logger.debug('解析得到的Python形式的JSON为 %s' % parse)
     logger.debug('Returned JSON in Python format is %s' % parse)
     return parse
 

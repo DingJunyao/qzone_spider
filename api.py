@@ -20,7 +20,6 @@ def intro():
 def message_info_all(tid):
     conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
                            db=svar.dbDatabase, charset="utf8", use_unicode=True)
-    # logger.info('成功连接至在 %s:%s 的 %s 数据库 %s' % (svar.dbURL, svar.dbPort, svar.dbType, svar.dbDatabase))
     app.logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
@@ -44,8 +43,6 @@ def message_info_all(tid):
             values_json_one['photo_time'] = None
         else:
             values_json_one['photo_time'] = int(values[i]['photo_time'].timestamp())
-        # TODO: 需要简化流程，对于已经查询到的字符串进行缓存，减少查询次数。
-
         if values[i]['piclist'] is None:
             values_json_one['piclist'] = None
         else:
@@ -125,8 +122,6 @@ def message_info_latest(tid):
         values_json['photo_time'] = None
     else:
         values_json['photo_time'] = int(values['photo_time'].timestamp())
-    # TODO: 需要简化流程，对于已经查询到的字符串进行缓存，减少查询次数。
-
     if values['piclist'] is None:
         values_json['piclist'] = None
     else:

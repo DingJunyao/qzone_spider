@@ -24,7 +24,6 @@ def _get_gtk(cookies):
 
 
 def account_login(qq, password, debug=False):
-    # logger.info('开始尝试通过账号密码登录')
     logger.info('Trying to login with QQ and password')
     fail = 0
     while fail < svar.loginFailTime:
@@ -52,7 +51,6 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
                 % (qq, svar.errorWaitTime, svar.loginFailTime - fail))
             time.sleep(svar.errorWaitTime)
             continue
-        # logger.debug("网页加载成功")
         logger.debug("Successfully load page")
         time.sleep(svar.loginWaitTime)
         try:
@@ -69,7 +67,6 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
         pass_input.clear()
         pass_input.send_keys(password)
         go.click()
-        # logger.debug("用户名和密码输入成功")
         logger.debug("Successfully input user name and password")
         time.sleep(svar.loginWaitTime)
         if '验证码' in browser.page_source:  # TODO: 现在的验证码是拖动图片完成的，目前的做法是手工完成，未来将考虑自动完成
@@ -113,7 +110,6 @@ Generally speaking, you needn't do it for a long time if you use the same QQ num
 
 
 def scan_login():
-    # logger.info('开始尝试通过扫码登录')
     logger.info('Trying to login by scanning QR code')
     fail = 0
     while fail < svar.loginFailTime:
@@ -131,7 +127,6 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
                 % (svar.errorWaitTime, svar.loginFailTime - fail))
             time.sleep(svar.errorWaitTime)
             continue
-        # logger.debug('打开网页成功，请在 %s 秒内进行扫码' % svar.scanWaitTime)
         logger.debug('Successfully load page, please scan the QR code in %s seconds' % svar.scanWaitTime)
         time.sleep(svar.scanWaitTime)
         cookies = {}

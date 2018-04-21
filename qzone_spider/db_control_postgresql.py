@@ -142,13 +142,11 @@ CREATE TABLE "media_memo" (
 def db_init():
     conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
                             port=svar.dbPort)
-    # logger.info('成功连接至在 %s:%s 的 %s 数据库 %s' % (svar.dbURL, svar.dbPort, svar.dbType, svar.dbDatabase))
     logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
     cursor = conn.cursor()
     cursor.execute(create_table_sql)
     conn.commit()
-    # logger.info('数据库初始化完成')
     logger.info('Database initialized')
     cursor.close()
     conn.close()
@@ -157,7 +155,6 @@ def db_init():
 def db_write_rough(parse):
     conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
                             port=svar.dbPort)
-    # logger.info('成功连接至在 %s:%s 的 %s 数据库 %s' % (svar.dbURL, svar.dbPort, svar.dbType, svar.dbDatabase))
     logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
     cursor = conn.cursor()
@@ -170,11 +167,9 @@ def db_write_rough(parse):
             cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['voice']['url'],))
             voiceidtuple = cursor.fetchall()
             voice_id_list.append(voiceidtuple[0][0])
-            # logger.info('成功将音频插入到数据库')
             logger.info('Successfully insert audio information into database')
         except:
             conn.rollback()
-            # logger.error('试图将音频存入数据库时出错')
             logger.error('Error when trying to insert audio information into database')
         voice_id_list = str(voice_id_list)
     else:
@@ -201,11 +196,9 @@ def db_write_rough(parse):
             phototime, parse['commentnum']
         ))
         conn.commit()
-        # logger.info('成功将数据插入到数据库')
         logger.info('Successfully insert data into database')
     except Exception as e:
         conn.rollback()
-        # logger.error('试图将数据插入到数据库中出错')
         logger.error('Error when trying to insert data into database')
     finally:
         cursor.close()
@@ -215,7 +208,6 @@ def db_write_rough(parse):
 def db_write_fine(parse):
     conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
                             port=svar.dbPort)
-    # logger.info('成功连接至在 %s:%s 的 %s 数据库 %s' % (svar.dbURL, svar.dbPort, svar.dbType, svar.dbDatabase))
     logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
     cursor = conn.cursor()
@@ -233,11 +225,9 @@ def db_write_fine(parse):
                 cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['piclist'][i]['url'],))
                 picidtuple = cursor.fetchall()
                 pic_id_list.append(picidtuple[0][0])
-                # logger.info('成功将图片信息插入到数据库')
                 logger.info('Successfully insert picture information into database')
             except Exception:
                 conn.rollback()
-                # logger.error('试图将图片信息存入数据库时出错')
                 logger.error('Error when trying to insert picture information into database')
         pic_id_list = str(pic_id_list)
     else:
@@ -251,11 +241,9 @@ def db_write_fine(parse):
             cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['voice']['url'], ))
             voiceidtuple = cursor.fetchall()
             voice_id_list.append(voiceidtuple[0][0])
-            # logger.info('成功将音频信息插入到数据库')
             logger.info('Successfully insert audio information into database')
         except Exception:
             conn.rollback()
-            # logger.error('试图将音频信息存入数据库时出错')
             logger.error('Error when trying to insert audio information into database')
         voice_id_list = str(voice_id_list)
     else:
@@ -270,12 +258,9 @@ def db_write_fine(parse):
             cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['video']['url'],))
             videoidtuple = cursor.fetchall()
             video_id_list.append(videoidtuple[0][0])
-
-            # logger.info('成功将视频信息插入到数据库')
             logger.info('Successfully insert vidio information into database')
         except Exception:
             conn.rollback()
-            # logger.error('试图将视频信息存入数据库时出错')
             logger.error('Error when trying to insert video information into database')
         video_id_list = str(video_id_list)
     else:
@@ -306,11 +291,9 @@ def db_write_fine(parse):
             parse['likenum'], parse['forwardnum'], parse['commentnum']
         ))
         conn.commit()
-        # logger.info('成功将数据插入到数据库')
         logger.info('Successfully insert data into database')
     except Exception:
         conn.rollback()
-        # logger.error('试图将数据插入到数据库中出错')
         logger.error('Error when trying to insert data into database')
     finally:
         cursor.close()
