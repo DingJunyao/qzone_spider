@@ -102,7 +102,7 @@ def message_info_latest(tid):
                            db=svar.dbDatabase, charset="utf8", use_unicode=True)
     # logger.info('成功连接至在 %s:%s 的 %s 数据库 %s' % (svar.dbURL, svar.dbPort, svar.dbType, svar.dbDatabase))
     app.logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+                    % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute('select * from message where tid = %s order by catch_time desc limit 1;', tid)
     values = cursor.fetchone()

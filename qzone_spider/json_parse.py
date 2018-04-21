@@ -111,13 +111,13 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
                 one_comment['content'] = None
             if 'pictotal' in comment:
                 one_comment['picnum'] = comment['pictotal']
-                one_comment['pic'] = []
+                one_comment['piclist'] = []
                 for pic in comment['pic']:
                     one_pic = {'url': pic['b_url'], 'thumb': pic['s_url']}
-                    one_comment['pic'].append(one_pic)
+                    one_comment['piclist'].append(one_pic)
             else:
                 one_comment['picnum'] = 0
-                one_comment['pic'] = None
+                one_comment['piclist'] = None
             if 'list_3' in comment:
                 one_comment['reply'] = []
                 for reply in comment['list_3']:
@@ -295,13 +295,13 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
                 one_comment['content'] = None
             if 'commentpic' in comment and comment['commentpic']:
                 one_comment['picnum'] = len(comment['commentpic'])
-                one_comment['pic'] = []
+                one_comment['piclist'] = []
                 for pic in comment['commentpic']:
                     one_pic = {'url': pic['photourl']['0']['url'], 'thumb': pic['photourl']['11']['url']}
-                    one_comment['pic'].append(one_pic)
+                    one_comment['piclist'].append(one_pic)
             else:
                 one_comment['picnum'] = 0
-                one_comment['pic'] = None
+                one_comment['piclist'] = None
             if 'likemans' in comment and comment['likemans']:
                 one_comment['like'] = []
                 for likeman in comment['likemans']:

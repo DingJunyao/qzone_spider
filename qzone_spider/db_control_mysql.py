@@ -59,7 +59,7 @@ create_table_sql = (
         `content` TEXT DEFAULT NULL,
         `picnum`  INT(3)  DEFAULT NULL,
         `videonum`  INT(3) DEFAULT NULL,
-        `pic` TEXT  DEFAULT NULL,
+        `piclist` TEXT  DEFAULT NULL,
         `video` TEXT  DEFAULT NULL,
         `device`  VARCHAR(100)  DEFAULT NULL,
         `forwardnum` INT(11) DEFAULT NULL,
@@ -81,7 +81,7 @@ create_table_sql = (
         `post_time`  DATETIME NOT NULL,
         `content` TEXT  DEFAULT NULL,
         `picnum`  INT(2)  DEFAULT NULL,
-        `pic` TEXT  DEFAULT NULL,
+        `piclist` TEXT  DEFAULT NULL,
         `likenum` INT(11) DEFAULT NULL,
         `replynum` INT(11) DEFAULT NULL,
         PRIMARY KEY (`catch_time`,`tid`,`commentid`,`replyid`)
@@ -142,12 +142,27 @@ def db_init():
     conn.close()
 
 
-def db_write_rough(parse):
+def db_write_rough(parse, uid=1):
     conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
                            db=svar.dbDatabase, charset="utf8mb4", use_unicode=True)
     logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
+    if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s' % (uid, parse['qq'])) == 0:
+        try:
+            cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);'
+                           % (uid, parse['qq'], parse['name']))
+            conn.commit()
+            logger.info('Successfully insert QQ information of %s in uid %s', (parse['qq'], uid))
+        except Exception:
+            logger.error('Error when trying to insert QQ information of %s in uid %s', (parse['qq'], uid))
+    else:
+        try:
+            cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;' % (parse['name'], uid, parse['qq']))
+            conn.commit()
+            logger.info('Successfully update QQ information of %s in uid %s', (parse['qq'], uid))
+        except Exception:
+            logger.error('Error when trying to update QQ information of %s in uid %s', (parse['qq'], uid))
     if parse['voice'] is not None:
         voice_id_list = []
         try:
@@ -155,15 +170,69 @@ def db_write_rough(parse):
             cursor.execute(insert_sql, ('voice', parse['voice']['url'], parse['voice']['time']*1000))
             conn.commit()
             cursor.execute('SELECT id FROM media WHERE url=%s;', parse['voice']['url'])
-            voiceidtuple = cursor.fetchall()
-            voice_id_list.append(voiceidtuple[0][0])
+            voice_id_dict = cursor.fetchone()
+            voice_id_list.append(voice_id_dict['id'])
             logger.info('Successfully insert audio information into database')
         except Exception:
             logger.error('Error when trying to insert audio information into database')
-            pass
         voice_id_list = str(voice_id_list)
     else:
         voice_id_list = None
+    if parse['comment'] is not None:
+        for comment in parse['comment']:
+            if comment['piclist'] is not None:
+                pic_id_list = []
+                for i in range(len(comment['piclist'])):
+                    media_type = 'pic'
+                    try:
+                        insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                        cursor.execute(insert_sql,
+                                       (media_type, comment['piclist'][i]['url'], comment['piclist'][i]['thumb']))
+                        conn.commit()
+                        cursor.execute('SELECT id FROM media WHERE url=%s;', comment['piclist'][i]['url'])
+                        pic_id_dict = cursor.fetchone()
+                        pic_id_list.append(pic_id_dict['id'])
+                        logger.info('Successfully insert picture information into database')
+                    except Exception:
+                        logger.error('Error when trying to insert picture information into database')
+                        raise
+                pic_id_list = str(pic_id_list)
+            else:
+                pic_id_list = None
+            try:
+                insert_sql = '''INSERT IGNORE INTO comment(catch_time, tid, commentid, replyid, qq,
+                                                            reply_target_qq, post_time, content, picnum, 
+                                                            piclist, likenum, replynum)
+                                VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s, 
+                                        %s, FROM_UNIXTIME(%s), %s, %s, %s, 
+                                        %s, %s);'''
+                cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'], 0, comment['qq'],
+                                            None, comment['post_time'], comment['content'], comment['picnum'],
+                                            pic_id_list, comment['likenum'], comment['replynum']))
+                conn.commit()
+                logger.info('Successfully insert comment data into database')
+            except Exception:
+                logger.error('Error when trying to insert comment data into database')
+                raise
+            if comment['reply'] is not None:
+                # TODO: reply info
+                try:
+                    insert_sql = '''INSERT IGNORE INTO comment(catch_time, tid, commentid, replyid, qq,
+                                                               reply_target_qq, post_time, content, picnum, 
+                                                               piclist, likenum, replynum)
+                                                    VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s, 
+                                                            %s, FROM_UNIXTIME(%s), %s, %s, %s, 
+                                                            %s, %s);'''
+                    cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'], 0, comment['qq'],
+                                                None, comment['post_time'], comment['content'], comment['picnum'],
+                                                pic_id_list, comment['likenum'], comment['replynum']))
+                    conn.commit()
+                    logger.info('Successfully insert reply data into database')
+                except Exception:
+                    logger.error('Error when trying to insert reply data into database')
+                    raise
+    else:
+        comment_list = None
     try:
         insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
                                                    content, picnum, videonum, sharelink, voice, 
@@ -206,8 +275,8 @@ def db_write_fine(parse):
                 cursor.execute(insert_sql, (media_type, parse['piclist'][i]['url'], parse['piclist'][i]['thumb']))
                 conn.commit()
                 cursor.execute('SELECT id FROM media WHERE url=%s;', parse['piclist'][i]['url'])
-                picidtuple = cursor.fetchall()
-                pic_id_list.append(picidtuple[0][0])
+                pic_id_dict = cursor.fetchone()
+                pic_id_list.append(pic_id_dict['id'])
                 logger.info('Successfully insert picture information into database')
             except Exception:
                 logger.error('Error when trying to insert picture information into database')
@@ -222,8 +291,8 @@ def db_write_fine(parse):
             cursor.execute(insert_sql, ('voice', parse['voice']['url'], parse['voice']['time']*1000))
             conn.commit()
             cursor.execute('SELECT id FROM media WHERE url=%s;', parse['voice']['url'])
-            voiceidtuple = cursor.fetchall()
-            voice_id_list.append(voiceidtuple[0][0])
+            voice_id_dict = cursor.fetchone()
+            voice_id_list.append(voice_id_dict['id'])
             logger.info('Successfully insert audio information into database')
         except Exception:
             logger.error('Error when trying to insert audio information into database')
@@ -239,8 +308,8 @@ def db_write_fine(parse):
                                         parse['video']['time']))
             conn.commit()
             cursor.execute('SELECT id FROM media WHERE url=%s;', parse['video']['url'])
-            videoidtuple = cursor.fetchall()
-            video_id_list.append(videoidtuple[0][0])
+            video_id_dict = cursor.fetchone()
+            video_id_list.append(video_id_dict['id'])
             logger.info('Successfully insert vidio information into database')
         except Exception:
             logger.error('Error when trying to insert video information into database')

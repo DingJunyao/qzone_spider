@@ -63,7 +63,7 @@ CREATE TABLE "rt" (
   "content" TEXT DEFAULT NULL,
   "picnum"  SMALLINT  DEFAULT NULL,
   "videonum"  SMALLINT DEFAULT NULL,
-  "pic" TEXT  DEFAULT NULL,
+  "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
   "forwardnum" BIGINT DEFAULT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE "comment"(
   "post_time" TIMESTAMP NOT NULL,
   "content" TEXT  DEFAULT NULL,
   "picnum"  SMALLINT  DEFAULT NULL,
-  "pic" TEXT  DEFAULT NULL,
+  "piclist" TEXT  DEFAULT NULL,
   "likenum" BIGINT DEFAULT NULL,
   "replynum"  BIGINT DEFAULT NULL,
   PRIMARY KEY ("catch_time","tid","commentid","replyid")
