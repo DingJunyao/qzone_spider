@@ -9,12 +9,12 @@ import logging
 import csv
 import os
 from qzone_spider import svar
+import re
 
 logger = logging.getLogger(__name__)
 
 
 def emotion_parse(content):
-    print(os.path.dirname(__file__))
     with open(os.path.dirname(__file__) + '/emotion.csv', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         emotion_list = list(reader)
@@ -26,7 +26,11 @@ def emotion_parse(content):
 def rough_json_parse(rough_json_list, ordernum, catch_time=0):
     rough_json = rough_json_list[ordernum]
     parse = {'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
-             'post_time': rough_json['created_time']}
+             'post_time': rough_json['created_time'], 'commentnum': rough_json['cmtnum']}
+    if svar.emotionParse:
+        parse['name'] = emotion_parse(rough_json['name'])
+    else:
+        parse['name'] = rough_json['name']
     if 'rt_tid' in rough_json:
         parse['rt_tid'] = rough_json['rt_tid']
     else:
@@ -52,6 +56,7 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         parse['voice']['time'] = rough_json['voice'][0]['time']
     else:
         parse['voice'] = None
+    # TODO：分享链接
     parse['sharelink'] = None
     if 'source_name' in rough_json:
         parse['device'] = rough_json['source_name']
@@ -89,7 +94,50 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         parse['photo_time'] = rough_json['story_info']['time']
     else:
         parse['photo_time'] = None
-    parse['commentnum'] = rough_json['cmtnum']
+    if rough_json['commentlist'] is None:
+        parse['comment'] = None
+    else:
+        parse['comment'] = []
+        for comment in rough_json['commentlist']:
+            one_comment = {'commentid': comment['tid'], 'qq': comment['uin'],
+                           'post_time': comment['create_time'], 'replynum': comment['reply_num']}
+            if svar.emotionParse:
+                one_comment['name'] = emotion_parse(comment['name'])
+            else:
+                one_comment['name'] = comment['name']
+            if 'content' in comment and comment['content'] != '':
+                if svar.emotionParse:
+                    one_comment['content'] = emotion_parse(comment['content'])
+                else:
+                    one_comment['content'] = comment['content']
+            else:
+                one_comment['content'] = None
+            if 'pictotal' in comment:
+                one_comment['picnum'] = comment['pictotal']
+                one_comment['pic'] = []
+                for pic in comment['pic']:
+                    one_pic = {'url': pic['b_url'], 'thumb': pic['s_url']}
+                    one_comment['pic'].append(one_pic)
+            else:
+                one_comment['picnum'] = 0
+                one_comment['pic'] = None
+            if 'list_3' in comment:
+                one_comment['reply'] = []
+                for reply in comment['list_3']:
+                    one_reply = {'replyid': reply['tid'], 'qq': reply['uin'], 'name': reply['name'],
+                                 'post_time': reply['create_time']}
+                    replyinfo = re.search(r'@{uin:([1-9][0-9]{4,}),nick:(.*),who:1,auto:1}(.*)', reply['content'])
+                    one_reply['reply_target_qq'] = replyinfo.group(1)
+                    if svar.emotionParse:
+                        one_reply['reply_target_name'] = emotion_parse(replyinfo.group(2))
+                        one_reply['content'] = emotion_parse(replyinfo.group(3))
+                    else:
+                        one_reply['reply_target_name'] = replyinfo.group(2)
+                        one_reply['content'] = replyinfo.group(3)
+                    one_comment['reply'].append(one_reply)
+            else:
+                one_comment['reply'] = None
+            parse['comment'].append(one_comment)
     logger.info('Successfully parse rough data of message which tid is %s' % parse['tid'])
     logger.debug('Returned JSON in Python format is %s' % parse)
     return parse
@@ -107,9 +155,13 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['rt_tid'] = None
     if 'content' in rough_json and rough_json['content'] != '':
         if svar.emotionParse:
-            parse['content'] = emotion_parse(rough_json['content'])
+            content = emotion_parse(msgdata['cell_summary']['summary'])
         else:
-            parse['content'] = rough_json['content']
+            content = msgdata['cell_summary']['summary']
+        if 'cell_permission' in msgdata:
+            if msgdata['cell_permission']['cell_permission_info'] == '仅自己可见':
+                content = content[0:content.rfind('[仅自己可见]')]
+        parse['content'] = content
     else:
         parse['content'] = None
     if 'pictotal' in rough_json and 'rt_tid' not in rough_json:
@@ -202,9 +254,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['commentnum'] = msgdata['cell_comment']['num']
     else:
         parse['commentnum'] = 0
+    # TODO：点赞、转发、评论
     logger.info('Successfully parse fine data of message which tid is %s' % parse['tid'])
     logger.debug('Returned JSON in Python format is %s' % parse)
     return parse
-
-if __name__ == '__main__':
-    print(emotion_parse('【询问[em]e400197[/em]出售[em]e401148[/em]表白】明天早上又要迎来新新的上学日啦～[em]e400116[/em]'))

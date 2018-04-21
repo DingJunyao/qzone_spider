@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(name)s: %(leveln
 logger = logging.getLogger(__name__)
 
 cookie, gtk, qzonetoken = get_login_info.account_login('***REMOVED***', '***REMOVED***',debug=True)
-
+'''
 r_catch_time, end, b = get_json.get_rough_json('***REMOVED***', 20, 20, 100, cookie, gtk, qzonetoken)
 fl = open('D:\\Code\\qzone_analyse\\example\\test_example\\rough.json', 'w', encoding='utf-8')
 fl.write(json.dumps(b, ensure_ascii=False, indent=2))
@@ -22,3 +22,10 @@ for i in range(len(b)):
     fl.close()
     time.sleep(10)
 
+cffb65128bfcda5a50050c00
+308673487
+'''
+f_catch_time, fine = get_json.get_fine_json('308673487', 'cffb65128bfcda5a50050c00', cookie, gtk, qzonetoken)
+fl = open('D:\\Code\\qzone_analyse\\example\\test_example\\lsf.json', 'w', encoding='utf-8')
+fl.write(json.dumps(fine, ensure_ascii=False, indent=2))
+fl.close()
