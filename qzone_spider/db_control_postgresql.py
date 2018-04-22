@@ -6,6 +6,7 @@
 __author__ = 'Ding Junyao'
 
 import psycopg2
+import psycopg2.extras
 from qzone_spider import svar
 import datetime
 import logging
@@ -70,9 +71,15 @@ CREATE TABLE "rt" (
   PRIMARY KEY ("tid")
 );
 
-CREATE TABLE "like_thumb"(
+CREATE TABLE "like_person"(
   "tid" TEXT NOT NULL,
   "commentid" BIGINT DEFAULT NULL,
+  "qq"  BIGINT NOT NULL,
+  PRIMARY KEY ("tid","commentid","qq")
+);
+
+CREATE TABLE "forward"(
+  "tid" TEXT NOT NULL,
   "qq"  BIGINT NOT NULL,
   PRIMARY KEY ("tid","commentid","qq")
 );
@@ -152,12 +159,68 @@ def db_init():
     conn.close()
 
 
-def db_write_rough(parse):
+def db_write_rough(parse, uid=1):
     conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
                             port=svar.dbPort)
     logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq'])) == 0:
+        try:
+            cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);', (uid, parse['qq'], parse['name']))
+            conn.commit()
+            logger.info('Successfully insert QQ information of %s in uid %s' % (parse['qq'], uid))
+        except Exception:
+            conn.rollback()
+            logger.error('Error when trying to insert QQ information of %s in uid %s' % (parse['qq'], uid))
+            raise
+    else:
+        if cursor.fetchone()['name'] != parse['name']:
+            try:
+                cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;', (parse['name'], uid, parse['qq']))
+                conn.commit()
+                logger.info('Successfully update QQ information of %s in uid %s' % (parse['qq'], uid))
+            except Exception:
+                conn.rollback()
+                logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
+                raise
+    if parse['piclist'] is not None:
+        pic_id_list = []
+        for one_pic in parse['piclist']:
+            if one_pic['isvideo'] == 1:
+                media_type = 'pic_video'
+            else:
+                media_type = 'pic'
+            try:
+                insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
+                conn.commit()
+                cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
+                pic_id_dict = cursor.fetchone()
+                pic_id_list.append(pic_id_dict['id'])
+                logger.info('Successfully insert picture information into database')
+            except Exception:
+                logger.error('Error when trying to insert picture information into database')
+                pass
+        pic_id_list = str(pic_id_list)
+    else:
+        pic_id_list = None
+
+    if parse['video'] is not None:
+        video_id_list = []
+        try:
+            insert_sql = 'INSERT IGNORE INTO media(type,url) VALUES (%s,%s);'
+            cursor.execute(insert_sql, ('video', parse['video']['url']))
+            conn.commit()
+            cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['video']['url']))
+            video_id_dict = cursor.fetchone()
+            video_id_list.append(video_id_dict['id'])
+            logger.info('Successfully insert video information into database')
+        except Exception:
+            logger.error('Error when trying to insert video information into database')
+        video_id_list = str(video_id_list)
+    else:
+        video_id_list = None
     if parse['voice'] is not None:
         voice_id_list = []
         try:
@@ -168,7 +231,7 @@ def db_write_rough(parse):
             voiceidtuple = cursor.fetchall()
             voice_id_list.append(voiceidtuple[0][0])
             logger.info('Successfully insert audio information into database')
-        except:
+        except Exception:
             conn.rollback()
             logger.error('Error when trying to insert audio information into database')
         voice_id_list = str(voice_id_list)
@@ -210,7 +273,7 @@ def db_write_fine(parse):
                             port=svar.dbPort)
     logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if parse['piclist'] is not None:
         pic_id_list = []
         for i in range(len(parse['piclist'])):

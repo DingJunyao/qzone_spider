@@ -172,22 +172,22 @@ def db_write_rough(parse, uid=1):
                 raise
     if parse['piclist'] is not None:
         pic_id_list = []
-        for i in range(len(parse['piclist'])):
-            if parse['piclist'][i]['isvideo'] == 1:
+        for one_pic in parse['piclist']:
+            if one_pic['isvideo'] == 1:
                 media_type = 'pic_video'
             else:
                 media_type = 'pic'
             try:
                 insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
-                cursor.execute(insert_sql, (media_type, parse['piclist'][i]['url'], parse['piclist'][i]['thumb']))
+                cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                 conn.commit()
-                cursor.execute('SELECT id FROM media WHERE url=%s;', parse['piclist'][i]['url'])
+                cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
                 pic_id_dict = cursor.fetchone()
                 pic_id_list.append(pic_id_dict['id'])
                 logger.info('Successfully insert picture information into database')
             except Exception:
                 logger.error('Error when trying to insert picture information into database')
-                pass
+                raise
         pic_id_list = str(pic_id_list)
     else:
         pic_id_list = None
@@ -361,22 +361,22 @@ def db_write_fine(parse, uid=1):
                 raise
     if parse['piclist'] is not None:
         pic_id_list = []
-        for i in range(len(parse['piclist'])):
-            if parse['piclist'][i]['isvideo'] == 1:
+        for one_pic in parse['piclist']:
+            if one_pic['isvideo'] == 1:
                 media_type = 'pic_video'
             else:
                 media_type = 'pic'
             try:
                 insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
-                cursor.execute(insert_sql, (media_type, parse['piclist'][i]['url'], parse['piclist'][i]['thumb']))
+                cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                 conn.commit()
-                cursor.execute('SELECT id FROM media WHERE url=%s;', parse['piclist'][i]['url'])
+                cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
                 pic_id_dict = cursor.fetchone()
                 pic_id_list.append(pic_id_dict['id'])
                 logger.info('Successfully insert picture information into database')
             except Exception:
                 logger.error('Error when trying to insert picture information into database')
-                pass
+                raise
         pic_id_list = str(pic_id_list)
     else:
         pic_id_list = None

@@ -31,10 +31,6 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         parse['name'] = emotion_parse(rough_json['name'])
     else:
         parse['name'] = rough_json['name']
-    if 'rt_tid' in rough_json:
-        parse['rt_tid'] = rough_json['rt_tid']
-    else:
-        parse['rt_tid'] = None
     if 'content' in rough_json and rough_json['content'] != '':
         if svar.emotionParse:
             parse['content'] = emotion_parse(rough_json['content'])
@@ -42,77 +38,168 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
             parse['content'] = rough_json['content']
     else:
         parse['content'] = None
-    if 'pictotal' in rough_json and 'rt_tid' not in rough_json:
-        parse['picnum'] = rough_json['pictotal']
-        parse['piclist'] = []
-        if 'pic' in rough_json and rough_json['pic']:
-            for one_pic in rough_json['pic']:
-                pic = {}
-                if 'is_video' in one_pic and one_pic['is_video'] == 1 and 'video_info' in one_pic:
-                    pic['url'] = one_pic['video_info']['url3']
-                    pic['thumb'] = one_pic['video_info']['url1']
-                    pic['isvideo'] = 1
-                else:
-                    pic['url'] = one_pic['url1']
-                    pic['thumb'] = one_pic['url3']
-                    pic['isvideo'] = 0
-                parse['piclist'].append(pic)
+    if 'rt_tid' in rough_json:
+        parse['rt'] = {'tid': rough_json['rt_tid'], 'qq': rough_json['rt_uin']}
+        if svar.emotionParse:
+            parse['rt']['name'] = emotion_parse(rough_json['rt_uinname'])
         else:
-            parse['piclist'] = None
-    else:
+            parse['rt']['name'] = rough_json['rt_uinname']
+        if 'rt_con' in rough_json and rough_json['rt_con']['content'] != '':
+            if svar.emotionParse:
+                parse['rt']['content'] = emotion_parse(rough_json['rt_con']['content'])
+            else:
+                parse['rt']['content'] = rough_json['rt_con']['content']
+        else:
+            parse['rt']['content'] = None
+        if 'rt_source_name' in rough_json and rough_json['rt_source_name'] != '':
+            parse['rt']['device'] = rough_json['rt_source_name']
+        else:
+            parse['rt']['device'] = None
+        if 'pictotal' in rough_json:
+            parse['rt']['picnum'] = rough_json['pictotal']
+            parse['rt']['piclist'] = []
+            if 'pic' in rough_json and rough_json['pic']:
+                for one_pic in rough_json['pic']:
+                    pic = {}
+                    if 'is_video' in one_pic and one_pic['is_video'] == 1 and 'video_info' in one_pic:
+                        pic['url'] = one_pic['video_info']['url3']
+                        pic['thumb'] = one_pic['video_info']['url1']
+                        pic['isvideo'] = 1
+                    else:
+                        pic['url'] = one_pic['url1']
+                        pic['thumb'] = one_pic['url3']
+                        pic['isvideo'] = 0
+                    parse['rt']['piclist'].append(pic)
+            else:
+                parse['rt']['piclist'] = None
+        else:
+            parse['rt']['picnum'] = 0
+            parse['rt']['piclist'] = None
+        if 'videototal' in rough_json:
+            parse['rt']['videonum'] = rough_json['videototal']
+            if 'video' in rough_json and rough_json['video']:
+                parse['rt']['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
+            else:
+                parse['rt']['videonum'] = 0
+                parse['rt']['video'] = None
+        else:
+            parse['rt']['videonum'] = 0
+            parse['rt']['video'] = None
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['location_user'] = rough_json['story_info']['lbs']['idname']
+            else:
+                parse['rt']['location_user'] = None
+        else:
+            parse['rt']['location_user'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['location_real'] = rough_json['story_info']['lbs']['name']
+            else:
+                parse['rt']['location_real'] = None
+        else:
+            parse['rt']['location_real'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['pos_x'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['longitude'] = rough_json['story_info']['lbs']['pos_x']
+            else:
+                parse['rt']['longitude'] = None
+        else:
+            parse['rt']['longitude'] = rough_json['lbs']['pos_x']
+        if rough_json['lbs']['pos_y'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['latitude'] = rough_json['story_info']['lbs']['pos_y']
+            else:
+                parse['rt']['latitude'] = None
+        else:
+            parse['rt']['latitude'] = rough_json['lbs']['pos_y']
+        if 'story_info' in rough_json:
+            parse['rt']['photo_time'] = rough_json['story_info']['time']
+        else:
+            parse['rt']['photo_time'] = None
         parse['picnum'] = 0
         parse['piclist'] = None
-    if 'videototal' in rough_json and 'rt_tid' not in rough_json:
-        parse['videonum'] = rough_json['videototal']
-        if 'video' in rough_json and rough_json['video']:
-            parse['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
+        parse['videonum'] = 0
+        parse['video'] = None
+        parse['voice'] = None
+        parse['location_user'] = None
+        parse['location_real'] = None
+        parse['longitude'] = None
+        parse['latitude'] = None
+        parse['photo_time'] = None
+    else:
+        parse['rt'] = None
+        if 'pictotal' in rough_json:
+            parse['picnum'] = rough_json['pictotal']
+            parse['piclist'] = []
+            if 'pic' in rough_json and rough_json['pic']:
+                for one_pic in rough_json['pic']:
+                    pic = {}
+                    if 'is_video' in one_pic and one_pic['is_video'] == 1 and 'video_info' in one_pic:
+                        pic['url'] = one_pic['video_info']['url3']
+                        pic['thumb'] = one_pic['video_info']['url1']
+                        pic['isvideo'] = 1
+                    else:
+                        pic['url'] = one_pic['url1']
+                        pic['thumb'] = one_pic['url3']
+                        pic['isvideo'] = 0
+                    parse['piclist'].append(pic)
+            else:
+                parse['piclist'] = None
+        else:
+            parse['picnum'] = 0
+            parse['piclist'] = None
+        if 'videototal' in rough_json:
+            parse['videonum'] = rough_json['videototal']
+            if 'video' in rough_json and rough_json['video']:
+                parse['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
+            else:
+                parse['videonum'] = 0
+                parse['video'] = None
         else:
             parse['videonum'] = 0
             parse['video'] = None
-    else:
-        parse['videonum'] = 0
-        parse['video'] = None
-    if 'voice' in rough_json:
-        parse['voice'] = {'url': rough_json['voice'][0]['url'], 'time': rough_json['voice'][0]['time']}
-    else:
-        parse['voice'] = None
+        if 'voice' in rough_json:
+            parse['voice'] = {'url': rough_json['voice'][0]['url'], 'time': rough_json['voice'][0]['time']}
+        else:
+            parse['voice'] = None
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['location_user'] = rough_json['story_info']['lbs']['idname']
+            else:
+                parse['location_user'] = None
+        else:
+            parse['location_user'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['location_real'] = rough_json['story_info']['lbs']['name']
+            else:
+                parse['location_real'] = None
+        else:
+            parse['location_real'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['pos_x'] == '':
+            if 'story_info' in rough_json:
+                parse['longitude'] = rough_json['story_info']['lbs']['pos_x']
+            else:
+                parse['longitude'] = None
+        else:
+            parse['longitude'] = rough_json['lbs']['pos_x']
+        if rough_json['lbs']['pos_y'] == '':
+            if 'story_info' in rough_json:
+                parse['latitude'] = rough_json['story_info']['lbs']['pos_y']
+            else:
+                parse['latitude'] = None
+        else:
+            parse['latitude'] = rough_json['lbs']['pos_y']
+        if 'story_info' in rough_json:
+            parse['photo_time'] = rough_json['story_info']['time']
+        else:
+            parse['photo_time'] = None
     parse['sharelink'] = None
     if 'source_name' in rough_json and rough_json['source_name'] != '':
         parse['device'] = rough_json['source_name']
     else:
         parse['device'] = None
-    if rough_json['lbs']['idname'] == '':
-        if 'story_info' in rough_json:
-            parse['location_user'] = rough_json['story_info']['lbs']['idname']
-        else:
-            parse['location_user'] = None
-    else:
-        parse['location_user'] = rough_json['lbs']['idname']
-    if rough_json['lbs']['idname'] == '':
-        if 'story_info' in rough_json:
-            parse['location_real'] = rough_json['story_info']['lbs']['name']
-        else:
-            parse['location_real'] = None
-    else:
-        parse['location_real'] = rough_json['lbs']['idname']
-    if rough_json['lbs']['pos_x'] == '':
-        if 'story_info' in rough_json:
-            parse['longitude'] = rough_json['story_info']['lbs']['pos_x']
-        else:
-            parse['longitude'] = None
-    else:
-        parse['longitude'] = rough_json['lbs']['pos_x']
-    if rough_json['lbs']['pos_y'] == '':
-        if 'story_info' in rough_json:
-            parse['latitude'] = rough_json['story_info']['lbs']['pos_y']
-        else:
-            parse['latitude'] = None
-    else:
-        parse['latitude'] = rough_json['lbs']['pos_y']
-    if 'story_info' in rough_json:
-        parse['photo_time'] = rough_json['story_info']['time']
-    else:
-        parse['photo_time'] = None
     if 'commentlist' in rough_json and rough_json['commentlist']:
         parse['comment'] = []
         for comment in rough_json['commentlist']:
@@ -173,10 +260,176 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['name'] = emotion_parse(rough_json['name'])
     else:
         parse['name'] = rough_json['name']
+    # TODO: rt
     if 'rt_tid' in rough_json:
-        parse['rt_tid'] = rough_json['rt_tid']
+        parse['rt'] = {'tid': rough_json['rt_tid'], 'post_time': msgdata['cell_original']['cell_comm']['time'],
+                       'qq': rough_json['rt_uin']}
+        if svar.emotionParse:
+            parse['rt']['name'] = emotion_parse(rough_json['rt_uinname'])
+        else:
+            parse['rt']['name'] = rough_json['rt_uinname']
+        if 'rt_con' in rough_json and rough_json['rt_con']['content'] != '':
+            if svar.emotionParse:
+                parse['rt']['content'] = emotion_parse(msgdata['cell_original']['cell_summary']['summary'])
+            else:
+                parse['rt']['content'] = msgdata['cell_original']['cell_summary']['summary']
+        else:
+            parse['rt']['content'] = None
+        if 'rt_source_name' in rough_json and rough_json['rt_source_name'] != '':
+            parse['rt']['device'] = rough_json['rt_source_name']
+        else:
+            parse['rt']['device'] = None
+        # TODO: pic,etc
+        if 'pictotal' in rough_json:
+            parse['rt']['picnum'] = rough_json['pictotal']
+        else:
+            parse['rt']['picnum'] = 0
+        if 'cell_pic' in msgdata['cell_original']:
+            parse['rt']['piclist'] = []
+            for one_pic in msgdata['cell_original']['cell_pic']['picdata']:
+                pic = {}
+                picurl = one_pic['photourl']['1']['url']
+                picurl = picurl[:picurl.find('&')]
+                picthumb = one_pic['photourl']['11']['url']
+                picthumb = picthumb[:picthumb.find('&')]
+                pic['url'] = picurl
+                pic['thumb'] = picthumb
+                pic['isvideo'] = one_pic['videoflag']
+                parse['rt']['piclist'].append(pic)
+        else:
+            parse['rt']['piclist'] = None
+        if 'videototal' in rough_json:
+            parse['rt']['videonum'] = rough_json['videototal']
+        else:
+            parse['rt']['videonum'] = 0
+        if 'videototal' in rough_json:
+            if rough_json['videototal'] != 0:
+                videothumb = msgdata['cell_original']['cell_video']['coverurl']['0']['url']
+                videothumb = videothumb[:videothumb.find('&')]
+                parse['rt']['video'] = {'url': msgdata['cell_original']['cell_video']['videourl'], 'thumb': videothumb,
+                                        'time': msgdata['cell_original']['cell_video']['videotime']}
+            else:
+                parse['rt']['video'] = None
+        else:
+            parse['video'] = None
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['location_user'] = rough_json['story_info']['lbs']['idname']
+            else:
+                parse['rt']['location_user'] = None
+        else:
+            parse['rt']['location_user'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['location_real'] = rough_json['story_info']['lbs']['name']
+            else:
+                parse['rt']['location_real'] = None
+        else:
+            parse['rt']['location_real'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['pos_x'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['longitude'] = rough_json['story_info']['lbs']['pos_x']
+            else:
+                parse['rt']['longitude'] = None
+        else:
+            parse['rt']['longitude'] = rough_json['lbs']['pos_x']
+        if rough_json['lbs']['pos_y'] == '':
+            if 'story_info' in rough_json:
+                parse['rt']['latitude'] = rough_json['story_info']['lbs']['pos_y']
+            else:
+                parse['rt']['latitude'] = None
+        else:
+            parse['rt']['latitude'] = rough_json['lbs']['pos_y']
+        if 'story_info' in rough_json:
+            parse['rt']['photo_time'] = rough_json['story_info']['time']
+        else:
+            parse['rt']['photo_time'] = None
+        parse['picnum'] = 0
+        parse['piclist'] = None
+        parse['videonum'] = 0
+        parse['video'] = None
+        parse['voice'] = None
+        parse['location_user'] = None
+        parse['location_real'] = None
+        parse['longitude'] = None
+        parse['latitude'] = None
+        parse['photo_time'] = None
     else:
-        parse['rt_tid'] = None
+        parse['rt'] = None
+        # TODO: pic,etc
+        if 'pictotal' in rough_json:
+            parse['picnum'] = rough_json['pictotal']
+        else:
+            parse['picnum'] = 0
+        if 'cell_pic' in msgdata:
+            parse['piclist'] = []
+            for one_pic in msgdata['cell_pic']['picdata']:
+                pic = {}
+                picurl = one_pic['photourl']['1']['url']
+                picurl = picurl[:picurl.find('&')]
+                picthumb = one_pic['photourl']['11']['url']
+                picthumb = picthumb[:picthumb.find('&')]
+                pic['url'] = picurl
+                pic['thumb'] = picthumb
+                pic['isvideo'] = one_pic['videoflag']
+                parse['piclist'].append(pic)
+        else:
+            parse['piclist'] = None
+        if 'videototal' in rough_json:
+            parse['videonum'] = rough_json['videototal']
+        else:
+            parse['videonum'] = 0
+        if 'videototal' in rough_json:
+            if rough_json['videototal'] != 0:
+                videothumb = msgdata['cell_video']['coverurl']['0']['url']
+                videothumb = videothumb[:videothumb.find('&')]
+                parse['video'] = {}
+                parse['video']['url'] = msgdata['cell_video']['videourl']
+                parse['video']['thumb'] = videothumb
+                parse['video']['time'] = msgdata['cell_video']['videotime']
+            else:
+                parse['video'] = None
+        else:
+            parse['video'] = None
+        if 'voice' in rough_json:
+            parse['voice'] = {}
+            parse['voice']['url'] = rough_json['voice'][0]['url']
+            parse['voice']['time'] = rough_json['voice'][0]['time']
+        else:
+            parse['voice'] = None
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['location_user'] = rough_json['story_info']['lbs']['idname']
+            else:
+                parse['location_user'] = None
+        else:
+            parse['location_user'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['idname'] == '':
+            if 'story_info' in rough_json:
+                parse['location_real'] = rough_json['story_info']['lbs']['name']
+            else:
+                parse['location_real'] = None
+        else:
+            parse['location_real'] = rough_json['lbs']['idname']
+        if rough_json['lbs']['pos_x'] == '':
+            if 'story_info' in rough_json:
+                parse['longitude'] = rough_json['story_info']['lbs']['pos_x']
+            else:
+                parse['longitude'] = None
+        else:
+            parse['longitude'] = rough_json['lbs']['pos_x']
+        if rough_json['lbs']['pos_y'] == '':
+            if 'story_info' in rough_json:
+                parse['latitude'] = rough_json['story_info']['lbs']['pos_y']
+            else:
+                parse['latitude'] = None
+        else:
+            parse['latitude'] = rough_json['lbs']['pos_y']
+        if 'story_info' in rough_json:
+            parse['photo_time'] = rough_json['story_info']['time']
+        else:
+            parse['photo_time'] = None
+    # TODO: END
     if 'content' in rough_json and rough_json['content'] != '':
         if svar.emotionParse:
             content = emotion_parse(msgdata['cell_summary']['summary'])
@@ -189,83 +442,11 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['content'] = content
     else:
         parse['content'] = None
-    if 'pictotal' in rough_json and 'rt_tid' not in rough_json:
-        parse['picnum'] = rough_json['pictotal']
-    else:
-        parse['picnum'] = 0
-    if 'cell_pic' in msgdata:
-        parse['piclist'] = []
-        for one_pic in msgdata['cell_pic']['picdata']:
-            pic = {}
-            picurl = one_pic['photourl']['1']['url']
-            picurl = picurl[:picurl.find('&')]
-            picthumb = one_pic['photourl']['11']['url']
-            picthumb = picthumb[:picthumb.find('&')]
-            pic['url'] = picurl
-            pic['thumb'] = picthumb
-            pic['isvideo'] = one_pic['videoflag']
-            parse['piclist'].append(pic)
-    else:
-        parse['piclist'] = None
-    if 'videototal' in rough_json and 'rt_tid' not in rough_json:
-        parse['videonum'] = rough_json['videototal']
-    else:
-        parse['videonum'] = 0
-    if 'videototal' in rough_json and 'rt_tid' not in rough_json:
-        if rough_json['videototal'] != 0:
-            videothumb = msgdata['cell_video']['coverurl']['0']['url']
-            videothumb = videothumb[:videothumb.find('&')]
-            parse['video'] = {}
-            parse['video']['url'] = msgdata['cell_video']['videourl']
-            parse['video']['thumb'] = videothumb
-            parse['video']['time'] = msgdata['cell_video']['videotime']
-        else:
-            parse['video'] = None
-    else:
-        parse['video'] = None
-    if 'voice' in rough_json:
-        parse['voice'] = {}
-        parse['voice']['url'] = rough_json['voice'][0]['url']
-        parse['voice']['time'] = rough_json['voice'][0]['time']
-    else:
-        parse['voice'] = None
     parse['sharelink'] = None
     if 'source_name' in rough_json and rough_json['source_name'] != '':
         parse['device'] = rough_json['source_name']
     else:
         parse['device'] = None
-    if rough_json['lbs']['idname'] == '':
-        if 'story_info' in rough_json:
-            parse['location_user'] = rough_json['story_info']['lbs']['idname']
-        else:
-            parse['location_user'] = None
-    else:
-        parse['location_user'] = rough_json['lbs']['idname']
-    if rough_json['lbs']['idname'] == '':
-        if 'story_info' in rough_json:
-            parse['location_real'] = rough_json['story_info']['lbs']['name']
-        else:
-            parse['location_real'] = None
-    else:
-        parse['location_real'] = rough_json['lbs']['idname']
-    if rough_json['lbs']['pos_x'] == '':
-        if 'story_info' in rough_json:
-            parse['longitude'] = rough_json['story_info']['lbs']['pos_x']
-        else:
-            parse['longitude'] = None
-    else:
-        parse['longitude'] = rough_json['lbs']['pos_x']
-    if rough_json['lbs']['pos_y'] == '':
-        if 'story_info' in rough_json:
-            parse['latitude'] = rough_json['story_info']['lbs']['pos_y']
-        else:
-            parse['latitude'] = None
-    else:
-        parse['latitude'] = rough_json['lbs']['pos_y']
-    if 'story_info' in rough_json:
-        parse['photo_time'] = rough_json['story_info']['time']
-    else:
-        parse['photo_time'] = None
     if 'cell_visitor' in msgdata:
         parse['viewnum'] = msgdata['cell_visitor']['view_count']
     else:
