@@ -402,7 +402,6 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['content'] = content
     else:
         parse['content'] = None
-    parse['sharelink'] = None
     if 'source_name' in rough_json and rough_json['source_name'] != '':
         parse['device'] = rough_json['source_name']
     else:

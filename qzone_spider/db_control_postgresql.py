@@ -41,13 +41,11 @@ CREATE TABLE "message" (
   "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "voice" TEXT  DEFAULT NULL,
-  "sharelink" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
   "location_user"  TEXT  DEFAULT NULL,
   "location_real"  TEXT  DEFAULT NULL,
   "longitude" DOUBLE PRECISION  DEFAULT NULL,
   "latitude" DOUBLE PRECISION  DEFAULT NULL,
-  "altitude" DOUBLE PRECISION  DEFAULT NULL,
   "photo_time"  TIMESTAMP DEFAULT NULL,
   "viewnum" BIGINT DEFAULT NULL,
   "likenum" BIGINT DEFAULT NULL,
@@ -69,7 +67,6 @@ CREATE TABLE "rt" (
   "location_real"  TEXT  DEFAULT NULL,
   "longitude" DOUBLE PRECISION  DEFAULT NULL,
   "latitude" DOUBLE PRECISION  DEFAULT NULL,
-  "altitude" DOUBLE PRECISION  DEFAULT NULL,
   "photo_time"  TIMESTAMP DEFAULT NULL,
   PRIMARY KEY ("tid")
 );

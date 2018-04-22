@@ -37,13 +37,11 @@ create_table_sql = (
         `piclist` TEXT  DEFAULT NULL,
         `video` TEXT  DEFAULT NULL,
         `voice` TEXT  DEFAULT NULL,
-        `sharelink` TEXT  DEFAULT NULL,
         `device`  VARCHAR(100)  DEFAULT NULL,
         `location_user`  VARCHAR(100)  DEFAULT NULL,
         `location_real`  VARCHAR(100)  DEFAULT NULL,
         `longitude` DOUBLE(11,7)  DEFAULT NULL,
         `latitude` DOUBLE(11,7)  DEFAULT NULL,
-        `altitude` DOUBLE(11,7)  DEFAULT NULL,
         `photo_time`  DATETIME DEFAULT NULL,
         `viewnum` INT(11) DEFAULT NULL,
         `likenum` INT(11) DEFAULT NULL,
@@ -64,7 +62,6 @@ create_table_sql = (
         `location_real`  VARCHAR(100)  DEFAULT NULL,
         `longitude` DOUBLE(11,7)  DEFAULT NULL,
         `latitude` DOUBLE(11,7)  DEFAULT NULL,
-        `altitude` DOUBLE(11,7)  DEFAULT NULL,
         `photo_time`  DATETIME DEFAULT NULL,
         PRIMARY KEY (`tid`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
@@ -173,6 +170,101 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
                 raise
+    if parse['rt'] is not None:
+        rt = parse['rt']
+        rt_tid = rt['tid']
+        if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, rt['qq'])) == 0:
+            try:
+                cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
+                               (uid, rt['qq'], rt['name']))
+                conn.commit()
+                logger.info('Successfully insert QQ information of %s in uid %s' % (rt['qq'], uid))
+            except Exception:
+                logger.error('Error when trying to insert QQ information of %s in uid %s' % (rt['qq'], uid))
+                raise
+        else:
+            if cursor.fetchone()['name'] != rt['name']:
+                try:
+                    cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
+                                   (rt['name'], uid, rt['qq']))
+                    conn.commit()
+                    logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
+                except Exception:
+                    logger.error('Error when trying to update QQ information of %s in uid %s'
+                                 % (rt['qq'], uid))
+                    raise
+        if rt['piclist'] is not None:
+            rt_pic_id_list = []
+            for one_pic in rt['piclist']:
+                if one_pic['isvideo'] == 1:
+                    media_type = 'pic_video'
+                else:
+                    media_type = 'pic'
+                try:
+                    insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                    cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
+                    conn.commit()
+                    cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
+                    rt_pic_id_dict = cursor.fetchone()
+                    rt_pic_id_list.append(rt_pic_id_dict['id'])
+                    logger.info('Successfully insert picture information into database')
+                except Exception:
+                    logger.error('Error when trying to insert picture information into database')
+                    raise
+            rt_pic_id_list = str(rt_pic_id_list)
+        else:
+            rt_pic_id_list = None
+        if rt['video'] is not None:
+            rt_video_id_list = []
+            try:
+                insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
+                cursor.execute(insert_sql, ('video', rt['video']['url'], rt['video']['thumb']))
+                conn.commit()
+                cursor.execute('SELECT id FROM media WHERE url=%s;', (rt['video']['url']))
+                rt_video_id_dict = cursor.fetchone()
+                rt_video_id_list.append(rt_video_id_dict['id'])
+                logger.info('Successfully insert video information into database')
+            except Exception:
+                logger.error('Error when trying to insert video information into database')
+                raise
+            rt_video_id_list = str(rt_video_id_list)
+        else:
+            rt_video_id_list = None
+        if cursor.execute('SELECT * FROM rt WHERE tid = %s;', (rt['tid'])) == 0:
+            try:
+                insert_sql = '''INSERT INTO rt(tid, qq, content, picnum, piclist, 
+                                               video, device, location_user, location_real, longitude, 
+                                               latitude, photo_time)
+                                    VALUES (%s, %s, %s, %s, %s, 
+                                            %s, %s, %s, %s, %s, 
+                                            %s, FROM_UNIXTIME(%s));'''
+                cursor.execute(insert_sql, (
+                    rt['tid'], rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list,
+                    rt_video_id_list, rt['device'], rt['location_user'], rt['location_real'], rt['longitude'],
+                    rt['latitude'], rt['photo_time']))
+                conn.commit()
+                logger.info('Successfully insert rt data into database')
+            except Exception:
+                logger.error('Error when trying to insert rt data into database')
+                raise
+        else:
+            try:
+                update_sql = '''UPDATE rt
+                                  SET qq = %s, content = %s, picnum = %s, piclist = %s, video = %s, 
+                                      device = %s, location_user = %s, location_real = %s, longitude = %s, 
+                                      latitude = %s, photo_time = %s
+                                  WHERE tid = %s;'''
+                cursor.execute(update_sql, (rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list, rt_video_id_list,
+                                            rt['device'], rt['location_user'], rt['location_real'], rt['longitude'],
+                                            rt['latitude'], rt['photo_time'],
+                                            rt['tid']))
+                conn.commit()
+                logger.info('Successfully update rt data into database')
+            except Exception:
+                logger.error('Error when trying to update rt data into database')
+                raise
+    else:
+        rt_tid = None
     if parse['piclist'] is not None:
         pic_id_list = []
         for one_pic in parse['piclist']:
@@ -181,7 +273,7 @@ def db_write_rough(parse, uid=1):
             else:
                 media_type = 'pic'
             try:
-                insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
                 cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                 conn.commit()
                 cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
@@ -197,8 +289,8 @@ def db_write_rough(parse, uid=1):
     if parse['video'] is not None:
         video_id_list = []
         try:
-            insert_sql = 'INSERT IGNORE INTO media(type,url) VALUES (%s,%s);'
-            cursor.execute(insert_sql, ('video', parse['video']['url']))
+            insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
+            cursor.execute(insert_sql, ('video', parse['video']['url'], parse['video']['thumb']))
             conn.commit()
             cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['video']['url']))
             video_id_dict = cursor.fetchone()
@@ -227,19 +319,18 @@ def db_write_rough(parse, uid=1):
 
     try:
         insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
-                                                   content, picnum, sharelink, piclist,
-                                                   video, voice, device, location_user, location_real, 
-                                                   longitude, latitude, photo_time, commentnum)
+                                                   content, picnum, piclist, video, voice, 
+                                                   device, location_user, location_real, longitude, latitude, 
+                                                   photo_time, commentnum)
                             VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s, 
                                     %s, %s, %s, %s, %s, 
                                     %s, %s, %s, %s, %s, 
-                                    %s, %s, FROM_UNIXTIME(%s), %s);'''
+                                    FROM_UNIXTIME(%s), %s);'''
         cursor.execute(insert_sql, (
-            parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], parse['rt_tid'],
-            parse['content'], parse['picnum'], parse['sharelink'], pic_id_list,
-            video_id_list, voice_id_list, parse['device'], parse['location_user'], parse['location_real'],
-            parse['longitude'], parse['latitude'], parse['photo_time'], parse['commentnum']
-        ))
+            parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], rt_tid,
+            parse['content'], parse['picnum'], pic_id_list, video_id_list, voice_id_list,
+            parse['device'], parse['location_user'], parse['location_real'], parse['longitude'], parse['latitude'],
+            parse['photo_time'], parse['commentnum']))
         conn.commit()
         logger.info('Successfully insert data into database')
     except Exception:
@@ -362,6 +453,99 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
                 raise
+    if parse['rt'] is not None:
+        rt = parse['rt']
+        rt_tid = rt['tid']
+        if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, rt['qq'])) == 0:
+            try:
+                cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
+                               (uid, rt['qq'], rt['name']))
+                conn.commit()
+                logger.info('Successfully insert QQ information of %s in uid %s' % (rt['qq'], uid))
+            except Exception:
+                logger.error('Error when trying to insert QQ information of %s in uid %s' % (rt['qq'], uid))
+                raise
+        else:
+            if cursor.fetchone()['name'] != rt['name']:
+                try:
+                    cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
+                                   (rt['name'], uid, rt['qq']))
+                    conn.commit()
+                    logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
+                except Exception:
+                    logger.error('Error when trying to update QQ information of %s in uid %s'
+                                 % (rt['qq'], uid))
+                    raise
+        if rt['piclist'] is not None:
+            rt_pic_id_list = []
+            for one_pic in rt['piclist']:
+                if one_pic['isvideo'] == 1:
+                    media_type = 'pic_video'
+                else:
+                    media_type = 'pic'
+                try:
+                    insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                    cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
+                    conn.commit()
+                    cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
+                    rt_pic_id_dict = cursor.fetchone()
+                    rt_pic_id_list.append(rt_pic_id_dict['id'])
+                    logger.info('Successfully insert picture information into database')
+                except Exception:
+                    logger.error('Error when trying to insert picture information into database')
+                    raise
+            rt_pic_id_list = str(rt_pic_id_list)
+        else:
+            rt_pic_id_list = None
+        if rt['video'] is not None:
+            rt_video_id_list = []
+            try:
+                insert_sql = 'INSERT IGNORE INTO media(type, url, thumb, time) VALUES (%s, %s, %s, %s);'
+                cursor.execute(insert_sql, ('video', rt['video']['url'], rt['video']['thumb'], rt['video']['time']))
+                conn.commit()
+                cursor.execute('SELECT id FROM media WHERE url=%s;', (rt['video']['url']))
+                rt_video_id_dict = cursor.fetchone()
+                rt_video_id_list.append(rt_video_id_dict['id'])
+                logger.info('Successfully insert video information into database')
+            except Exception:
+                logger.error('Error when trying to insert video information into database')
+                raise
+            rt_video_id_list = str(rt_video_id_list)
+        else:
+            rt_video_id_list = None
+        if cursor.execute('SELECT * FROM rt WHERE tid = %s;', (rt['tid'])) == 0:
+            try:
+                insert_sql = '''INSERT INTO rt(tid, qq, post_time, content, picnum, 
+                                               piclist, video, device, location_user, 
+                                               location_real, longitude, latitude, photo_time)
+                                    VALUES (%s, %s, FROM_UNIXTIME(%s), %s, %s,
+                                            %s, %s, %s, %s, %s, 
+                                            %s, %s, FROM_UNIXTIME(%s));'''
+                cursor.execute(insert_sql, (rt['tid'], rt['qq'], rt['post_time'], rt['content'], rt['picnum'],
+                                            rt_pic_id_list, rt_video_id_list, rt['device'], rt['location_user'],
+                                            rt['location_real'], rt['longitude'], rt['latitude'], rt['photo_time']))
+                conn.commit()
+                logger.info('Successfully insert rt data into database')
+            except Exception:
+                logger.error('Error when trying to insert rt data into database')
+                raise
+        else:
+            try:
+                update_sql = '''UPDATE rt
+                                  SET qq = %s, post_time = FROM_UNIXTIME(%s), content = %s, picnum = %s, piclist = %s, 
+                                      video = %s, device = %s, location_user = %s, location_real = %s, 
+                                      longitude = %s, latitude = %s, photo_time = %s
+                                  WHERE tid = %s;'''
+                cursor.execute(update_sql, (rt['qq'], rt['post_time'], rt['content'], rt['picnum'],rt_pic_id_list,
+                                            rt_video_id_list, rt['device'], rt['location_user'], rt['location_real'],
+                                            rt['longitude'], rt['latitude'], rt['photo_time'], rt['tid']))
+                conn.commit()
+                logger.info('Successfully update rt data into database')
+            except Exception:
+                logger.error('Error when trying to update rt data into database')
+                raise
+    else:
+        rt_tid = None
     if parse['piclist'] is not None:
         pic_id_list = []
         for one_pic in parse['piclist']:
@@ -418,20 +602,17 @@ def db_write_fine(parse, uid=1):
     try:
         insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
                                                    content, picnum, piclist, video, voice, 
-                                                   sharelink, device, location_user, location_real, longitude, 
-                                                   latitude, altitude, photo_time, viewnum, likenum, 
-                                                   forwardnum, commentnum)
+                                                   device, location_user, location_real, longitude, latitude, 
+                                                   photo_time, viewnum, likenum, forwardnum, commentnum)
                             VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s, 
                                     %s, %s, %s, %s, %s, 
                                     %s, %s, %s, %s, %s, 
-                                    %s, %s, FROM_UNIXTIME(%s), %s, %s, 
-                                    %s, %s);'''
+                                    FROM_UNIXTIME(%s), %s, %s, %s, %s);'''
         cursor.execute(insert_sql, (
-            parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], parse['rt_tid'],
+            parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], rt_tid,
             parse['content'], parse['picnum'], pic_id_list, video_id_list, voice_id_list,
-            parse['sharelink'], parse['device'], parse['location_user'], parse['location_real'], parse['longitude'],
-            parse['latitude'], None, parse['photo_time'], parse['viewnum'], parse['likenum'],
-            parse['forwardnum'], parse['commentnum']))
+            parse['device'], parse['location_user'], parse['location_real'], parse['longitude'], parse['latitude'],
+            parse['photo_time'], parse['viewnum'], parse['likenum'], parse['forwardnum'], parse['commentnum']))
         conn.commit()
         logger.info('Successfully insert data into database')
     except Warning:
