@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 create_table_sql = (
-    '''CREATE TABLE `user` (
+    '''CREATE TABLE `user_loginfo` (
         `uid` INT(11) NOT NULL AUTO_INCREMENT,
         `email` VARCHAR(127)  NOT NULL,
         `mobile`  INT(11) NOT NULL,
@@ -34,11 +34,10 @@ create_table_sql = (
         `rt_tid`  VARCHAR(26) DEFAULT NULL,
         `content` TEXT  DEFAULT NULL,
         `picnum`  INT(3)  DEFAULT NULL,
-        `videonum`  INT(3) DEFAULT NULL,
-        `sharelink` TEXT  DEFAULT NULL,
         `piclist` TEXT  DEFAULT NULL,
         `video` TEXT  DEFAULT NULL,
         `voice` TEXT  DEFAULT NULL,
+        `sharelink` TEXT  DEFAULT NULL,
         `device`  VARCHAR(100)  DEFAULT NULL,
         `location_user`  VARCHAR(100)  DEFAULT NULL,
         `location_real`  VARCHAR(100)  DEFAULT NULL,
@@ -55,14 +54,18 @@ create_table_sql = (
     '''CREATE TABLE `rt` (
         `tid` VARCHAR(26) NOT NULL,
         `qq`  BIGINT(16) NOT NULL,
-        `post_time`  DATETIME NOT NULL,
+        `post_time`  DATETIME DEFAULT NULL,
         `content` TEXT DEFAULT NULL,
         `picnum`  INT(3)  DEFAULT NULL,
-        `videonum`  INT(3) DEFAULT NULL,
         `piclist` TEXT  DEFAULT NULL,
         `video` TEXT  DEFAULT NULL,
         `device`  VARCHAR(100)  DEFAULT NULL,
-        `forwardnum` INT(11) DEFAULT NULL,
+        `location_user`  VARCHAR(100)  DEFAULT NULL,
+        `location_real`  VARCHAR(100)  DEFAULT NULL,
+        `longitude` DOUBLE(11,7)  DEFAULT NULL,
+        `latitude` DOUBLE(11,7)  DEFAULT NULL,
+        `altitude` DOUBLE(11,7)  DEFAULT NULL,
+        `photo_time`  DATETIME DEFAULT NULL,
         PRIMARY KEY (`tid`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
     '''CREATE TABLE `like_person`(
@@ -76,7 +79,7 @@ create_table_sql = (
         `qq`  BIGINT(16) NOT NULL,
         PRIMARY KEY (`tid`,`qq`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
-    '''CREATE TABLE `comment`(
+    '''CREATE TABLE `comment_reply`(
         `catch_time` DATETIME NOT NULL,
         `tid` VARCHAR(26) NOT NULL,
         `commentid` INT(11) NOT NULL,
@@ -114,7 +117,7 @@ create_table_sql = (
         `memo`  TEXT	NOT NULL,
         PRIMARY KEY (`id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
-    '''CREATE TABLE `comment_memo`(
+    '''CREATE TABLE `comment_reply_memo`(
         `id`	INT(11)	NOT NULL AUTO_INCREMENT,
         `uid`	INT(11)	NOT NULL,
         `tid` VARCHAR(26) NOT NULL,
@@ -191,7 +194,6 @@ def db_write_rough(parse, uid=1):
         pic_id_list = str(pic_id_list)
     else:
         pic_id_list = None
-
     if parse['video'] is not None:
         video_id_list = []
         try:
@@ -222,9 +224,10 @@ def db_write_rough(parse, uid=1):
         voice_id_list = str(voice_id_list)
     else:
         voice_id_list = None
+
     try:
         insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
-                                                   content, picnum, videonum, sharelink, piclist,
+                                                   content, picnum, sharelink, piclist,
                                                    video, voice, device, location_user, location_real, 
                                                    longitude, latitude, photo_time, commentnum)
                             VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s, 
@@ -233,7 +236,7 @@ def db_write_rough(parse, uid=1):
                                     %s, %s, FROM_UNIXTIME(%s), %s);'''
         cursor.execute(insert_sql, (
             parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], parse['rt_tid'],
-            parse['content'], parse['picnum'], parse['videonum'], parse['sharelink'], pic_id_list,
+            parse['content'], parse['picnum'], parse['sharelink'], pic_id_list,
             video_id_list, voice_id_list, parse['device'], parse['location_user'], parse['location_real'],
             parse['longitude'], parse['latitude'], parse['photo_time'], parse['commentnum']
         ))
@@ -282,7 +285,7 @@ def db_write_rough(parse, uid=1):
             else:
                 pic_id_list = None
             try:
-                insert_sql = '''INSERT IGNORE INTO comment(catch_time, tid, commentid, replyid, qq,
+                insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid, replyid, qq,
                                                              post_time, content, picnum, piclist, 
                                                              replynum)
                                 VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s, 
@@ -320,7 +323,7 @@ def db_write_rough(parse, uid=1):
                                              (reply['qq'], uid))
                                 raise
                     try:
-                        insert_sql = '''INSERT IGNORE INTO comment(catch_time, tid, commentid,
+                        insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
                                                         VALUES (FROM_UNIXTIME(%s), %s, %s,
                                                                 %s, %s, %s, FROM_UNIXTIME(%s), %s);'''
@@ -414,22 +417,21 @@ def db_write_fine(parse, uid=1):
         video_id_list = None
     try:
         insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
-                                                   content, picnum, videonum, sharelink, piclist, 
-                                                   video, voice, device, location_user, location_real, 
-                                                   longitude, latitude, altitude, photo_time, viewnum, 
-                                                   likenum, forwardnum, commentnum)
+                                                   content, picnum, piclist, video, voice, 
+                                                   sharelink, device, location_user, location_real, longitude, 
+                                                   latitude, altitude, photo_time, viewnum, likenum, 
+                                                   forwardnum, commentnum)
                             VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s, 
                                     %s, %s, %s, %s, %s, 
                                     %s, %s, %s, %s, %s, 
-                                    %s, %s, %s, FROM_UNIXTIME(%s), %s, 
-                                    %s, %s, %s);'''
+                                    %s, %s, FROM_UNIXTIME(%s), %s, %s, 
+                                    %s, %s);'''
         cursor.execute(insert_sql, (
             parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], parse['rt_tid'],
-            parse['content'], parse['picnum'], parse['videonum'], parse['sharelink'], pic_id_list,
-            video_id_list, voice_id_list, parse['device'], parse['location_user'], parse['location_real'],
-            parse['longitude'], parse['latitude'], None, parse['photo_time'], parse['viewnum'],
-            parse['likenum'], parse['forwardnum'], parse['commentnum']
-        ))
+            parse['content'], parse['picnum'], pic_id_list, video_id_list, voice_id_list,
+            parse['sharelink'], parse['device'], parse['location_user'], parse['location_real'], parse['longitude'],
+            parse['latitude'], None, parse['photo_time'], parse['viewnum'], parse['likenum'],
+            parse['forwardnum'], parse['commentnum']))
         conn.commit()
         logger.info('Successfully insert data into database')
     except Warning:
@@ -539,7 +541,7 @@ def db_write_fine(parse, uid=1):
             else:
                 pic_id_list = None
             try:
-                insert_sql = '''INSERT IGNORE INTO comment(catch_time, tid, commentid, replyid, qq,
+                insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid, replyid, qq,
                                                              post_time, content, picnum, piclist, 
                                                              likenum, replynum)
                                 VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s, 
@@ -610,7 +612,7 @@ def db_write_fine(parse, uid=1):
                                              (reply['qq'], uid))
                                 raise
                     try:
-                        insert_sql = '''INSERT IGNORE INTO comment(catch_time, tid, commentid,
+                        insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
                                                         VALUES (FROM_UNIXTIME(%s), %s, %s,
                                                                 %s, %s, %s, FROM_UNIXTIME(%s), %s);'''

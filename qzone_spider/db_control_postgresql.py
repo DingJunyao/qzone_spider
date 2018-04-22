@@ -14,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 create_table_sql = '''
-CREATE TABLE "user" (
+CREATE TABLE "user_loginfo" (
   "uid" SERIAL  NOT NULL,
   "email" TEXT  NOT NULL,
   "mobile"  BIGINT  NOT NULL,
@@ -38,11 +38,10 @@ CREATE TABLE "message" (
   "rt_tid"  TEXT DEFAULT NULL,
   "content" TEXT  DEFAULT NULL,
   "picnum"  SMALLINT  DEFAULT NULL,
-  "videonum"  SMALLINT DEFAULT NULL,
-  "sharelink" TEXT  DEFAULT NULL,
   "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "voice" TEXT  DEFAULT NULL,
+  "sharelink" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
   "location_user"  TEXT  DEFAULT NULL,
   "location_real"  TEXT  DEFAULT NULL,
@@ -60,14 +59,18 @@ CREATE TABLE "message" (
 CREATE TABLE "rt" (
   "tid" TEXT NOT NULL,
   "qq"  BIGINT NOT NULL,
-  "post_time"  TIMESTAMP NOT NULL,
+  "post_time"  TIMESTAMP DEFAULT NULL,
   "content" TEXT DEFAULT NULL,
   "picnum"  SMALLINT  DEFAULT NULL,
-  "videonum"  SMALLINT DEFAULT NULL,
   "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
-  "forwardnum" BIGINT DEFAULT NULL,
+  "location_user"  TEXT  DEFAULT NULL,
+  "location_real"  TEXT  DEFAULT NULL,
+  "longitude" DOUBLE PRECISION  DEFAULT NULL,
+  "latitude" DOUBLE PRECISION  DEFAULT NULL,
+  "altitude" DOUBLE PRECISION  DEFAULT NULL,
+  "photo_time"  TIMESTAMP DEFAULT NULL,
   PRIMARY KEY ("tid")
 );
 
@@ -84,7 +87,7 @@ CREATE TABLE "forward"(
   PRIMARY KEY ("tid","commentid","qq")
 );
 
-CREATE TABLE "comment"(
+CREATE TABLE "comment_reply"(
   "catch_time"  TIMESTAMP NOT NULL,
   "tid" TEXT  NOT NULL,
   "commentid" BIGINT  NOT NULL,
@@ -125,7 +128,7 @@ CREATE TABLE "message_memo" (
   PRIMARY KEY ("id")
 );
 
-CREATE TABLE "comment_memo"(
+CREATE TABLE "comment_reply_memo"(
   "id"  SERIAL  NOT NULL,
   "uid"  BIGINT  NOT NULL,
   "tid" TEXT NOT NULL,

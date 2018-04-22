@@ -75,15 +75,9 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         else:
             parse['rt']['picnum'] = 0
             parse['rt']['piclist'] = None
-        if 'videototal' in rough_json:
-            parse['rt']['videonum'] = rough_json['videototal']
-            if 'video' in rough_json and rough_json['video']:
-                parse['rt']['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
-            else:
-                parse['rt']['videonum'] = 0
-                parse['rt']['video'] = None
+        if 'videototal' in rough_json and 'video' in rough_json and rough_json['video']:
+            parse['rt']['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
         else:
-            parse['rt']['videonum'] = 0
             parse['rt']['video'] = None
         if rough_json['lbs']['idname'] == '':
             if 'story_info' in rough_json:
@@ -119,7 +113,6 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
             parse['rt']['photo_time'] = None
         parse['picnum'] = 0
         parse['piclist'] = None
-        parse['videonum'] = 0
         parse['video'] = None
         parse['voice'] = None
         parse['location_user'] = None
@@ -149,15 +142,9 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         else:
             parse['picnum'] = 0
             parse['piclist'] = None
-        if 'videototal' in rough_json:
-            parse['videonum'] = rough_json['videototal']
-            if 'video' in rough_json and rough_json['video']:
-                parse['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
-            else:
-                parse['videonum'] = 0
-                parse['video'] = None
+        if 'videototal' in rough_json and 'video' in rough_json and rough_json['video']:
+            parse['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
         else:
-            parse['videonum'] = 0
             parse['video'] = None
         if 'voice' in rough_json:
             parse['voice'] = {'url': rough_json['voice'][0]['url'], 'time': rough_json['voice'][0]['time']}
@@ -251,7 +238,6 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
 
 
 def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
-    # catch_time是细JSON的抓取时间戳
     rough_json = rough_json_list[ordernum]
     msgdata = fine_json['data']
     parse = {'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
@@ -296,20 +282,13 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
                 parse['rt']['piclist'].append(pic)
         else:
             parse['rt']['piclist'] = None
-        if 'videototal' in rough_json:
-            parse['rt']['videonum'] = rough_json['videototal']
+        if 'videototal' in rough_json and rough_json['videototal'] != 0:
+            videothumb = msgdata['cell_original']['cell_video']['coverurl']['0']['url']
+            videothumb = videothumb[:videothumb.find('&')]
+            parse['rt']['video'] = {'url': msgdata['cell_original']['cell_video']['videourl'], 'thumb': videothumb,
+                                    'time': msgdata['cell_original']['cell_video']['videotime']}
         else:
-            parse['rt']['videonum'] = 0
-        if 'videototal' in rough_json:
-            if rough_json['videototal'] != 0:
-                videothumb = msgdata['cell_original']['cell_video']['coverurl']['0']['url']
-                videothumb = videothumb[:videothumb.find('&')]
-                parse['rt']['video'] = {'url': msgdata['cell_original']['cell_video']['videourl'], 'thumb': videothumb,
-                                        'time': msgdata['cell_original']['cell_video']['videotime']}
-            else:
-                parse['rt']['video'] = None
-        else:
-            parse['video'] = None
+            parse['rt']['video'] = None
         if rough_json['lbs']['idname'] == '':
             if 'story_info' in rough_json:
                 parse['rt']['location_user'] = rough_json['story_info']['lbs']['idname']
@@ -344,7 +323,6 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
             parse['rt']['photo_time'] = None
         parse['picnum'] = 0
         parse['piclist'] = None
-        parse['videonum'] = 0
         parse['video'] = None
         parse['voice'] = None
         parse['location_user'] = None
@@ -361,37 +339,23 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         if 'cell_pic' in msgdata:
             parse['piclist'] = []
             for one_pic in msgdata['cell_pic']['picdata']:
-                pic = {}
                 picurl = one_pic['photourl']['1']['url']
                 picurl = picurl[:picurl.find('&')]
                 picthumb = one_pic['photourl']['11']['url']
                 picthumb = picthumb[:picthumb.find('&')]
-                pic['url'] = picurl
-                pic['thumb'] = picthumb
-                pic['isvideo'] = one_pic['videoflag']
+                pic = {'url': picurl, 'thumb': picthumb, 'isvideo': one_pic['videoflag']}
                 parse['piclist'].append(pic)
         else:
             parse['piclist'] = None
-        if 'videototal' in rough_json:
-            parse['videonum'] = rough_json['videototal']
-        else:
-            parse['videonum'] = 0
-        if 'videototal' in rough_json:
-            if rough_json['videototal'] != 0:
-                videothumb = msgdata['cell_video']['coverurl']['0']['url']
-                videothumb = videothumb[:videothumb.find('&')]
-                parse['video'] = {}
-                parse['video']['url'] = msgdata['cell_video']['videourl']
-                parse['video']['thumb'] = videothumb
-                parse['video']['time'] = msgdata['cell_video']['videotime']
-            else:
-                parse['video'] = None
+        if 'videototal' in rough_json and rough_json['videototal'] != 0:
+            videothumb = msgdata['cell_video']['coverurl']['0']['url']
+            videothumb = videothumb[:videothumb.find('&')]
+            parse['video'] = {'url': msgdata['cell_video']['videourl'], 'thumb': videothumb,
+                              'time': msgdata['cell_video']['videotime']}
         else:
             parse['video'] = None
         if 'voice' in rough_json:
-            parse['voice'] = {}
-            parse['voice']['url'] = rough_json['voice'][0]['url']
-            parse['voice']['time'] = rough_json['voice'][0]['time']
+            parse['voice'] = {'url': rough_json['voice'][0]['url'], 'time': rough_json['voice'][0]['time']}
         else:
             parse['voice'] = None
         if rough_json['lbs']['idname'] == '':

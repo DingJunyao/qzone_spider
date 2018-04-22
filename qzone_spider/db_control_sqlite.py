@@ -20,11 +20,10 @@ create_table_sql = (
   "rt_tid"  TEXT DEFAULT NULL,
   "content" TEXT  DEFAULT NULL,
   "picnum"  INTEGER  DEFAULT NULL,
-  "videonum"  INTEGER DEFAULT NULL,
-  "sharelink" TEXT  DEFAULT NULL,
   "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "voice" TEXT  DEFAULT NULL,
+  "sharelink" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
   "location_user"  TEXT  DEFAULT NULL,
   "location_real"  TEXT  DEFAULT NULL,
@@ -41,23 +40,32 @@ create_table_sql = (
     '''CREATE TABLE "rt" (
   "tid" TEXT NOT NULL,
   "qq"  INTEGER NOT NULL,
-  "post_time"  INTEGER NOT NULL,
+  "post_time"  INTEGER DEFAULT NULL,
   "content" TEXT DEFAULT NULL,
   "picnum"  INTEGER  DEFAULT NULL,
-  "videonum"  INTEGER DEFAULT NULL,
   "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
-  "forwardnum" INTEGER DEFAULT NULL,
+  "location_user"  TEXT  DEFAULT NULL,
+  "location_real"  TEXT  DEFAULT NULL,
+  "longitude" REAL  DEFAULT NULL,
+  "latitude" REAL  DEFAULT NULL,
+  "altitude" REAL  DEFAULT NULL,
+  "photo_time"  INTEGER DEFAULT NULL,
   PRIMARY KEY ("tid")
 );''',
-    '''CREATE TABLE "like_thumb"(
+    '''CREATE TABLE "like_person"(
   "tid" TEXT NOT NULL,
   "commentid" INTEGER DEFAULT NULL,
   "qq"  INTEGER NOT NULL,
   PRIMARY KEY ("tid","commentid","qq")
 );''',
-    '''CREATE TABLE "comment"(
+    '''CREATE TABLE "forward"(
+  "tid" TEXT NOT NULL,
+  "qq"  INTEGER NOT NULL,
+  PRIMARY KEY ("tid","qq")
+);''',
+    '''CREATE TABLE "comment_reply"(
   "catch_time" INTEGER NOT NULL,
   "tid" TEXT NOT NULL,
   "commentid" INTEGER NOT NULL,
@@ -90,7 +98,7 @@ create_table_sql = (
   "tid" TEXT NOT NULL,
   "memo"  TEXT	NOT NULL
 );''',
-    '''CREATE TABLE "comment_memo"(
+    '''CREATE TABLE "comment_reply_memo"(
   "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   "tid" TEXT NOT NULL,
   "commentid" INTEGER NOT NULL,
