@@ -44,16 +44,36 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         parse['content'] = None
     if 'pictotal' in rough_json and 'rt_tid' not in rough_json:
         parse['picnum'] = rough_json['pictotal']
+        parse['piclist'] = []
+        if 'pic' in rough_json and rough_json['pic']:
+            for one_pic in rough_json['pic']:
+                pic = {}
+                if 'is_video' in one_pic and one_pic['is_video'] == 1 and 'video_info' in one_pic:
+                    pic['url'] = one_pic['video_info']['url3']
+                    pic['thumb'] = one_pic['video_info']['url1']
+                    pic['isvideo'] = 1
+                else:
+                    pic['url'] = one_pic['url1']
+                    pic['thumb'] = one_pic['url3']
+                    pic['isvideo'] = 0
+                parse['piclist'].append(pic)
+        else:
+            parse['piclist'] = None
     else:
         parse['picnum'] = 0
+        parse['piclist'] = None
     if 'videototal' in rough_json and 'rt_tid' not in rough_json:
         parse['videonum'] = rough_json['videototal']
+        if 'video' in rough_json and rough_json['video']:
+            parse['video'] = {'url': rough_json['video'][0]['url3'], 'thumb': rough_json['video'][0]['url1']}
+        else:
+            parse['videonum'] = 0
+            parse['video'] = None
     else:
         parse['videonum'] = 0
+        parse['video'] = None
     if 'voice' in rough_json:
-        parse['voice'] = {}
-        parse['voice']['url'] = rough_json['voice'][0]['url']
-        parse['voice']['time'] = rough_json['voice'][0]['time']
+        parse['voice'] = {'url': rough_json['voice'][0]['url'], 'time': rough_json['voice'][0]['time']}
     else:
         parse['voice'] = None
     parse['sharelink'] = None
@@ -121,14 +141,15 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
             if 'list_3' in comment:
                 one_comment['reply'] = []
                 for reply in comment['list_3']:
-                    one_reply = {'replyid': reply['tid'], 'qq': reply['uin'], 'name': reply['name'],
-                                 'post_time': reply['create_time']}
+                    one_reply = {'replyid': reply['tid'], 'qq': reply['uin'], 'post_time': reply['create_time']}
                     replyinfo = re.search(r'@{uin:([1-9][0-9]{4,}),nick:(.*),who:1,auto:1}(.*)', reply['content'])
                     one_reply['reply_target_qq'] = replyinfo.group(1)
                     if svar.emotionParse:
+                        one_reply['name'] = emotion_parse(reply['name'])
                         one_reply['reply_target_name'] = emotion_parse(replyinfo.group(2))
                         one_reply['content'] = emotion_parse(replyinfo.group(3))
                     else:
+                        one_reply['name'] = reply['name']
                         one_reply['reply_target_name'] = replyinfo.group(2)
                         one_reply['content'] = replyinfo.group(3)
                     one_comment['reply'].append(one_reply)
@@ -174,15 +195,15 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['picnum'] = 0
     if 'cell_pic' in msgdata:
         parse['piclist'] = []
-        for i in range(len(msgdata['cell_pic']['picdata'])):
+        for one_pic in msgdata['cell_pic']['picdata']:
             pic = {}
-            picurl = msgdata['cell_pic']['picdata'][i]['photourl']['1']['url']
+            picurl = one_pic['photourl']['1']['url']
             picurl = picurl[:picurl.find('&')]
-            picthumb = msgdata['cell_pic']['picdata'][i]['photourl']['11']['url']
+            picthumb = one_pic['photourl']['11']['url']
             picthumb = picthumb[:picthumb.find('&')]
             pic['url'] = picurl
             pic['thumb'] = picthumb
-            pic['isvideo'] = msgdata['cell_pic']['picdata'][i]['videoflag']
+            pic['isvideo'] = one_pic['videoflag']
             parse['piclist'].append(pic)
     else:
         parse['piclist'] = None
@@ -264,18 +285,19 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
             parse['like'] = None
     else:
         parse['likenum'] = 0
+        parse['like'] = None
     parse['forwardnum'] = msgdata['cell_forward_list']['num']
     if msgdata['cell_forward_list']['fwdmans']:
-        forward = []
+        parse['forward'] = []
         for forwardman in msgdata['cell_forward_list']['fwdmans']:
             one_forward = {'qq': forwardman['uin']}
             if svar.emotionParse:
                 one_forward['name'] = emotion_parse(forwardman['nickname'])
             else:
                 one_forward['name'] = forwardman['nickname']
-            forward.append(one_forward)
+            parse['forward'].append(one_forward)
     else:
-        forward = None
+        parse['forward'] = None
     if 'cell_comment' in msgdata:
         parse['commentnum'] = msgdata['cell_comment']['num']
         parse['comment'] = []
@@ -297,7 +319,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
                 one_comment['picnum'] = len(comment['commentpic'])
                 one_comment['piclist'] = []
                 for pic in comment['commentpic']:
-                    one_pic = {'url': pic['photourl']['0']['url'], 'thumb': pic['photourl']['11']['url']}
+                    one_pic = {'url': pic['photourl']['1']['url'], 'thumb': pic['photourl']['11']['url']}
                     one_comment['piclist'].append(one_pic)
             else:
                 one_comment['picnum'] = 0

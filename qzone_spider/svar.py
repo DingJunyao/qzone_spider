@@ -23,11 +23,11 @@ roughJSON_URL = 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emot
 fineJSON_URL = 'https://h5.qzone.qq.com/webapp/json/mqzone_detail/shuoshuo'
 
 dbType = 'MySQL'  # 'SQLite'
-dbURL = '***REMOVED***'  # '***REMOVED***'  # 'qzone_db.db'
+dbURL = 'localhost'  # '***REMOVED***'  # 'qzone_db.db'
 dbPort = 3306  # None
-dbUsername = 'spider'  # 'spider'  # None
-dbPassword = 'spider'  # 'spider'  # None
-dbDatabase = 'mood2'  # None
+dbUsername = 'root'  # 'spider'  # None
+dbPassword = 'root'  # 'spider'  # None
+dbDatabase = 'mood3'  # None
 
 emotionParse = True
 

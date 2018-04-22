@@ -45,7 +45,7 @@ create_table_sql = (
   "content" TEXT DEFAULT NULL,
   "picnum"  INTEGER  DEFAULT NULL,
   "videonum"  INTEGER DEFAULT NULL,
-  "pic" TEXT  DEFAULT NULL,
+  "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
   "forwardnum" INTEGER DEFAULT NULL,
@@ -67,7 +67,7 @@ create_table_sql = (
   "post_time"  INTEGER NOT NULL,
   "content" TEXT  DEFAULT NULL,
   "picnum"  INTEGER  DEFAULT NULL,
-  "pic" TEXT  DEFAULT NULL,
+  "piclist" TEXT  DEFAULT NULL,
   "likenum" INTEGER DEFAULT NULL,
   "replynum" INTEGER DEFAULT NULL,
   PRIMARY KEY ("catch_time","tid","commentid","replyid")
