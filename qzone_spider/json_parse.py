@@ -260,7 +260,6 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['name'] = emotion_parse(rough_json['name'])
     else:
         parse['name'] = rough_json['name']
-    # TODO: rt
     if 'rt_tid' in rough_json:
         parse['rt'] = {'tid': rough_json['rt_tid'], 'post_time': msgdata['cell_original']['cell_comm']['time'],
                        'qq': rough_json['rt_uin']}
@@ -279,7 +278,6 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
             parse['rt']['device'] = rough_json['rt_source_name']
         else:
             parse['rt']['device'] = None
-        # TODO: pic,etc
         if 'pictotal' in rough_json:
             parse['rt']['picnum'] = rough_json['pictotal']
         else:
@@ -356,7 +354,6 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['photo_time'] = None
     else:
         parse['rt'] = None
-        # TODO: pic,etc
         if 'pictotal' in rough_json:
             parse['picnum'] = rough_json['pictotal']
         else:
@@ -429,7 +426,6 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
             parse['photo_time'] = rough_json['story_info']['time']
         else:
             parse['photo_time'] = None
-    # TODO: END
     if 'content' in rough_json and rough_json['content'] != '':
         if svar.emotionParse:
             content = emotion_parse(msgdata['cell_summary']['summary'])
