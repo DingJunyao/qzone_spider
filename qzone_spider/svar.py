@@ -22,8 +22,8 @@ login_URL = 'https://qzone.qq.com/'
 roughJSON_URL = 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msglist_v6'
 fineJSON_URL = 'https://h5.qzone.qq.com/webapp/json/mqzone_detail/shuoshuo'
 
-dbType = 'MySQL'  # 'SQLite'
-dbURL = 'localhost'  # '***REMOVED***'  # 'qzone_db.db'
+dbType = 'SQLite'  # 'SQLite'
+dbURL = 'qzone_db.db'  # '***REMOVED***'  # 'qzone_db.db'
 dbPort = 3306  # None
 dbUsername = 'root'  # 'spider'  # None
 dbPassword = 'root'  # 'spider'  # None
