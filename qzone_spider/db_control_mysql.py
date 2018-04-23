@@ -204,7 +204,7 @@ def db_write_rough(parse, uid=1):
                     insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
                     cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                     conn.commit()
-                    cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
+                    cursor.execute('SELECT id FROM media WHERE url = %s;', one_pic['url'])
                     rt_pic_id_dict = cursor.fetchone()
                     rt_pic_id_list.append(rt_pic_id_dict['id'])
                     logger.info('Successfully insert picture information into database')
@@ -220,7 +220,7 @@ def db_write_rough(parse, uid=1):
                 insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
                 cursor.execute(insert_sql, ('video', rt['video']['url'], rt['video']['thumb']))
                 conn.commit()
-                cursor.execute('SELECT id FROM media WHERE url=%s;', (rt['video']['url']))
+                cursor.execute('SELECT id FROM media WHERE url = %s;', (rt['video']['url']))
                 rt_video_id_dict = cursor.fetchone()
                 rt_video_id_list.append(rt_video_id_dict['id'])
                 logger.info('Successfully insert video information into database')
@@ -252,7 +252,7 @@ def db_write_rough(parse, uid=1):
                 update_sql = '''UPDATE rt
                                   SET qq = %s, content = %s, picnum = %s, piclist = %s, video = %s, 
                                       device = %s, location_user = %s, location_real = %s, longitude = %s, 
-                                      latitude = %s, photo_time = %s
+                                      latitude = %s, photo_time = FROM_UNIXTIME(%s)
                                   WHERE tid = %s;'''
                 cursor.execute(update_sql, (rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list, rt_video_id_list,
                                             rt['device'], rt['location_user'], rt['location_real'], rt['longitude'],
@@ -276,7 +276,7 @@ def db_write_rough(parse, uid=1):
                 insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
                 cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                 conn.commit()
-                cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
+                cursor.execute('SELECT id FROM media WHERE url = %s;', one_pic['url'])
                 pic_id_dict = cursor.fetchone()
                 pic_id_list.append(pic_id_dict['id'])
                 logger.info('Successfully insert picture information into database')
@@ -292,7 +292,7 @@ def db_write_rough(parse, uid=1):
             insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
             cursor.execute(insert_sql, ('video', parse['video']['url'], parse['video']['thumb']))
             conn.commit()
-            cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['video']['url']))
+            cursor.execute('SELECT id FROM media WHERE url = %s;', (parse['video']['url']))
             video_id_dict = cursor.fetchone()
             video_id_list.append(video_id_dict['id'])
             logger.info('Successfully insert video information into database')
@@ -307,7 +307,7 @@ def db_write_rough(parse, uid=1):
             insert_sql = 'INSERT IGNORE INTO media(type,url,time) VALUES (%s,%s,%s);'
             cursor.execute(insert_sql, ('voice', parse['voice']['url'], parse['voice']['time']*1000))
             conn.commit()
-            cursor.execute('SELECT id FROM media WHERE url=%s;', parse['voice']['url'])
+            cursor.execute('SELECT id FROM media WHERE url = %s;', parse['voice']['url'])
             voice_id_dict = cursor.fetchone()
             voice_id_list.append(voice_id_dict['id'])
             logger.info('Successfully insert audio information into database')
@@ -350,22 +350,23 @@ def db_write_rough(parse, uid=1):
                 if cursor.fetchone()['name'] != comment['name']:
                     try:
                         cursor.execute(
-                            'UPDATE qq SET name = %s WHERE uid = %s and qq = %s;', (comment['name'], uid, comment['qq']))
+                            'UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
+                            (comment['name'], uid, comment['qq']))
                         conn.commit()
                         logger.info('Successfully update QQ information of %s in uid %s' % (comment['qq'], uid))
                     except Exception:
-                        logger.error('Error when trying to update QQ information of %s in uid %s' % (comment['qq'], uid))
+                        logger.error('Error when trying to update QQ information of %s in uid %s'
+                                     % (comment['qq'], uid))
                         raise
             if comment['piclist'] is not None:
                 pic_id_list = []
-                for i in range(len(comment['piclist'])):
-                    media_type = 'pic'
+                for one_comment_pic in comment['piclist']:
                     try:
-                        insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                        insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
                         cursor.execute(insert_sql,
-                                       (media_type, comment['piclist'][i]['url'], comment['piclist'][i]['thumb']))
+                                       ('pic', one_comment_pic['url'], one_comment_pic['thumb']))
                         conn.commit()
-                        cursor.execute('SELECT id FROM media WHERE url=%s;', comment['piclist'][i]['url'])
+                        cursor.execute('SELECT id FROM media WHERE url = %s;', one_comment_pic['url'])
                         pic_id_dict = cursor.fetchone()
                         pic_id_list.append(pic_id_dict['id'])
                         logger.info('Successfully insert picture information into database')
@@ -484,10 +485,10 @@ def db_write_fine(parse, uid=1):
                 else:
                     media_type = 'pic'
                 try:
-                    insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                    insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
                     cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                     conn.commit()
-                    cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
+                    cursor.execute('SELECT id FROM media WHERE url = %s;', one_pic['url'])
                     rt_pic_id_dict = cursor.fetchone()
                     rt_pic_id_list.append(rt_pic_id_dict['id'])
                     logger.info('Successfully insert picture information into database')
@@ -503,7 +504,7 @@ def db_write_fine(parse, uid=1):
                 insert_sql = 'INSERT IGNORE INTO media(type, url, thumb, time) VALUES (%s, %s, %s, %s);'
                 cursor.execute(insert_sql, ('video', rt['video']['url'], rt['video']['thumb'], rt['video']['time']))
                 conn.commit()
-                cursor.execute('SELECT id FROM media WHERE url=%s;', (rt['video']['url']))
+                cursor.execute('SELECT id FROM media WHERE url = %s;', (rt['video']['url']))
                 rt_video_id_dict = cursor.fetchone()
                 rt_video_id_list.append(rt_video_id_dict['id'])
                 logger.info('Successfully insert video information into database')
@@ -554,10 +555,10 @@ def db_write_fine(parse, uid=1):
             else:
                 media_type = 'pic'
             try:
-                insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
                 cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                 conn.commit()
-                cursor.execute('SELECT id FROM media WHERE url=%s;', one_pic['url'])
+                cursor.execute('SELECT id FROM media WHERE url = %s;', one_pic['url'])
                 pic_id_dict = cursor.fetchone()
                 pic_id_list.append(pic_id_dict['id'])
                 logger.info('Successfully insert picture information into database')
@@ -567,30 +568,14 @@ def db_write_fine(parse, uid=1):
         pic_id_list = str(pic_id_list)
     else:
         pic_id_list = None
-    if parse['voice'] is not None:
-        voice_id_list = []
-        try:
-            insert_sql = 'INSERT IGNORE INTO media(type,url,time) VALUES (%s,%s,%s);'
-            cursor.execute(insert_sql, ('voice', parse['voice']['url'], parse['voice']['time']*1000))
-            conn.commit()
-            cursor.execute('SELECT id FROM media WHERE url=%s;', parse['voice']['url'])
-            voice_id_dict = cursor.fetchone()
-            voice_id_list.append(voice_id_dict['id'])
-            logger.info('Successfully insert audio information into database')
-        except Exception:
-            logger.error('Error when trying to insert audio information into database')
-            pass
-        voice_id_list = str(voice_id_list)
-    else:
-        voice_id_list = None
     if parse['video'] is not None:
         video_id_list = []
         try:
-            insert_sql = 'INSERT IGNORE INTO media(type,url,thumb,time) VALUES (%s,%s,%s,%s);'
+            insert_sql = 'INSERT IGNORE INTO media(type, url, thumb, time) VALUES (%s, %s, %s, %s);'
             cursor.execute(insert_sql, ('video', parse['video']['url'], parse['video']['thumb'],
                                         parse['video']['time']))
             conn.commit()
-            cursor.execute('SELECT id FROM media WHERE url=%s;', parse['video']['url'])
+            cursor.execute('SELECT id FROM media WHERE url = %s;', parse['video']['url'])
             video_id_dict = cursor.fetchone()
             video_id_list.append(video_id_dict['id'])
             logger.info('Successfully insert vidio information into database')
@@ -599,6 +584,22 @@ def db_write_fine(parse, uid=1):
         video_id_list = str(video_id_list)
     else:
         video_id_list = None
+    if parse['voice'] is not None:
+        voice_id_list = []
+        try:
+            insert_sql = 'INSERT IGNORE INTO media(type, url, time) VALUES (%s, %s, %s);'
+            cursor.execute(insert_sql, ('voice', parse['voice']['url'], parse['voice']['time']*1000))
+            conn.commit()
+            cursor.execute('SELECT id FROM media WHERE url = %s;', parse['voice']['url'])
+            voice_id_dict = cursor.fetchone()
+            voice_id_list.append(voice_id_dict['id'])
+            logger.info('Successfully insert audio information into database')
+        except Exception:
+            logger.error('Error when trying to insert audio information into database')
+            raise
+        voice_id_list = str(voice_id_list)
+    else:
+        voice_id_list = None
     try:
         insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
                                                    content, picnum, piclist, video, voice, 
@@ -704,14 +705,13 @@ def db_write_fine(parse, uid=1):
                         raise
             if comment['piclist'] is not None:
                 pic_id_list = []
-                for i in range(len(comment['piclist'])):
-                    media_type = 'pic'
+                for one_comment_pic in comment['piclist']:
                     try:
-                        insert_sql = 'INSERT IGNORE INTO media(type,url,thumb) VALUES (%s,%s,%s);'
+                        insert_sql = 'INSERT IGNORE INTO media(type, url, thumb) VALUES (%s, %s, %s);'
                         cursor.execute(insert_sql,
-                                       (media_type, comment['piclist'][i]['url'], comment['piclist'][i]['thumb']))
+                                       ('pic', one_comment_pic['url'], one_comment_pic['thumb']))
                         conn.commit()
-                        cursor.execute('SELECT id FROM media WHERE url=%s;', comment['piclist'][i]['url'])
+                        cursor.execute('SELECT id FROM media WHERE url=%s;', one_comment_pic['url'])
                         pic_id_dict = cursor.fetchone()
                         pic_id_list.append(pic_id_dict['id'])
                         logger.info('Successfully insert picture information into database')
