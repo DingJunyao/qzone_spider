@@ -839,7 +839,7 @@ def db_write_fine(parse,uid=1):
                 insert_sql = '''INSERT INTO comment_reply(catch_time, tid, 
                                                           commentid, replyid, qq,
                                                           post_time, "content", 
-                                                          picnum, piclist, replynum)
+                                                          picnum, piclist, likenum, replynum)
                                 VALUES (%s, %s, 
                                         %s, %s, %s, 
                                         %s, %s, 
@@ -847,7 +847,7 @@ def db_write_fine(parse,uid=1):
                 cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
                                             comment['commentid'], 0, comment['qq'],
                                             _timestamp_to_datetime(comment['post_time']), comment['content'],
-                                            comment['picnum'], pic_id_list, comment['replynum']))
+                                            comment['picnum'], pic_id_list, comment['likenum'], comment['replynum']))
                 conn.commit()
                 logger.info('Successfully insert comment data into database')
             except Exception:
