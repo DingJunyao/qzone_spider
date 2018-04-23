@@ -31,9 +31,9 @@ def account_login(qq, password, debug=False):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
         if debug:
-            logger.info('''You are in debug mode. It requires GUI environment. 
-If you are in console without GUI environment or SSH, please exit. 
-If you really need it, please run it in GUI environment. 
+            logger.info('''You are in debug mode. It requires GUI environment.
+If you are in console without GUI environment or SSH, please exit.
+If you really need it, please run it in GUI environment.
 Or you need to delete the attribute 'debug=True' in %s''' % __name__)
         else:
             chrome_options.add_argument('--headless')
@@ -76,9 +76,9 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
                     'Verification needed when getting login information of %s, please check it in the browser' % qq)
             else:
                 browser.quit()
-                logger.error('''Verification needed when getting login information of %s. 
-Please add attribute 'debug=True' in %s() and rerun your application, make verification yourself. 
-It requires GUI environment. Once the verification made, you can change it back. 
+                logger.error('''Verification needed when getting login information of %s.
+Please add attribute 'debug=True' in %s() and rerun your application, make verification yourself.
+It requires GUI environment. Once the verification made, you can change it back.
 Generally speaking, you needn't do it for a long time if you use the same QQ number as spider. '''
                              % (qq, __name__))
                 exit()

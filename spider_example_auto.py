@@ -24,7 +24,7 @@ quantity = args.q
 if QQ is None or targetQQ is None:
     print(
         '''Usage: ./spider_example.py -u your_QQ_number -q quantity
-    quantity must be a multiple of 20''')
+    quantity must be a multiple of 5''')
     exit()
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
@@ -32,8 +32,9 @@ logger = logging.getLogger(__name__)
 
 cookies, gtk, qzonetoken = qzone_spider.account_login(QQ, password)
 end_order = 0
-while end_order <= quantity:
-    r_catch_time, end_order, rough_json = qzone_spider.get_rough_json(targetQQ, end_order, 20, 100, cookies, gtk, qzonetoken)
+while end_order < quantity:
+    r_catch_time, end_order, rough_json = qzone_spider.get_rough_json(targetQQ, end_order, 5, 100,
+                                                                      cookies, gtk, qzonetoken)
     if r_catch_time == 0 and end_order == -1:
         break
     end_order += 1

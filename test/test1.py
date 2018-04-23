@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
-filename = 'test_example2'
+filename = 'test_example3'
 
 print(filename)
 

@@ -232,11 +232,11 @@ def db_write_rough(parse, uid=1):
             rt_video_id_list = None
         if cursor.execute('SELECT * FROM rt WHERE tid = %s;', (rt['tid'])) == 0:
             try:
-                insert_sql = '''INSERT INTO rt(tid, qq, content, picnum, piclist, 
-                                               video, device, location_user, location_real, longitude, 
+                insert_sql = '''INSERT INTO rt(tid, qq, content, picnum, piclist,
+                                               video, device, location_user, location_real, longitude,
                                                latitude, photo_time)
-                                    VALUES (%s, %s, %s, %s, %s, 
-                                            %s, %s, %s, %s, %s, 
+                                    VALUES (%s, %s, %s, %s, %s,
+                                            %s, %s, %s, %s, %s,
                                             %s, FROM_UNIXTIME(%s));'''
                 cursor.execute(insert_sql, (
                     rt['tid'], rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list,
@@ -250,8 +250,8 @@ def db_write_rough(parse, uid=1):
         else:
             try:
                 update_sql = '''UPDATE rt
-                                  SET qq = %s, content = %s, picnum = %s, piclist = %s, video = %s, 
-                                      device = %s, location_user = %s, location_real = %s, longitude = %s, 
+                                  SET qq = %s, content = %s, picnum = %s, piclist = %s, video = %s,
+                                      device = %s, location_user = %s, location_real = %s, longitude = %s,
                                       latitude = %s, photo_time = FROM_UNIXTIME(%s)
                                   WHERE tid = %s;'''
                 cursor.execute(update_sql, (rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list, rt_video_id_list,
@@ -318,13 +318,13 @@ def db_write_rough(parse, uid=1):
         voice_id_list = None
 
     try:
-        insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
-                                                   content, picnum, piclist, video, voice, 
-                                                   device, location_user, location_real, longitude, latitude, 
+        insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid,
+                                                   content, picnum, piclist, video, voice,
+                                                   device, location_user, location_real, longitude, latitude,
                                                    photo_time, commentnum)
-                            VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s, 
-                                    %s, %s, %s, %s, %s, 
-                                    %s, %s, %s, %s, %s, 
+                            VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s,
+                                    %s, %s, %s, %s, %s,
+                                    %s, %s, %s, %s, %s,
                                     FROM_UNIXTIME(%s), %s);'''
         cursor.execute(insert_sql, (
             parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], rt_tid,
@@ -378,10 +378,10 @@ def db_write_rough(parse, uid=1):
                 pic_id_list = None
             try:
                 insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid, replyid, qq,
-                                                             post_time, content, picnum, piclist, 
+                                                             post_time, content, picnum, piclist,
                                                              replynum)
-                                VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s, 
-                                        FROM_UNIXTIME(%s), %s, %s, %s, 
+                                VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s,
+                                        FROM_UNIXTIME(%s), %s, %s, %s,
                                         %s);'''
                 cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'], 0, comment['qq'],
                                             comment['post_time'], comment['content'], comment['picnum'], pic_id_list,
@@ -516,11 +516,11 @@ def db_write_fine(parse, uid=1):
             rt_video_id_list = None
         if cursor.execute('SELECT * FROM rt WHERE tid = %s;', (rt['tid'])) == 0:
             try:
-                insert_sql = '''INSERT INTO rt(tid, qq, post_time, content, picnum, 
-                                               piclist, video, device, location_user, 
+                insert_sql = '''INSERT INTO rt(tid, qq, post_time, content, picnum,
+                                               piclist, video, device, location_user,
                                                location_real, longitude, latitude, photo_time)
                                     VALUES (%s, %s, FROM_UNIXTIME(%s), %s, %s,
-                                            %s, %s, %s, %s, %s, 
+                                            %s, %s, %s, %s, %s,
                                             %s, %s, FROM_UNIXTIME(%s));'''
                 cursor.execute(insert_sql, (rt['tid'], rt['qq'], rt['post_time'], rt['content'], rt['picnum'],
                                             rt_pic_id_list, rt_video_id_list, rt['device'], rt['location_user'],
@@ -533,11 +533,11 @@ def db_write_fine(parse, uid=1):
         else:
             try:
                 update_sql = '''UPDATE rt
-                                  SET qq = %s, post_time = FROM_UNIXTIME(%s), content = %s, picnum = %s, piclist = %s, 
-                                      video = %s, device = %s, location_user = %s, location_real = %s, 
+                                  SET qq = %s, post_time = FROM_UNIXTIME(%s), content = %s, picnum = %s, piclist = %s,
+                                      video = %s, device = %s, location_user = %s, location_real = %s,
                                       longitude = %s, latitude = %s, photo_time = %s
                                   WHERE tid = %s;'''
-                cursor.execute(update_sql, (rt['qq'], rt['post_time'], rt['content'], rt['picnum'],rt_pic_id_list,
+                cursor.execute(update_sql, (rt['qq'], rt['post_time'], rt['content'], rt['picnum'], rt_pic_id_list,
                                             rt_video_id_list, rt['device'], rt['location_user'], rt['location_real'],
                                             rt['longitude'], rt['latitude'], rt['photo_time'], rt['tid']))
                 conn.commit()
@@ -601,13 +601,13 @@ def db_write_fine(parse, uid=1):
     else:
         voice_id_list = None
     try:
-        insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
-                                                   content, picnum, piclist, video, voice, 
-                                                   device, location_user, location_real, longitude, latitude, 
+        insert_sql = '''INSERT IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid,
+                                                   content, picnum, piclist, video, voice,
+                                                   device, location_user, location_real, longitude, latitude,
                                                    photo_time, viewnum, likenum, forwardnum, commentnum)
-                            VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s, 
-                                    %s, %s, %s, %s, %s, 
-                                    %s, %s, %s, %s, %s, 
+                            VALUES (FROM_UNIXTIME(%s), %s, %s, FROM_UNIXTIME(%s), %s,
+                                    %s, %s, %s, %s, %s,
+                                    %s, %s, %s, %s, %s,
                                     FROM_UNIXTIME(%s), %s, %s, %s, %s);'''
         cursor.execute(insert_sql, (
             parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], rt_tid,
@@ -723,10 +723,10 @@ def db_write_fine(parse, uid=1):
                 pic_id_list = None
             try:
                 insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid, replyid, qq,
-                                                             post_time, content, picnum, piclist, 
+                                                             post_time, content, picnum, piclist,
                                                              likenum, replynum)
-                                VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s, 
-                                        FROM_UNIXTIME(%s), %s, %s, %s, 
+                                VALUES (FROM_UNIXTIME(%s), %s, %s, %s, %s,
+                                        FROM_UNIXTIME(%s), %s, %s, %s,
                                         %s, %s);'''
                 cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'], 0, comment['qq'],
                                             comment['post_time'], comment['content'], comment['picnum'], pic_id_list,

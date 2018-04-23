@@ -21,7 +21,7 @@ def message_info_all(tid):
     conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
                            db=svar.dbDatabase, charset="utf8", use_unicode=True)
     app.logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+                    % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute('SELECT * FROM message WHERE tid = %s', tid)
     values = cursor.fetchall()
@@ -76,7 +76,8 @@ def message_info_all(tid):
                 cursor.execute('SELECT * FROM media WHERE id = %s', eval(values[i]['video']))
                 video_values = cursor.fetchone()
                 media_info.append(video_values)
-            values_json_one['video'] = {'url': video_values['url'], 'thumb': video_values['thumb'], 'time': video_values['time']}
+            values_json_one['video'] = {'url': video_values['url'], 'thumb': video_values['thumb'],
+                                        'time': video_values['time']}
         if values[i]['voice'] is None:
             values_json_one['voice'] = None
         else:
@@ -155,7 +156,8 @@ def message_info_latest(tid):
             cursor.execute('SELECT * FROM media WHERE id = %s', eval(values['video']))
             video_values = cursor.fetchone()
             media_info.append(video_values)
-        values_json['video'] = {'url': video_values['url'], 'thumb': video_values['thumb'], 'time': video_values['time']}
+        values_json['video'] = {'url': video_values['url'], 'thumb': video_values['thumb'],
+                                'time': video_values['time']}
     if values['voice'] is None:
         values_json['voice'] = None
     else:

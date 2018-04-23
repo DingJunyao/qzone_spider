@@ -121,6 +121,7 @@ def _dict_factory(cursor, row):
     return dict((col[0], row[idx]) for idx, col in enumerate(cursor.description))
 
 
+# noinspection PyTypeChecker
 def db_write_rough(parse):
     conn = sqlite3.connect(svar.dbURL)
     conn.row_factory = _dict_factory
@@ -137,6 +138,7 @@ def db_write_rough(parse):
             logger.error('Error when trying to insert QQ information of %s' % parse['qq'])
             raise
     else:
+        # noinspection PyTypeChecker
         if qq_fetch['name'] != parse['name']:
             try:
                 cursor.execute('UPDATE qq SET "name" = ? WHERE qq = ?;', (parse['name'], parse['qq']))
@@ -208,11 +210,11 @@ def db_write_rough(parse):
         rt_fetch = cursor.fetchone()
         if rt_fetch is None:
             try:
-                insert_sql = '''INSERT INTO rt(tid, qq, "content", picnum, piclist, 
-                                               video, device, location_user, location_real, longitude, 
+                insert_sql = '''INSERT INTO rt(tid, qq, "content", picnum, piclist,
+                                               video, device, location_user, location_real, longitude,
                                                latitude, photo_time)
-                                    VALUES (?, ?, ?, ?, ?, 
-                                            ?, ?, ?, ?, ?, 
+                                    VALUES (?, ?, ?, ?, ?,
+                                            ?, ?, ?, ?, ?,
                                             ?, ?);'''
                 cursor.execute(insert_sql, (
                     rt['tid'], rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list,
@@ -226,8 +228,8 @@ def db_write_rough(parse):
         else:
             try:
                 update_sql = '''UPDATE rt
-                                  SET qq = ?, "content" = ?, picnum = ?, piclist = ?, video = ?, 
-                                      device = ?, location_user = ?, location_real = ?, longitude = ?, 
+                                  SET qq = ?, "content" = ?, picnum = ?, piclist = ?, video = ?,
+                                      device = ?, location_user = ?, location_real = ?, longitude = ?,
                                       latitude = ?, photo_time = ?
                                   WHERE tid = ?;'''
                 cursor.execute(update_sql, (rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list, rt_video_id_list,
@@ -293,13 +295,13 @@ def db_write_rough(parse):
     else:
         voice_id_list = None
     try:
-        insert_sql = '''INSERT OR IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
-                                                      content, picnum, piclist, video, voice, 
-                                                      device, location_user, location_real, longitude, latitude, 
+        insert_sql = '''INSERT OR IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid,
+                                                      content, picnum, piclist, video, voice,
+                                                      device, location_user, location_real, longitude, latitude,
                                                       photo_time, commentnum)
-                            VALUES (?, ?, ?, ?, ?, 
-                                    ?, ?, ?, ?, ?, 
-                                    ?, ?, ?, ?, ?, 
+                            VALUES (?, ?, ?, ?, ?,
+                                    ?, ?, ?, ?, ?,
+                                    ?, ?, ?, ?, ?,
                                     ?, ?);'''
         cursor.execute(insert_sql, (
             parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], rt_tid,
@@ -351,10 +353,10 @@ def db_write_rough(parse):
                 pic_id_list = None
             try:
                 insert_sql = '''INSERT OR IGNORE INTO comment_reply(catch_time, tid, commentid, replyid, qq,
-                                                          post_time, "content", picnum, piclist, 
+                                                          post_time, "content", picnum, piclist,
                                                           replynum)
-                                VALUES (?, ?, ?, ?, ?, 
-                                        ?, ?, ?, ?, 
+                                VALUES (?, ?, ?, ?, ?,
+                                        ?, ?, ?, ?,
                                         ?)'''
                 cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'], 0, comment['qq'],
                                             comment['post_time'], comment['content'], comment['picnum'], pic_id_list,
@@ -387,10 +389,10 @@ def db_write_rough(parse):
                                 raise
                     try:
                         insert_sql = '''INSERT OR IGNORE INTO comment_reply(catch_time, tid, commentid,
-                                                                            replyid, qq, reply_target_qq, 
+                                                                            replyid, qq, reply_target_qq,
                                                                             post_time, content)
-                                                        VALUES (?, ?, ?, 
-                                                                ?, ?, ?, 
+                                                        VALUES (?, ?, ?,
+                                                                ?, ?, ?,
                                                                 ?, ?);'''
                         cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'],
                                                     reply['replyid'], reply['qq'], reply['reply_target_qq'],
@@ -404,6 +406,7 @@ def db_write_rough(parse):
     conn.close()
 
 
+# noinspection PyTypeChecker
 def db_write_fine(parse):
     conn = sqlite3.connect(svar.dbURL)
     conn.row_factory = _dict_factory
@@ -491,11 +494,11 @@ def db_write_fine(parse):
         rt_fetch = cursor.fetchone()
         if rt_fetch is None:
             try:
-                insert_sql = '''INSERT INTO rt(tid, qq, post_time, "content", picnum, 
-                                                piclist, video, device, location_user, location_real, 
+                insert_sql = '''INSERT INTO rt(tid, qq, post_time, "content", picnum,
+                                                piclist, video, device, location_user, location_real,
                                                 longitude, latitude, photo_time)
-                                        VALUES (?, ?, ?, ?, ?, 
-                                                ?, ?, ?, ?, ?, 
+                                        VALUES (?, ?, ?, ?, ?,
+                                                ?, ?, ?, ?, ?,
                                                 ?, ?, ?);'''
                 cursor.execute(insert_sql, (
                     rt['tid'], rt['qq'], rt['post_time'], rt['content'], rt['picnum'],
@@ -576,13 +579,13 @@ def db_write_fine(parse):
     else:
         voice_id_list = None
     try:
-        insert_sql = '''INSERT OR IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid, 
-                                                      "content", picnum, piclist, video, voice, 
-                                                      device, location_user, location_real, longitude, latitude, 
+        insert_sql = '''INSERT OR IGNORE INTO message(catch_time, tid, qq, post_time, rt_tid,
+                                                      "content", picnum, piclist, video, voice,
+                                                      device, location_user, location_real, longitude, latitude,
                                                       photo_time, viewnum, likenum, forwardnum, commentnum)
-                            VALUES (?, ?, ?, ?, ?, 
-                                    ?, ?, ?, ?, ?, 
-                                    ?, ?, ?, ?, ?, 
+                            VALUES (?, ?, ?, ?, ?,
+                                    ?, ?, ?, ?, ?,
+                                    ?, ?, ?, ?, ?,
                                     ?, ?, ?, ?, ?);'''
         cursor.execute(insert_sql, (
             parse['catch_time'], parse['tid'], parse['qq'], parse['post_time'], rt_tid,
@@ -694,10 +697,10 @@ def db_write_fine(parse):
                 pic_id_list = None
             try:
                 insert_sql = '''INSERT OR IGNORE INTO comment_reply(catch_time, tid, commentid, replyid, qq,
-                                                          post_time, "content", picnum, piclist, 
+                                                          post_time, "content", picnum, piclist,
                                                           likenum, replynum)
-                                VALUES (?, ?, ?, ?, ?, 
-                                        ?, ?, ?, ?, 
+                                VALUES (?, ?, ?, ?, ?,
+                                        ?, ?, ?, ?,
                                         ?, ?)'''
                 cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'], 0, comment['qq'],
                                             comment['post_time'], comment['content'], comment['picnum'], pic_id_list,
@@ -764,10 +767,10 @@ def db_write_fine(parse):
                                 raise
                     try:
                         insert_sql = '''INSERT OR IGNORE INTO comment_reply(catch_time, tid, commentid,
-                                                                            replyid, qq, reply_target_qq, 
+                                                                            replyid, qq, reply_target_qq,
                                                                             post_time, content)
-                                                        VALUES (?, ?, ?, 
-                                                                ?, ?, ?, 
+                                                        VALUES (?, ?, ?,
+                                                                ?, ?, ?,
                                                                 ?, ?);'''
                         cursor.execute(insert_sql, (parse['catch_time'], parse['tid'], comment['commentid'],
                                                     reply['replyid'], reply['qq'], reply['reply_target_qq'],

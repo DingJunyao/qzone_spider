@@ -183,7 +183,8 @@ def db_write_rough(parse, uid=1):
     else:
         if qq_fetch['name'] != parse['name']:
             try:
-                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;', (parse['name'], uid, parse['qq']))
+                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                               (parse['name'], uid, parse['qq']))
                 conn.commit()
                 logger.info('Successfully update QQ information of %s in uid %s' % (parse['qq'], uid))
             except Exception:
@@ -225,7 +226,7 @@ def db_write_rough(parse, uid=1):
                 else:
                     media_type = 'pic'
                 try:
-                    insert_sql = '''INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s) 
+                    insert_sql = '''INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s)
                                       ON CONFLICT(url) do nothing;'''
                     cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                     conn.commit()
@@ -265,11 +266,11 @@ def db_write_rough(parse, uid=1):
         rt_fetch = cursor.fetchone()
         if rt_fetch is None:
             try:
-                insert_sql = '''INSERT INTO rt(tid, qq, "content", picnum, piclist, 
-                                               video, device, location_user, location_real, longitude, 
+                insert_sql = '''INSERT INTO rt(tid, qq, "content", picnum, piclist,
+                                               video, device, location_user, location_real, longitude,
                                                latitude, photo_time)
-                                    VALUES (%s, %s, %s, %s, %s, 
-                                            %s, %s, %s, %s, %s, 
+                                    VALUES (%s, %s, %s, %s, %s,
+                                            %s, %s, %s, %s, %s,
                                             %s, %s);'''
                 cursor.execute(insert_sql, (
                     rt['tid'], rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list,
@@ -284,8 +285,8 @@ def db_write_rough(parse, uid=1):
         else:
             try:
                 update_sql = '''UPDATE rt
-                                  SET qq = %s, "content" = %s, picnum = %s, piclist = %s, video = %s, 
-                                      device = %s, location_user = %s, location_real = %s, longitude = %s, 
+                                  SET qq = %s, "content" = %s, picnum = %s, piclist = %s, video = %s,
+                                      device = %s, location_user = %s, location_real = %s, longitude = %s,
                                       latitude = %s, photo_time = %s
                                   WHERE tid = %s;'''
                 cursor.execute(update_sql, (rt['qq'], rt['content'], rt['picnum'], rt_pic_id_list, rt_video_id_list,
@@ -360,12 +361,12 @@ def db_write_rough(parse, uid=1):
         phototime = None
     try:
         insert_sql = '''INSERT INTO "message"(catch_time, tid, qq,
-                                              post_time, rt_tid, "content", picnum, 
-                                              piclist, video, voice, device, location_user, location_real, 
+                                              post_time, rt_tid, "content", picnum,
+                                              piclist, video, voice, device, location_user, location_real,
                                               longitude, latitude, photo_time, commentnum)
                           VALUES (%s, %s, %s,
-                                  %s, %s, %s, %s, 
-                                  %s, %s, %s, %s, %s, %s, 
+                                  %s, %s, %s, %s,
+                                  %s, %s, %s, %s, %s, %s,
                                   %s, %s, %s, %s) ON CONFLICT ON CONSTRAINT message_pkey do nothing;'''
         cursor.execute(insert_sql, (
             _timestamp_to_datetime(parse['catch_time']), parse['tid'], parse['qq'],
@@ -426,13 +427,13 @@ def db_write_rough(parse, uid=1):
             else:
                 pic_id_list = None
             try:
-                insert_sql = '''INSERT INTO comment_reply(catch_time, tid, 
+                insert_sql = '''INSERT INTO comment_reply(catch_time, tid,
                                                           commentid, replyid, qq,
-                                                          post_time, "content", 
+                                                          post_time, "content",
                                                           picnum, piclist, replynum)
-                                VALUES (%s, %s, 
-                                        %s, %s, %s, 
-                                        %s, %s, 
+                                VALUES (%s, %s,
+                                        %s, %s, %s,
+                                        %s, %s,
                                         %s, %s, %s) ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
                 cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
                                             comment['commentid'], 0, comment['qq'],
@@ -474,11 +475,11 @@ def db_write_rough(parse, uid=1):
                     try:
                         insert_sql = '''INSERT INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
-                                                        VALUES (%s, %s, 
-                                                                %s, %s, %s, 
-                                                                %s, 
-                                                                %s, 
-                                                                %s) 
+                                                        VALUES (%s, %s,
+                                                                %s, %s, %s,
+                                                                %s,
+                                                                %s,
+                                                                %s)
                                                         ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
                         cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
                                                     comment['commentid'], reply['replyid'], reply['qq'],
@@ -556,7 +557,7 @@ def db_write_fine(parse, uid=1):
                 else:
                     media_type = 'pic'
                 try:
-                    insert_sql = '''INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s) 
+                    insert_sql = '''INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s)
                                           ON CONFLICT(url) do nothing;'''
                     cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                     conn.commit()
@@ -598,10 +599,10 @@ def db_write_fine(parse, uid=1):
         if rt_fetch is None:
             try:
                 insert_sql = '''INSERT INTO rt(tid, qq, post_time, "content", picnum,
-                                               piclist, video, device, location_user, location_real, 
+                                               piclist, video, device, location_user, location_real,
                                                longitude, latitude, photo_time)
-                                        VALUES (%s, %s, %s, %s, %s, 
-                                                %s, %s, %s, %s, %s, 
+                                        VALUES (%s, %s, %s, %s, %s,
+                                                %s, %s, %s, %s, %s,
                                                 %s, %s, %s);'''
                 cursor.execute(insert_sql, (
                     rt['tid'], rt['qq'], _timestamp_to_datetime(rt['post_time']), rt['content'], rt['picnum'],
@@ -616,9 +617,9 @@ def db_write_fine(parse, uid=1):
         else:
             try:
                 update_sql = '''UPDATE rt
-                                      SET qq = %s, post_time = %s, "content" = %s, 
-                                          picnum = %s, piclist = %s, video = %s, device = %s, 
-                                          location_user = %s, location_real = %s, longitude = %s, latitude = %s, 
+                                      SET qq = %s, post_time = %s, "content" = %s,
+                                          picnum = %s, piclist = %s, video = %s, device = %s,
+                                          location_user = %s, location_real = %s, longitude = %s, latitude = %s,
                                           photo_time = %s
                                       WHERE tid = %s;'''
                 cursor.execute(update_sql, (rt['qq'], _timestamp_to_datetime(rt['post_time']), rt['content'],
@@ -693,15 +694,15 @@ def db_write_fine(parse, uid=1):
     else:
         phototime = None
     try:
-        insert_sql = '''INSERT INTO "message"(catch_time, tid, qq, 
-                                              post_time, rt_tid, "content", picnum, piclist, 
-                                              video, voice, device, location_user, location_real, 
+        insert_sql = '''INSERT INTO "message"(catch_time, tid, qq,
+                                              post_time, rt_tid, "content", picnum, piclist,
+                                              video, voice, device, location_user, location_real,
                                               longitude, latitude, photo_time, viewnum, likenum,
                                               forwardnum, commentnum)
                           VALUES (%s, %s, %s,
-                                  %s, %s, %s, %s, %s, 
-                                  %s, %s, %s, %s, %s, 
-                                  %s, %s, %s, %s, %s, 
+                                  %s, %s, %s, %s, %s,
+                                  %s, %s, %s, %s, %s,
+                                  %s, %s, %s, %s, %s,
                                   %s, %s)
                           ON CONFLICT ON CONSTRAINT message_pkey do nothing;'''
         cursor.execute(insert_sql, (
@@ -718,7 +719,7 @@ def db_write_fine(parse, uid=1):
     if parse['like'] is not None:
         for likeman in parse['like']:
             try:
-                cursor.execute('''INSERT INTO like_person(tid, commentid, qq) VALUES (%s, %s, %s) 
+                cursor.execute('''INSERT INTO like_person(tid, commentid, qq) VALUES (%s, %s, %s)
                                     ON CONFLICT ON CONSTRAINT like_person_pkey do nothing;''',
                                (parse['tid'], 0, likeman['qq']))
                 conn.commit()
@@ -835,13 +836,13 @@ def db_write_fine(parse, uid=1):
             else:
                 pic_id_list = None
             try:
-                insert_sql = '''INSERT INTO comment_reply(catch_time, tid, 
+                insert_sql = '''INSERT INTO comment_reply(catch_time, tid,
                                                           commentid, replyid, qq,
-                                                          post_time, "content", 
+                                                          post_time, "content",
                                                           picnum, piclist, likenum, replynum)
-                                VALUES (%s, %s, 
-                                        %s, %s, %s, 
-                                        %s, %s, 
+                                VALUES (%s, %s,
+                                        %s, %s, %s,
+                                        %s, %s,
                                         %s, %s, %s) ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
                 cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
                                             comment['commentid'], 0, comment['qq'],
@@ -856,7 +857,7 @@ def db_write_fine(parse, uid=1):
             if comment['like'] is not None:
                 for likeman in comment['like']:
                     try:
-                        cursor.execute('''INSERT INTO like_person(tid, commentid, qq) VALUES (%s, %s, %s) 
+                        cursor.execute('''INSERT INTO like_person(tid, commentid, qq) VALUES (%s, %s, %s)
                                             ON CONFLICT ON CONSTRAINT like_person_pkey do nothing;''',
                                        (parse['tid'], comment['commentid'], likeman['qq']))
                         conn.commit()
@@ -923,11 +924,11 @@ def db_write_fine(parse, uid=1):
                     try:
                         insert_sql = '''INSERT INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
-                                                        VALUES (%s, %s, 
-                                                                %s, %s, %s, 
-                                                                %s, 
-                                                                %s, 
-                                                                %s) 
+                                                        VALUES (%s, %s,
+                                                                %s, %s, %s,
+                                                                %s,
+                                                                %s,
+                                                                %s)
                                                         ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
                         cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
                                                     comment['commentid'], reply['replyid'], reply['qq'],

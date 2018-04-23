@@ -40,7 +40,7 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken):
             fail += 1
             if fail == svar.getRoughJSONFailTime:
                 break
-            logger.warning('''Connection error when getting the rough JSON of messages #%s ~ #%s of %s. 
+            logger.warning('''Connection error when getting the rough JSON of messages #%s ~ #%s of %s.
             Sleep %s seconds before retrying. Remaining retry times: %s'''
                            % (start, start + msgnum - 1, qq, svar.errorWaitTime, svar.getRoughJSONFailTime - fail))
             time.sleep(svar.errorWaitTime)
@@ -58,7 +58,7 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken):
             fail += 1
             if fail == svar.getRoughJSONFailTime:
                 break
-            logger.warning('''Failed to request when getting the rough JSON of messages #%s ~ #%s of %s. 
+            logger.warning('''Failed to request when getting the rough JSON of messages #%s ~ #%s of %s.
             Sleep %s seconds before retrying. Remaining retry times: %s'''
                            % (start, start + msgnum - 1, qq, svar.errorWaitTime, svar.getRoughJSONFailTime - fail))
             logger.debug('HTTP status code is %s' % response.status_code)
@@ -90,7 +90,7 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken):
             if fail == svar.getFineJSONFailTime:
                 break
             logger.warning(
-                '''Connection error when getting the JSON of message of %s which tid is %s. 
+                '''Connection error when getting the JSON of message of %s which tid is %s.
                 Sleep %s seconds before retrying. Remaining retry times: %s'''
                 % (qq, tid, svar.errorWaitTime, svar.getFineJSONFailTime - fail))
             time.sleep(svar.errorWaitTime)
@@ -106,7 +106,7 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken):
                 fail += 1
                 if fail == svar.getFineJSONFailTime:
                     break
-                logger.warning('''Strange return when getting the JSON of message of %s which tid is %s. 
+                logger.warning('''Strange return when getting the JSON of message of %s which tid is %s.
                 Sleep %s seconds before retrying. Remaining retry times: %s'''
                                % (qq, tid, svar.errorWaitTime, svar.getFineJSONFailTime - fail))
                 logger.debug('Returned JSON in Python format is %s' % response_msg_json)
@@ -117,7 +117,7 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken):
             if fail == svar.getFineJSONFailTime:
                 break
             logger.warning(
-                '''Failed to request when getting the JSON of message of %s which tid is %s. 
+                '''Failed to request when getting the JSON of message of %s which tid is %s.
                 Sleep %s seconds before retrying. Remaining retry times: %s'''
                 % (qq, tid, svar.errorWaitTime, svar.getFineJSONFailTime - fail))
             logger.debug('HTTP status code is %s' % response_msg.status_code)
