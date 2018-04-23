@@ -495,7 +495,7 @@ def db_write_rough(parse, uid=1):
     conn.close()
 
 
-def db_write_fine(parse,uid=1):
+def db_write_fine(parse, uid=1):
     conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
                             port=svar.dbPort)
     logger.info('Successfully connect to %s database %s at %s:%s'
@@ -541,14 +541,12 @@ def db_write_fine(parse,uid=1):
         else:
             if qq_fetch['name'] != rt['name']:
                 try:
-                    cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
-                                   (rt['name'], uid, rt['qq']))
+                    cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;', (rt['name'], uid, rt['qq']))
                     conn.commit()
                     logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
                 except Exception:
                     conn.rollback()
-                    logger.error('Error when trying to update QQ information of %s in uid %s'
-                                 % (rt['qq'], uid))
+                    logger.error('Error when trying to update QQ information of %s in uid %s' % (rt['qq'], uid))
                     raise
         if rt['piclist'] is not None:
             rt_pic_id_list = []
@@ -576,8 +574,9 @@ def db_write_fine(parse,uid=1):
         if rt['video'] is not None:
             rt_video_id_list = []
             try:
-                insert_sql = 'INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s) ON CONFLICT(url) do nothing;'
-                cursor.execute(insert_sql, ('video', rt['video']['url'], rt['video']['thumb']))
+                insert_sql = '''INSERT INTO media("type", url, thumb, "time") VALUES (%s, %s, %s, %s)
+                                  ON CONFLICT(url) do nothing;'''
+                cursor.execute(insert_sql, ('video', rt['video']['url'], rt['video']['thumb'], rt['video']['time']))
                 conn.commit()
                 cursor.execute('SELECT id FROM media WHERE url = %s;', (rt['video']['url'],))
                 rt_video_id_dict = cursor.fetchone()
