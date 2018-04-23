@@ -495,12 +495,145 @@ def db_write_rough(parse, uid=1):
     conn.close()
 
 
-def db_write_fine(parse):
+def db_write_fine(parse,uid=1):
     conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
                             port=svar.dbPort)
     logger.info('Successfully connect to %s database %s at %s:%s'
                 % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq']))
+    qq_fetch = cursor.fetchone()
+    if qq_fetch is None:
+        try:
+            cursor.execute('INSERT INTO qq(uid, qq, "name") VALUES (%s, %s, %s);', (uid, parse['qq'], parse['name']))
+            conn.commit()
+            logger.info('Successfully insert QQ information of %s in uid %s' % (parse['qq'], uid))
+        except Exception:
+            conn.rollback()
+            logger.error('Error when trying to insert QQ information of %s in uid %s' % (parse['qq'], uid))
+            raise
+    else:
+        if qq_fetch['name'] != parse['name']:
+            try:
+                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                               (parse['name'], uid, parse['qq']))
+                conn.commit()
+                logger.info('Successfully update QQ information of %s in uid %s' % (parse['qq'], uid))
+            except Exception:
+                conn.rollback()
+                logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
+                raise
+    if parse['rt'] is not None:
+        rt = parse['rt']
+        rt_tid = rt['tid']
+        cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, rt['qq']))
+        qq_fetch = cursor.fetchone()
+        if qq_fetch is None:
+            try:
+                cursor.execute('INSERT INTO qq(uid, qq, "name") VALUES (%s, %s, %s);',
+                               (uid, rt['qq'], rt['name']))
+                conn.commit()
+                logger.info('Successfully insert QQ information of %s in uid %s' % (rt['qq'], uid))
+            except Exception:
+                conn.rollback()
+                logger.error('Error when trying to insert QQ information of %s in uid %s' % (rt['qq'], uid))
+                raise
+        else:
+            if qq_fetch['name'] != rt['name']:
+                try:
+                    cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                   (rt['name'], uid, rt['qq']))
+                    conn.commit()
+                    logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
+                except Exception:
+                    conn.rollback()
+                    logger.error('Error when trying to update QQ information of %s in uid %s'
+                                 % (rt['qq'], uid))
+                    raise
+        if rt['piclist'] is not None:
+            rt_pic_id_list = []
+            for one_pic in rt['piclist']:
+                if one_pic['isvideo'] == 1:
+                    media_type = 'pic_video'
+                else:
+                    media_type = 'pic'
+                try:
+                    insert_sql = '''INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s) 
+                                          ON CONFLICT(url) do nothing;'''
+                    cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
+                    conn.commit()
+                    cursor.execute('SELECT id FROM media WHERE url = %s;', (one_pic['url'],))
+                    rt_pic_id_dict = cursor.fetchone()
+                    rt_pic_id_list.append(rt_pic_id_dict['id'])
+                    logger.info('Successfully insert picture information into database')
+                except Exception:
+                    conn.rollback()
+                    logger.error('Error when trying to insert picture information into database')
+                    raise
+            rt_pic_id_list = str(rt_pic_id_list)
+        else:
+            rt_pic_id_list = None
+        if rt['video'] is not None:
+            rt_video_id_list = []
+            try:
+                insert_sql = 'INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s) ON CONFLICT(url) do nothing;'
+                cursor.execute(insert_sql, ('video', rt['video']['url'], rt['video']['thumb']))
+                conn.commit()
+                cursor.execute('SELECT id FROM media WHERE url = %s;', (rt['video']['url'],))
+                rt_video_id_dict = cursor.fetchone()
+                rt_video_id_list.append(rt_video_id_dict['id'])
+                logger.info('Successfully insert video information into database')
+            except Exception:
+                conn.rollback()
+                logger.error('Error when trying to insert video information into database')
+                raise
+            rt_video_id_list = str(rt_video_id_list)
+        else:
+            rt_video_id_list = None
+        if rt['photo_time'] is not None:
+            rt_phototime = _timestamp_to_datetime(rt['photo_time'])
+        else:
+            rt_phototime = None
+        cursor.execute('SELECT * FROM rt WHERE tid = %s;', (rt['tid'],))
+        rt_fetch = cursor.fetchone()
+        if rt_fetch is None:
+            try:
+                insert_sql = '''INSERT INTO rt(tid, qq, post_time, "content", picnum,
+                                               piclist, video, device, location_user, location_real, 
+                                               longitude, latitude, photo_time)
+                                        VALUES (%s, %s, %s, %s, %s, 
+                                                %s, %s, %s, %s, %s, 
+                                                %s, %s, %s);'''
+                cursor.execute(insert_sql, (
+                    rt['tid'], rt['qq'], _timestamp_to_datetime(rt['post_time']), rt['content'], rt['picnum'],
+                    rt_pic_id_list, rt_video_id_list, rt['device'], rt['location_user'], rt['location_real'],
+                    rt['longitude'], rt['latitude'], rt_phototime))
+                conn.commit()
+                logger.info('Successfully insert rt data into database')
+            except Exception:
+                conn.rollback()
+                logger.error('Error when trying to insert rt data into database')
+                raise
+        else:
+            try:
+                update_sql = '''UPDATE rt
+                                      SET qq = %s, post_time = %s, "content" = %s, 
+                                          picnum = %s, piclist = %s, video = %s, device = %s, 
+                                          location_user = %s, location_real = %s, longitude = %s, latitude = %s, 
+                                          photo_time = %s
+                                      WHERE tid = %s;'''
+                cursor.execute(update_sql, (rt['qq'], _timestamp_to_datetime(rt['post_time']), rt['content'],
+                                            rt['picnum'], rt_pic_id_list, rt_video_id_list, rt['device'],
+                                            rt['location_user'], rt['location_real'], rt['longitude'], rt['latitude'],
+                                            rt_phototime, rt['tid']))
+                conn.commit()
+                logger.info('Successfully update rt data into database')
+            except Exception:
+                conn.rollback()
+                logger.error('Error when trying to update rt data into database')
+                raise
+    else:
+        rt_tid = None
     if parse['piclist'] is not None:
         pic_id_list = []
         for one_pic in parse['piclist']:
@@ -509,10 +642,10 @@ def db_write_fine(parse):
             else:
                 media_type = 'pic'
             try:
-                insert_sql = 'INSERT INTO media("type",url,thumb) VALUES (%s,%s,%s) ON CONFLICT(url) do nothing;'
+                insert_sql = 'INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s) ON CONFLICT(url) do nothing;'
                 cursor.execute(insert_sql, (media_type, one_pic['url'], one_pic['thumb']))
                 conn.commit()
-                cursor.execute('SELECT id FROM media WHERE url=%s;', (one_pic['url'],))
+                cursor.execute('SELECT id FROM media WHERE url = %s;', (one_pic['url'],))
                 pic_id_dict = cursor.fetchone()
                 pic_id_list.append(pic_id_dict['id'])
                 logger.info('Successfully insert picture information into database')
@@ -525,14 +658,15 @@ def db_write_fine(parse):
     if parse['video'] is not None:
         video_id_list = []
         try:
-            insert_sql = 'INSERT INTO media("type",url,thumb,"time") VALUES (%s,%s,%s,%s) ON CONFLICT(url) do nothing;'
+            insert_sql = '''INSERT INTO media("type", url, thumb, "time") VALUES (%s, %s, %s, %s)
+                              ON CONFLICT(url) do nothing;'''
             cursor.execute(insert_sql,
                            ('video', parse['video']['url'], parse['video']['thumb'], parse['video']['time']))
             conn.commit()
             cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['video']['url'],))
             video_id_dict = cursor.fetchone()
             video_id_list.append(video_id_dict['id'])
-            logger.info('Successfully insert vidio information into database')
+            logger.info('Successfully insert video information into database')
         except Exception:
             conn.rollback()
             logger.error('Error when trying to insert video information into database')
@@ -542,10 +676,10 @@ def db_write_fine(parse):
     if parse['voice'] is not None:
         voice_id_list = []
         try:
-            insert_sql = 'INSERT INTO media("type",url,"time") VALUES (%s,%s,%s) ON CONFLICT(url) do nothing;'
+            insert_sql = 'INSERT INTO media("type", url, "time") VALUES (%s, %s, %s) ON CONFLICT(url) do nothing;'
             cursor.execute(insert_sql, ('voice', parse['voice']['url'], parse['voice']['time'] * 1000))
             conn.commit()
-            cursor.execute('SELECT id FROM media WHERE url=%s;', (parse['voice']['url'], ))
+            cursor.execute('SELECT id FROM media WHERE url = %s;', (parse['voice']['url'], ))
             voice_id_dict = cursor.fetchone()
             voice_id_list.append(voice_id_dict['id'])
             logger.info('Successfully insert audio information into database')
@@ -560,31 +694,252 @@ def db_write_fine(parse):
     else:
         phototime = None
     try:
-        insert_sql = '''INSERT INTO "message"(catch_time, tid, qq, post_time, rt_tid, 
-                                              "content", picnum, videonum, sharelink, piclist, 
+        insert_sql = '''INSERT INTO "message"(catch_time, tid, qq, 
+                                              post_time, rt_tid, "content", picnum, piclist, 
                                               video, voice, device, location_user, location_real, 
-                                              longitude, latitude, altitude, photo_time, viewnum, 
-                                              likenum, forwardnum, commentnum)
+                                              longitude, latitude, photo_time, viewnum, likenum,
+                                              forwardnum, commentnum)
                           VALUES (%s, %s, %s,
-                                  %s, %s, 
                                   %s, %s, %s, %s, %s, 
                                   %s, %s, %s, %s, %s, 
                                   %s, %s, %s, %s, %s, 
-                                  %s, %s, %s)
+                                  %s, %s)
                           ON CONFLICT ON CONSTRAINT message_pkey do nothing;'''
         cursor.execute(insert_sql, (
             _timestamp_to_datetime(parse['catch_time']), parse['tid'], parse['qq'],
-            _timestamp_to_datetime(parse['post_time']), parse['rt_tid'],
-            parse['content'], parse['picnum'], parse['videonum'], parse['sharelink'], pic_id_list,
+            _timestamp_to_datetime(parse['post_time']), rt_tid, parse['content'], parse['picnum'], pic_id_list,
             video_id_list, voice_id_list, parse['device'], parse['location_user'], parse['location_real'],
-            parse['longitude'], parse['latitude'], None, phototime, parse['viewnum'],
-            parse['likenum'], parse['forwardnum'], parse['commentnum']
-        ))
+            parse['longitude'], parse['latitude'], phototime, parse['viewnum'],  parse['likenum'],
+            parse['forwardnum'], parse['commentnum']))
         conn.commit()
         logger.info('Successfully insert data into database')
     except Exception:
         conn.rollback()
         logger.error('Error when trying to insert data into database')
-    finally:
-        cursor.close()
-        conn.close()
+    if parse['like'] is not None:
+        for likeman in parse['like']:
+            try:
+                cursor.execute('''INSERT INTO like_person(tid, commentid, qq) VALUES (%s, %s, %s) 
+                                    ON CONFLICT ON CONSTRAINT like_person_pkey do nothing;''',
+                               (parse['tid'], 0, likeman['qq']))
+                conn.commit()
+                logger.info('Successfully insert like information of tid %s' % parse['tid'])
+            except Exception:
+                conn.rollback()
+                logger.info('Error when trying to insert like information of tid %s' % parse['tid'])
+                raise
+            cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, likeman['qq']))
+            qq_fetch = cursor.fetchone()
+            if qq_fetch is None:
+                try:
+                    cursor.execute('INSERT INTO qq(uid, qq, "name") VALUES (%s, %s, %s);',
+                                   (uid, likeman['qq'], likeman['name']))
+                    conn.commit()
+                    logger.info('Successfully insert QQ information of %s in uid %s' % (likeman['qq'], uid))
+                except Exception:
+                    conn.rollback()
+                    logger.error('Error when trying to insert QQ information of %s in uid %s' % (likeman['qq'], uid))
+                    raise
+            else:
+                if qq_fetch['name'] != likeman['name']:
+                    try:
+                        cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                       (likeman['name'], uid, likeman['qq']))
+                        conn.commit()
+                        logger.info('Successfully update QQ information of %s in uid %s' % (likeman['qq'], uid))
+                    except Exception:
+                        conn.rollback()
+                        logger.error('Error when trying to update QQ information of %s in uid %s'
+                                     % (likeman['qq'], uid))
+                        raise
+    if parse['forward'] is not None:
+        for forwardman in parse['forward']:
+            try:
+                cursor.execute('''INSERT INTO forward(tid, qq) VALUES (%s, %s)
+                                    ON CONFLICT ON CONSTRAINT forward_pkey do nothing;''',
+                               (parse['tid'], forwardman['qq']))
+                conn.commit()
+                logger.info('Successfully insert forward information of tid %s' % parse['tid'])
+            except Exception:
+                conn.rollback()
+                logger.info('Error when trying to insert forward information of tid %s' % parse['tid'])
+                raise
+            cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, forwardman['qq']))
+            qq_fetch = cursor.fetchone()
+            if qq_fetch is None:
+                try:
+                    cursor.execute('INSERT INTO qq(uid, qq, "name") VALUES (%s, %s, %s);',
+                                   (uid, forwardman['qq'], forwardman['name']))
+                    conn.commit()
+                    logger.info('Successfully insert QQ information of %s in uid %s' % (forwardman['qq'], uid))
+                except Exception:
+                    conn.rollback()
+                    logger.error('Error when trying to insert QQ information of %s in uid %s' % (forwardman['qq'], uid))
+                    raise
+            else:
+                if qq_fetch['name'] != forwardman['name']:
+                    try:
+                        cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                       (forwardman['name'], uid, forwardman['qq']))
+                        conn.commit()
+                        logger.info('Successfully update QQ information of %s in uid %s' % (forwardman['qq'], uid))
+                    except Exception:
+                        conn.rollback()
+                        logger.error('Error when trying to update QQ information of %s in uid %s'
+                                     % (forwardman['qq'], uid))
+                        raise
+    if parse['comment'] is not None:
+        for comment in parse['comment']:
+            cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, comment['qq']))
+            qq_fetch = cursor.fetchone()
+            if qq_fetch is None:
+                try:
+                    cursor.execute('INSERT INTO qq(uid, qq, "name") VALUES (%s, %s, %s);',
+                                   (uid, comment['qq'], comment['name']))
+                    conn.commit()
+                    logger.info('Successfully insert QQ information of %s in uid %s' % (comment['qq'], uid))
+                except Exception:
+                    conn.rollback()
+                    logger.error('Error when trying to insert QQ information of %s in uid %s' % (comment['qq'], uid))
+                    raise
+            else:
+                if qq_fetch['name'] != comment['name']:
+                    try:
+                        cursor.execute(
+                            'UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                            (comment['name'], uid, comment['qq']))
+                        conn.commit()
+                        logger.info('Successfully update QQ information of %s in uid %s' % (comment['qq'], uid))
+                    except Exception:
+                        conn.rollback()
+                        logger.error('Error when trying to update QQ information of %s in uid %s'
+                                     % (comment['qq'], uid))
+                        raise
+            if comment['piclist'] is not None:
+                pic_id_list = []
+                for one_comment_pic in comment['piclist']:
+                    try:
+                        insert_sql = '''INSERT INTO media("type", url, thumb) VALUES (%s, %s, %s)
+                                          ON CONFLICT(url) do nothing;'''
+                        cursor.execute(insert_sql,
+                                       ('pic', one_comment_pic['url'], one_comment_pic['thumb']))
+                        conn.commit()
+                        cursor.execute('SELECT id FROM media WHERE url = %s;', (one_comment_pic['url'], ))
+                        pic_id_dict = cursor.fetchone()
+                        pic_id_list.append(pic_id_dict['id'])
+                        logger.info('Successfully insert picture information into database')
+                    except Exception:
+                        conn.rollback()
+                        logger.error('Error when trying to insert picture information into database')
+                        raise
+                pic_id_list = str(pic_id_list)
+            else:
+                pic_id_list = None
+            try:
+                insert_sql = '''INSERT INTO comment_reply(catch_time, tid, 
+                                                          commentid, replyid, qq,
+                                                          post_time, "content", 
+                                                          picnum, piclist, replynum)
+                                VALUES (%s, %s, 
+                                        %s, %s, %s, 
+                                        %s, %s, 
+                                        %s, %s, %s) ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
+                cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
+                                            comment['commentid'], 0, comment['qq'],
+                                            _timestamp_to_datetime(comment['post_time']), comment['content'],
+                                            comment['picnum'], pic_id_list, comment['replynum']))
+                conn.commit()
+                logger.info('Successfully insert comment data into database')
+            except Exception:
+                conn.rollback()
+                logger.error('Error when trying to insert comment data into database')
+                raise
+            if comment['like'] is not None:
+                for likeman in comment['like']:
+                    try:
+                        cursor.execute('''INSERT INTO like_person(tid, commentid, qq) VALUES (%s, %s, %s) 
+                                            ON CONFLICT ON CONSTRAINT like_person_pkey do nothing;''',
+                                       (parse['tid'], comment['commentid'], likeman['qq']))
+                        conn.commit()
+                        logger.info('Successfully insert like information of comment %s in tid %s'
+                                    % (comment['commentid'], parse['tid']))
+                    except Exception:
+                        conn.rollback()
+                        logger.info('Error when trying to insert like information of comment %s in tid %s'
+                                    % (comment['commentid'], parse['tid']))
+                        raise
+                    cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, likeman['qq']))
+                    qq_fetch = cursor.fetchone()
+                    if qq_fetch is None:
+                        try:
+                            cursor.execute('INSERT INTO qq(uid, qq, "name") VALUES (%s, %s, %s);',
+                                           (uid, likeman['qq'], likeman['name']))
+                            conn.commit()
+                            logger.info('Successfully insert QQ information of %s in uid %s' % (likeman['qq'], uid))
+                        except Exception:
+                            conn.rollback()
+                            logger.error(
+                                'Error when trying to insert QQ information of %s in uid %s' % (likeman['qq'], uid))
+                            raise
+                    else:
+                        if qq_fetch['name'] != likeman['name']:
+                            try:
+                                cursor.execute(
+                                    'UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                    (likeman['name'], uid, likeman['qq']))
+                                conn.commit()
+                                logger.info('Successfully update QQ information of %s in uid %s' % (likeman['qq'], uid))
+                            except Exception:
+                                conn.rollback()
+                                logger.error('Error when trying to update QQ information of %s in uid %s'
+                                             % (likeman['qq'], uid))
+                                raise
+            if comment['reply'] is not None:
+                for reply in comment['reply']:
+                    cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, reply['qq']))
+                    qq_fetch = cursor.fetchone()
+                    if qq_fetch is None:
+                        try:
+                            cursor.execute('INSERT INTO qq(uid, qq, "name") VALUES (%s, %s, %s);',
+                                           (uid, reply['qq'], reply['name']))
+                            conn.commit()
+                            logger.info('Successfully insert QQ information of %s in uid %s' % (reply['qq'], uid))
+                        except Exception:
+                            conn.rollback()
+                            logger.error('Error when trying to insert QQ information of %s in uid %s' %
+                                         (reply['qq'], uid))
+                            raise
+                    else:
+                        if qq_fetch['name'] != reply['name']:
+                            try:
+                                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                               (reply['name'], uid, reply['qq']))
+                                conn.commit()
+                                logger.info('Successfully update QQ information of %s in uid %s' % (reply['qq'], uid))
+                            except Exception:
+                                conn.rollback()
+                                logger.error('Error when trying to update QQ information of %s in uid %s' %
+                                             (reply['qq'], uid))
+                                raise
+                    try:
+                        insert_sql = '''INSERT INTO comment_reply(catch_time, tid, commentid,
+                                                                   replyid, qq, reply_target_qq, post_time, content)
+                                                        VALUES (%s, %s, 
+                                                                %s, %s, %s, 
+                                                                %s, 
+                                                                %s, 
+                                                                %s) 
+                                                        ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
+                        cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
+                                                    comment['commentid'], reply['replyid'], reply['qq'],
+                                                    reply['reply_target_qq'],
+                                                    _timestamp_to_datetime(reply['post_time']),
+                                                    reply['content']))
+                        conn.commit()
+                        logger.info('Successfully insert reply data into database')
+                    except Exception:
+                        conn.rollback()
+                        logger.error('Error when trying to insert reply data into database')
+                        raise
+    cursor.close()
+    conn.close()
