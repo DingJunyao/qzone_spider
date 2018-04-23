@@ -23,13 +23,11 @@ create_table_sql = (
   "piclist" TEXT  DEFAULT NULL,
   "video" TEXT  DEFAULT NULL,
   "voice" TEXT  DEFAULT NULL,
-  "sharelink" TEXT  DEFAULT NULL,
   "device"  TEXT  DEFAULT NULL,
   "location_user"  TEXT  DEFAULT NULL,
   "location_real"  TEXT  DEFAULT NULL,
   "longitude" REAL  DEFAULT NULL,
   "latitude" REAL  DEFAULT NULL,
-  "altitude" REAL  DEFAULT NULL,
   "photo_time"  INTEGER DEFAULT NULL,
   "viewnum" INTEGER DEFAULT NULL,
   "likenum" INTEGER DEFAULT NULL,
@@ -50,7 +48,6 @@ create_table_sql = (
   "location_real"  TEXT  DEFAULT NULL,
   "longitude" REAL  DEFAULT NULL,
   "latitude" REAL  DEFAULT NULL,
-  "altitude" REAL  DEFAULT NULL,
   "photo_time"  INTEGER DEFAULT NULL,
   PRIMARY KEY ("tid")
 );''',
@@ -85,7 +82,8 @@ create_table_sql = (
   "type"  TEXT  NOT NULL,
   "url" TEXT  NOT NULL UNIQUE,
   "thumb" TEXT  DEFAULT NULL,
-  "time" INTEGER  DEFAULT NULL
+  "time" INTEGER  DEFAULT NULL,
+  "memo" INTEGER  DEFAULT NULL
 );''',
     '''CREATE TABLE "qq"(
   "qq"  INTEGER  NOT NULL,
@@ -104,11 +102,6 @@ create_table_sql = (
   "commentid" INTEGER NOT NULL,
   "replyid" INTEGER NOT NULL,
   "memo"  TEXT	NOT NULL
-);''',
-    '''CREATE TABLE "media_memo" (
-  "id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  "media_id" INTEGER NOT NULL,
-  "memo"  TEXT	NOT NULL
 );''')
 # TODO: The SQL is not finished.
 
@@ -124,8 +117,13 @@ def db_init():
     conn.close()
 
 
+def _dict_factory(cursor, row):
+    return dict((col[0], row[idx]) for idx, col in enumerate(cursor.description))
+
+
 def db_write_rough(parse):
     conn = sqlite3.connect(svar.dbURL)
+    conn.row_factory = _dict_factory
     logger.info('Successfully connect to %s database %s' % (svar.dbType, svar.dbURL))
     cursor = conn.cursor()
     if parse['voice'] is not None:
@@ -169,6 +167,7 @@ def db_write_rough(parse):
 
 def db_write_fine(parse):
     conn = sqlite3.connect(svar.dbURL)
+    conn.row_factory = _dict_factory
     logger.info('Successfully connect to %s database %s' % (svar.dbType, svar.dbURL))
     cursor = conn.cursor()
     if parse['piclist'] is not None:
