@@ -11,6 +11,7 @@ import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from qzone_spider import svar
+import os
 
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,8 @@ def account_login(qq, password, debug=False):
 If you are in console without GUI environment or SSH, please exit.
 If you really need it, please run it in GUI environment.
 Or you need to delete the attribute 'debug=True' or related argument in %s''' % __name__)
+            if 'geteuid' in dir(os) and os.geteuid() == 0:
+                chrome_options.add_argument('--no-sandbox')
         else:
             chrome_options.add_argument('--headless')
             chrome_options.add_argument('--disable-gpu')
