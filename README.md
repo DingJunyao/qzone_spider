@@ -50,32 +50,6 @@ spiderWaitTime = 5			# 爬虫每次执行后的等待时间
 errorWaitTime = 600			# 发生错误后重试的等待时间
 ```
 
-在爬虫文件的目录下打开Python，执行（如果使用别的数据库，把第二行的`mysql`改成自己使用的数据库类型，下同）：
-
-```python
-import qzone_spider
-from qzone_spider import db_control_mysql as db_control
-db_control.db_init()
-```
-
-在爬虫的执行文件的头部需要写入：
-
-```python
-import qzone_spider
-from qzone_spider import db_control_mysql as db_control
-```
-
-如果你在Unix系统或类Unix系统中使用root账户，登录时使用调试模式会报错。这时请在get_login_info.py中找到下面的语句，并在logger语句下加一行代码：`chrome_options.add_argument('--no-sandbox')`，见下：
-
-```python
-        if debug:
-            logger.info('''You are in debug mode. It requires GUI environment. 
-If you are in console without GUI environment or SSH, please exit. 
-If you really need it, please run it in GUI environment. 
-Or you need to delete the attribute 'debug=True' in %s''' % __name__)
-            chrome_options.add_argument('--no-sandbox')
-```
-
 接下来的请参照后面的介绍自行编写。我也写了一个示例爬虫（spider.py），供参考。
 
 ## 示例爬虫
@@ -90,23 +64,10 @@ from qzone_spider import db_control_sqlite as db_control
 
 ### 运行方式
 
-请在命令行（Windows下的命令提示符、PowerShell，Unix或类Unix系统下的控制台、终端或SSH）下进行操作。
-
-Windows下（`[]`内为可选参数，下同）：
-
-```cmd
-> python ./spider.py user target [-p PASSWORD] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL]
-```
-
-Unix或类Unix系统下：
-```shell
-$ python3 ./spider.py user target [-p PASSWORD] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL]
-```
-
-如果是在Unix或类Unix系统下，可以在赋予spider_example.py的执行权限后，省略掉`python3`执行：
+请在命令行（Windows下的命令提示符、PowerShell，Unix或类Unix系统下的控制台、终端或SSH）下进行操作。`[]`内为可选参数，下同：
 
 ```shell
-$ ./spider.py user target [-p PASSWORD] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL]
+qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL] [-c CONFIG]
 ```
 
 各参数解释如下：
@@ -114,10 +75,12 @@ $ ./spider.py user target [-p PASSWORD] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL]
 - `user`：必需参数，作为爬虫的QQ号
 - `target`：必需参数，爬取的QQ号
 - `-p PASSWORD`：可选参数，作为爬虫的QQ号的密码（PASSWORD）。如果没有这个参数，在爬取前，程序会提醒你输入密码（注意，输入密码的时候没有任何提示），输完后按回车，爬虫即可运行。
-- `-q QUANTITY`：可选参数，爬取动态数量（QUANTITY）。数量应为5的倍数。默认情况下为5。
+- `-s START`：可选参数，爬取动态开始位置（START）。最近一条动态为0，之前的动态为1，以此类推。默认情况下为0。
+- `-q QUANTITY`：可选参数，爬取动态数量（QUANTITY）。默认情况下为5。
 - `-i`：可选参数，初始化命令。如果有这个参数，在爬取前会初始化数据库。一般用于数据库刚建好的情况下。对于SQLite，如果之前定义的数据库文件不存在，则会自动新建一个文件，并执行初始化命令。
 - `-d`：可选参数，开启调试模式。如果有这个参数，在获取登录信息的时候会弹出浏览器界面，一般用于需要进行验证的情况下。
 - `-l LOGLEVEL`：可选参数，选择输出日志的级别（LOGLEVEL）。有调试（`DEBUG`）、信息（`INFO`）、警告（`WARNING`）、错误（`ERROR`）四个级别。如果定义了一个级别，则在此之后的级别也会输出（如：定义了信息级别，则会输出信息、警告、错误这三个级别）。默认为信息级别。
+- `-c CONFIG`：可选参数，指定一个配置文件。如果没有，则会新建一个，并且现场填写相关参数。默认情况下为spider.conf。
 
 ### 验证
 

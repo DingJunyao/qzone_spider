@@ -9,26 +9,246 @@ import time
 import argparse
 import getpass
 import sys
+import configparser
+import os
 
 
 def main():
+    config = configparser.ConfigParser()
     parser = argparse.ArgumentParser(description='An example of qzone_spider')
     parser.add_argument('user', help="QQ number as the spider", type=str)
     parser.add_argument('target', help="QQ number as the target", type=str)
-    parser.add_argument('-p', '--password', help="password of the spider QQ, if you don't add it, you can input it later",
-                        type=str)
-    parser.add_argument('-q', '--quantity', help="the quantity of the spider, must be a multiple of 5 (default: 5)",
+    parser.add_argument('-p', '--password',
+                        help="password of the spider QQ, if you don't add it, you can input it later", type=str)
+    parser.add_argument('-s', '--start', help="the start position of the spider (default: 0)",
+                        type=int, default=0)
+    parser.add_argument('-q', '--quantity', help="the quantity of the spider (default: 5)",
                         type=int, default=5)
     parser.add_argument('-i', '--init', help="init the database of the spider with it, add it at first run",
                         action="store_true")
     parser.add_argument('-d', '--debug', help="open GUI environment of browser with it", action="store_true")
-    parser.add_argument('-l', '--loglevel', help="set the log level (debug, info, warning, error)", type=str, default='info')
+    parser.add_argument('-l', '--loglevel', help="set the log level (debug, info, warning, error)", type=str,
+                        default='info')
+    parser.add_argument('-c', '--config',
+                        help="load a config file, the application will create it if it doesn't exist \
+                             (default: spider.conf)", type=str, default='spider.conf')
     args = parser.parse_args()
-    if args.init:
-        db_control.db_init()
-    QQ = args.user
-    targetQQ = args.target
-    quantity = args.quantity
+    if not os.path.exists(args.config):
+        print("The config file doesn't exist, it will be create soon, and you need to configure it.")
+        db_url, db_port, db_database, db_username, db_password = '', '', '', '', ''
+        print('='*40 +
+              '''\nPlease select database type: 
+    [1] MySQL or MariaDB
+    [2] PostgreSQL
+    [3] SQLite
+Default: [3] SQLite''')
+        while True:
+            db_type_num = input('Database type: ')
+            if db_type_num == '1':
+                db_type = 'MySQL'
+                db_port = 3306
+                break
+            elif db_type_num == '2':
+                db_type = 'PostgreSQL'
+                db_port = 5432
+                break
+            elif db_type_num == '3' or db_type_num == '':
+                db_type = 'SQLite'
+                db_url = 'qzone.db'
+                break
+            else:
+                print('Your choice must be 1, 2 or 3!')
+        print('-'*40)
+        if db_type == 'SQLite':
+            db_url = input('Please input database file path: ')
+        else:
+            db_url = input("Please input database URL.\nURL doesn't contain protocol like 'http://'\nDatabase URL: ")
+        if db_type == 'MySQL' or db_type == 'PostgreSQL':
+            print('-' * 40 + '\nPlease input database port.\nDefault Port: %s' % db_port)
+            while True:
+                db_port_str = input('Database Port: ')
+                if db_port_str != '':
+                    if db_port_str.isdigit() and 0 <= int(db_port_str) <= 65535:
+                        db_port = int(db_port_str)
+                        break
+                    else:
+                        print('Database port must be integer between 0 and 65535! ')
+                else:
+                    break
+            db_database = input('-'*40 + '\nPlease input database name: ')
+            db_username = input('-'*40 + '\nPlease input database user name: ')
+            db_password = getpass.getpass('-' * 40 + '\nPlease input user "%s"\'s password: ' % db_username)
+        print('=' * 40)
+        print('''Which spider mode do you want, rough or fine?
+Fine mode can get more information than rough mode, but fine mode is slower, and you can't use it frequently in case \
+of restriction of QQ. 
+    [0] Rough
+    [1] Fine
+Default: [1] Fine''')
+        while True:
+            fine_mode_str = input('Choose: ')
+            if fine_mode_str != '':
+                if fine_mode_str.isdigit() and (int(fine_mode_str) == 0 or int(fine_mode_str) == 1):
+                    fine_mode = int(fine_mode_str)
+                    break
+                else:
+                    print('Your choice must be 1 or 0! ')
+            else:
+                fine_mode = 1
+                break
+        print('=' * 40)
+        print('''Do you want to parse the emotion strings to readable emotion strings or emoji?
+For example: [em]e100[/em] -> [/微笑]; [em]e401181[/em] -> ☺
+They can be stored and read properly, but not all database viewers support showing emoji.
+    [1] Yes
+    [0] No
+Default: [1] Yes''')
+        while True:
+            emotion_parse_str = input('Choose: ')
+            if emotion_parse_str != '':
+                if emotion_parse_str.isdigit() and (int(emotion_parse_str) == 0 or int(emotion_parse_str) == 1):
+                    emotion_parse = int(emotion_parse_str)
+                    break
+                else:
+                    print('Your choice must be 1 or 0! ')
+            else:
+                emotion_parse = 1
+                break
+        print('='*40)
+        while True:
+            login_try_time_str = input('Please input max times trying to get login information (Default: 2): ')
+            if login_try_time_str != '':
+                if login_try_time_str.isdigit() and int(login_try_time_str) >= 1:
+                    login_try_time = int(login_try_time_str)
+                    break
+                else:
+                    print('Times must be integer not smaller than 1!')
+            else:
+                login_try_time = 2
+                break
+        print('-' * 40)
+        while True:
+            get_rough_json_try_time_str = input('Please input max times trying to get rough JSON (Default: 2): ')
+            if get_rough_json_try_time_str != '':
+                if get_rough_json_try_time_str.isdigit() and int(get_rough_json_try_time_str) >= 1:
+                    get_rough_json_try_time = int(get_rough_json_try_time_str)
+                    break
+                else:
+                    print('Times must be integer not smaller than 1!')
+            else:
+                get_rough_json_try_time = 2
+                break
+        print('-' * 40)
+        while True:
+            get_fine_json_try_time_str = input('Please input max times trying to get fine JSON (Default: 2): ')
+            if get_fine_json_try_time_str != '':
+                if get_fine_json_try_time_str.isdigit() and int(get_fine_json_try_time_str) >= 1:
+                    get_fine_json_try_time = int(get_fine_json_try_time_str)
+                    break
+                else:
+                    print('Times must be integer not smaller than 1!')
+            else:
+                get_fine_json_try_time = 2
+                break
+        print('=' * 40)
+        while True:
+            login_wait_str = input('Please input wait seconds when load login site (Default: 3): ')
+            if login_wait_str != '':
+                if login_wait_str.isdigit() and int(login_wait_str) >= 1:
+                    login_wait = int(login_wait_str)
+                    break
+                else:
+                    print('Seconds must be integer not smaller than 1!')
+            else:
+                login_wait = 3
+                break
+        print('-' * 40)
+        while True:
+            scan_wait_str = input('Please input seconds waiting for scan QR Code (Default: 20): ')
+            if scan_wait_str != '':
+                if scan_wait_str.isdigit() and int(scan_wait_str) >= 1:
+                    scan_wait = int(scan_wait_str)
+                    break
+                else:
+                    print('Seconds must be integer not smaller than 1!')
+            else:
+                scan_wait = 20
+                break
+        print('-' * 40)
+        while True:
+            spider_wait_str = input('Please input wait seconds between getting information (Default: 5): ')
+            if spider_wait_str != '':
+                if spider_wait_str.isdigit() and int(spider_wait_str) >= 1:
+                    spider_wait = int(spider_wait_str)
+                    break
+                else:
+                    print('Seconds must be integer not smaller than 1!')
+            else:
+                spider_wait = 5
+                break
+        print('-' * 40)
+        while True:
+            error_wait_str = input('Please input wait seconds when error happens (Default: 600): ')
+            if error_wait_str != '':
+                if error_wait_str.isdigit() and int(error_wait_str) >= 1:
+                    error_wait = int(error_wait_str)
+                    break
+                else:
+                    print('Seconds must be integer not smaller than 1!')
+            else:
+                error_wait = 600
+                break
+        print('=' * 40)
+        config.read(args.config)
+        config.add_section('database')
+        config.set('database', 'type', db_type)
+        config.set('database', 'url', db_url)
+        config.set('database', 'port', str(db_port))
+        config.set('database', 'database', db_database)
+        config.set('database', 'username', db_username)
+        config.set('database', 'password', db_password)
+        config.add_section('mode')
+        config.set('mode', 'fine', str(fine_mode))
+        config.set('mode', 'emotion_parse', str(emotion_parse))
+        config.add_section('try_time')
+        config.set('try_time', 'login_try_time', str(login_try_time))
+        config.set('try_time', 'get_rough_json_try_time', str(get_rough_json_try_time))
+        config.set('try_time', 'get_fine_json_try_time', str(get_fine_json_try_time))
+        config.add_section('wait')
+        config.set('wait', 'login_wait', str(login_wait))
+        config.set('wait', 'scan_wait', str(scan_wait))
+        config.set('wait', 'spider_wait', str(spider_wait))
+        config.set('wait', 'error_wait', str(error_wait))
+        config.write(open(args.config, 'w'))
+        print('Setup finished, and you need to remember the path of the config file: \n\t%s' % args.config)
+        print('Note that the file is written in plain text, so keep it secret if necessary in case of password stolen.')
+    config.read(args.config)
+    db_type = config.get('database', 'type')
+    db_url = config.get('database', 'url')
+    if db_type == 'MySQL':
+        from qzone_spider import db_control_mysql as db_control
+        db_port = int(config.get('database', 'port'))
+        db_database = config.get('database', 'database')
+        db_username = config.get('database', 'username')
+        db_password = config.get('database', 'password')
+    elif db_type == 'PostgreSQL':
+        from qzone_spider import db_control_postgresql as db_control
+        db_port = int(config.get('database', 'port'))
+        db_database = config.get('database', 'database')
+        db_username = config.get('database', 'username')
+        db_password = config.get('database', 'password')
+    else:
+        from qzone_spider import db_control_sqlite as db_control
+    fine_mode = config.getboolean('mode', 'fine')
+    emotion_parse = config.getboolean('mode', 'fine')
+    login_try_time = int(config.get('try', 'login_try_time'))
+    get_rough_json_try_time = int(config.get('try', 'get_rough_json_try_time'))
+    get_fine_json_try_time = int(config.get('try', 'get_fine_json_try_time'))
+    login_wait = int(config.get('try', 'login_wait'))
+    scan_wait = int(config.get('try', 'scan_wait'))
+    spider_wait = int(config.get('try', 'spider_wait'))
+    error_wait = int(config.get('try', 'error_wait'))
+    # TODO：将变量应用至程序
     if args.loglevel.lower == 'info':
         log_level = logging.INFO
     elif args.loglevel.lower == 'debug':
@@ -39,27 +259,41 @@ def main():
         log_level = logging.ERROR
     else:
         log_level = logging.INFO
+    logging.basicConfig(level=log_level, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
+    logger = logging.getLogger(__name__)
+    if args.init:
+        db_control.db_init()
+    if args.start < 0:
+        print('-s or --start must be not smaller than 0!')
+        exit()
+    if args.quantity <= 0:
+        print('-q or --quantity must be bigger than 0!')
+        exit()
+    sub_quantity = args.quantity % 20
     if args.password:
         password = args.password
     else:
         password = getpass.getpass("Password: ")
-    logging.basicConfig(level=log_level, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
-    logger = logging.getLogger(__name__)
-    cookies, gtk, qzonetoken = qzone_spider.account_login(QQ, password, debug=args.debug)
-    end_order = 0
-    while end_order < quantity:
+    cookies, gtk, qzonetoken = qzone_spider.account_login(args.user, password, debug=args.debug)
+    end_order = args.start
+    while end_order < args.quantity:
+        if end_order + 20 <= args.quantity:
+            spider_quantity = 20
+        else:
+            spider_quantity = sub_quantity
+        print(spider_quantity)
         r_catch_time, end_order, rough_json = qzone_spider.get_rough_json(
-            targetQQ, end_order, 1, 10, cookies, gtk, qzonetoken)
+            args.target, end_order, spider_quantity, 10, cookies, gtk, qzonetoken)
         if r_catch_time == 0 and end_order == -1:
             break
         end_order += 1
         for i in range(len(rough_json)):
-            f_catch_time, fine = qzone_spider.get_fine_json(targetQQ, rough_json[i]['tid'], cookies, gtk, qzonetoken)
+            f_catch_time, fine = qzone_spider.get_fine_json(args.target, rough_json[i]['tid'], cookies, gtk, qzonetoken)
             if f_catch_time == 0 and fine == -1:
                 break
             parse_fine = qzone_spider.fine_json_parse(rough_json, i, fine, f_catch_time)
             db_control.db_write_fine(parse_fine)
-            if i != len(rough_json) - 1 or end_order < quantity:
+            if i != len(rough_json) - 1 or end_order < args.quantity:
                 time.sleep(qzone_spider.svar.spiderWaitTime)
 
 
