@@ -12,7 +12,7 @@ qzone_spider附带一些数据库的操作工具，目前支持MySQL（`db_contr
 
 系统方面，只要能够运行Python 3的最新版本就可以。建议有图形界面用于偶尔需要验证时进行操作，但大多数情况下都不需要图形界面。
 
-你需要安装Python 3的最新版本，并安装以下第三方模块：selenium、requests。
+你需要安装Python 3的最新版本（包括自带的模块），并安装以下第三方模块：selenium、requests。
 
 你需要安装Chrome或Chromium，并安装好chromedriver。
 
@@ -48,7 +48,7 @@ spiderWaitTime = 5			# 爬虫每次执行后的等待时间
 errorWaitTime = 600			# 发生错误后重试的等待时间
 ```
 
-在爬虫文件的目录下打开Python，执行：
+在爬虫文件的目录下打开Python，执行（如果使用别的数据库，把第二行的`mysql`改成自己使用的数据库类型，下同）：
 
 ```python
 import qzone_spider

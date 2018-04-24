@@ -3,7 +3,7 @@
 """An example of qzone_spider"""
 
 import qzone_spider
-from qzone_spider import db_control_mysql as db_control
+from qzone_spider import db_control_sqlite as db_control
 from qzone_spider import svar
 import logging
 import time
