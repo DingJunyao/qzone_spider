@@ -11,7 +11,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name="qzone_spider",
-      version="1.0.0.0",
+      version="1.0.0a1",
       description="Spider of Qzone",
       long_description=long_description,
       author="Ding Junyao",
@@ -38,6 +38,12 @@ setup(name="qzone_spider",
       ],
       keywords='spider Qzone QQ SNS',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+      entry_points={
+        "console_scripts": [
+            "qzone_spider = qzone_spider.spider:main",
+            "qzone-spider = qzone_spider.spider:main",
+        ],
+      },
       python_requires='>=3.6',
       install_requires=[
           'selenium',

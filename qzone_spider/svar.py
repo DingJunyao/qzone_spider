@@ -23,7 +23,7 @@ roughJSON_URL = 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emot
 fineJSON_URL = 'https://h5.qzone.qq.com/webapp/json/mqzone_detail/shuoshuo'
 
 dbType = 'SQLite'
-dbURL = 'qzone_db.db'
+dbURL = 'D:\\Code\\qzone_analyse\\qzone_db.db'
 dbPort = None
 dbUsername = None
 dbPassword = None
