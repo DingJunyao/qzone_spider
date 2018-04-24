@@ -179,7 +179,6 @@ def db_write_rough(parse, uid=1):
         except Exception:
             conn.rollback()
             logger.error('Error when trying to insert QQ information of %s in uid %s' % (parse['qq'], uid))
-            raise
     else:
         if qq_fetch['name'] != parse['name']:
             try:
@@ -190,7 +189,6 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
-                raise
     if parse['rt'] is not None:
         rt = parse['rt']
         rt_tid = rt['tid']
@@ -205,7 +203,6 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert QQ information of %s in uid %s' % (rt['qq'], uid))
-                raise
         else:
             if qq_fetch['name'] != rt['name']:
                 try:
@@ -217,7 +214,6 @@ def db_write_rough(parse, uid=1):
                     conn.rollback()
                     logger.error('Error when trying to update QQ information of %s in uid %s'
                                  % (rt['qq'], uid))
-                    raise
         if rt['piclist'] is not None:
             rt_pic_id_list = []
             for one_pic in rt['piclist']:
@@ -237,7 +233,6 @@ def db_write_rough(parse, uid=1):
                 except Exception:
                     conn.rollback()
                     logger.error('Error when trying to insert picture information into database')
-                    raise
             rt_pic_id_list = str(rt_pic_id_list)
         else:
             rt_pic_id_list = None
@@ -254,7 +249,6 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert video information into database')
-                raise
             rt_video_id_list = str(rt_video_id_list)
         else:
             rt_video_id_list = None
@@ -281,7 +275,6 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert rt data into database')
-                raise
         else:
             try:
                 update_sql = '''UPDATE rt
@@ -298,7 +291,6 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to update rt data into database')
-                raise
     else:
         rt_tid = None
     if parse['piclist'] is not None:
@@ -319,7 +311,6 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert picture information into database')
-                raise
         pic_id_list = str(pic_id_list)
     else:
         pic_id_list = None
@@ -378,7 +369,6 @@ def db_write_rough(parse, uid=1):
     except Exception:
         conn.rollback()
         logger.error('Error when trying to insert data into database')
-        raise
     if parse['comment'] is not None:
         for comment in parse['comment']:
             cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, comment['qq']))
@@ -392,7 +382,6 @@ def db_write_rough(parse, uid=1):
                 except Exception:
                     conn.rollback()
                     logger.error('Error when trying to insert QQ information of %s in uid %s' % (comment['qq'], uid))
-                    raise
             else:
                 if qq_fetch['name'] != comment['name']:
                     try:
@@ -405,7 +394,6 @@ def db_write_rough(parse, uid=1):
                         conn.rollback()
                         logger.error('Error when trying to update QQ information of %s in uid %s'
                                      % (comment['qq'], uid))
-                        raise
             if comment['piclist'] is not None:
                 pic_id_list = []
                 for one_comment_pic in comment['piclist']:
@@ -422,7 +410,6 @@ def db_write_rough(parse, uid=1):
                     except Exception:
                         conn.rollback()
                         logger.error('Error when trying to insert picture information into database')
-                        raise
                 pic_id_list = str(pic_id_list)
             else:
                 pic_id_list = None
@@ -444,7 +431,6 @@ def db_write_rough(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert comment data into database')
-                raise
             if comment['reply'] is not None:
                 for reply in comment['reply']:
                     cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, reply['qq']))
@@ -459,7 +445,6 @@ def db_write_rough(parse, uid=1):
                             conn.rollback()
                             logger.error('Error when trying to insert QQ information of %s in uid %s' %
                                          (reply['qq'], uid))
-                            raise
                     else:
                         if qq_fetch['name'] != reply['name']:
                             try:
@@ -471,7 +456,6 @@ def db_write_rough(parse, uid=1):
                                 conn.rollback()
                                 logger.error('Error when trying to update QQ information of %s in uid %s' %
                                              (reply['qq'], uid))
-                                raise
                     try:
                         insert_sql = '''INSERT INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
@@ -491,7 +475,6 @@ def db_write_rough(parse, uid=1):
                     except Exception:
                         conn.rollback()
                         logger.error('Error when trying to insert reply data into database')
-                        raise
     cursor.close()
     conn.close()
 
@@ -512,7 +495,6 @@ def db_write_fine(parse, uid=1):
         except Exception:
             conn.rollback()
             logger.error('Error when trying to insert QQ information of %s in uid %s' % (parse['qq'], uid))
-            raise
     else:
         if qq_fetch['name'] != parse['name']:
             try:
@@ -523,7 +505,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
-                raise
     if parse['rt'] is not None:
         rt = parse['rt']
         rt_tid = rt['tid']
@@ -538,7 +519,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert QQ information of %s in uid %s' % (rt['qq'], uid))
-                raise
         else:
             if qq_fetch['name'] != rt['name']:
                 try:
@@ -548,7 +528,6 @@ def db_write_fine(parse, uid=1):
                 except Exception:
                     conn.rollback()
                     logger.error('Error when trying to update QQ information of %s in uid %s' % (rt['qq'], uid))
-                    raise
         if rt['piclist'] is not None:
             rt_pic_id_list = []
             for one_pic in rt['piclist']:
@@ -568,7 +547,6 @@ def db_write_fine(parse, uid=1):
                 except Exception:
                     conn.rollback()
                     logger.error('Error when trying to insert picture information into database')
-                    raise
             rt_pic_id_list = str(rt_pic_id_list)
         else:
             rt_pic_id_list = None
@@ -586,7 +564,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert video information into database')
-                raise
             rt_video_id_list = str(rt_video_id_list)
         else:
             rt_video_id_list = None
@@ -613,7 +590,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert rt data into database')
-                raise
         else:
             try:
                 update_sql = '''UPDATE rt
@@ -631,7 +607,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to update rt data into database')
-                raise
     else:
         rt_tid = None
     if parse['piclist'] is not None:
@@ -727,7 +702,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.info('Error when trying to insert like information of tid %s' % parse['tid'])
-                raise
             cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, likeman['qq']))
             qq_fetch = cursor.fetchone()
             if qq_fetch is None:
@@ -739,7 +713,6 @@ def db_write_fine(parse, uid=1):
                 except Exception:
                     conn.rollback()
                     logger.error('Error when trying to insert QQ information of %s in uid %s' % (likeman['qq'], uid))
-                    raise
             else:
                 if qq_fetch['name'] != likeman['name']:
                     try:
@@ -751,7 +724,6 @@ def db_write_fine(parse, uid=1):
                         conn.rollback()
                         logger.error('Error when trying to update QQ information of %s in uid %s'
                                      % (likeman['qq'], uid))
-                        raise
     if parse['forward'] is not None:
         for forwardman in parse['forward']:
             try:
@@ -763,7 +735,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.info('Error when trying to insert forward information of tid %s' % parse['tid'])
-                raise
             cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, forwardman['qq']))
             qq_fetch = cursor.fetchone()
             if qq_fetch is None:
@@ -775,7 +746,6 @@ def db_write_fine(parse, uid=1):
                 except Exception:
                     conn.rollback()
                     logger.error('Error when trying to insert QQ information of %s in uid %s' % (forwardman['qq'], uid))
-                    raise
             else:
                 if qq_fetch['name'] != forwardman['name']:
                     try:
@@ -787,7 +757,6 @@ def db_write_fine(parse, uid=1):
                         conn.rollback()
                         logger.error('Error when trying to update QQ information of %s in uid %s'
                                      % (forwardman['qq'], uid))
-                        raise
     if parse['comment'] is not None:
         for comment in parse['comment']:
             cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, comment['qq']))
@@ -801,7 +770,6 @@ def db_write_fine(parse, uid=1):
                 except Exception:
                     conn.rollback()
                     logger.error('Error when trying to insert QQ information of %s in uid %s' % (comment['qq'], uid))
-                    raise
             else:
                 if qq_fetch['name'] != comment['name']:
                     try:
@@ -814,7 +782,6 @@ def db_write_fine(parse, uid=1):
                         conn.rollback()
                         logger.error('Error when trying to update QQ information of %s in uid %s'
                                      % (comment['qq'], uid))
-                        raise
             if comment['piclist'] is not None:
                 pic_id_list = []
                 for one_comment_pic in comment['piclist']:
@@ -831,7 +798,6 @@ def db_write_fine(parse, uid=1):
                     except Exception:
                         conn.rollback()
                         logger.error('Error when trying to insert picture information into database')
-                        raise
                 pic_id_list = str(pic_id_list)
             else:
                 pic_id_list = None
@@ -853,7 +819,6 @@ def db_write_fine(parse, uid=1):
             except Exception:
                 conn.rollback()
                 logger.error('Error when trying to insert comment data into database')
-                raise
             if comment['like'] is not None:
                 for likeman in comment['like']:
                     try:
@@ -867,7 +832,6 @@ def db_write_fine(parse, uid=1):
                         conn.rollback()
                         logger.info('Error when trying to insert like information of comment %s in tid %s'
                                     % (comment['commentid'], parse['tid']))
-                        raise
                     cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, likeman['qq']))
                     qq_fetch = cursor.fetchone()
                     if qq_fetch is None:
@@ -880,7 +844,6 @@ def db_write_fine(parse, uid=1):
                             conn.rollback()
                             logger.error(
                                 'Error when trying to insert QQ information of %s in uid %s' % (likeman['qq'], uid))
-                            raise
                     else:
                         if qq_fetch['name'] != likeman['name']:
                             try:
@@ -893,7 +856,6 @@ def db_write_fine(parse, uid=1):
                                 conn.rollback()
                                 logger.error('Error when trying to update QQ information of %s in uid %s'
                                              % (likeman['qq'], uid))
-                                raise
             if comment['reply'] is not None:
                 for reply in comment['reply']:
                     cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, reply['qq']))
@@ -908,7 +870,6 @@ def db_write_fine(parse, uid=1):
                             conn.rollback()
                             logger.error('Error when trying to insert QQ information of %s in uid %s' %
                                          (reply['qq'], uid))
-                            raise
                     else:
                         if qq_fetch['name'] != reply['name']:
                             try:
@@ -920,7 +881,6 @@ def db_write_fine(parse, uid=1):
                                 conn.rollback()
                                 logger.error('Error when trying to update QQ information of %s in uid %s' %
                                              (reply['qq'], uid))
-                                raise
                     try:
                         insert_sql = '''INSERT INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
@@ -940,6 +900,5 @@ def db_write_fine(parse, uid=1):
                     except Exception:
                         conn.rollback()
                         logger.error('Error when trying to insert reply data into database')
-                        raise
     cursor.close()
     conn.close()
