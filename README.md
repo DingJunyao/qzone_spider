@@ -483,8 +483,8 @@ db_control_sqlite.db_init(db_url)
 需要另外导入数据库相关的模块。
 
 ```python
-db_control_mysql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
-db_control_postgresql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_mysql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432)
+db_control_postgresql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432)
 db_control_sqlite.db_write_rough(parse, db_url)
 ```
 
@@ -496,7 +496,6 @@ db_control_sqlite.db_write_rough(parse, db_url)
 4. `db_username`：字符串类型，数据库用户名。对于SQLite，无此参数。
 5. `db_password`：字符串类型，数据库用户密码。对于SQLite，无此参数。
 6. `db_port`：整数类型，数据库端口号。对于MySQL，默认值为3306；对于PostgreSQL，默认值为5432。对于SQLite，无此参数。
-7. `uid`：整数类型，用户id（为未来预留）。对于SQLite，无此参数。
 
 无返回值。
 
@@ -507,8 +506,8 @@ db_control_sqlite.db_write_rough(parse, db_url)
 需要另外导入数据库相关的模块。
 
 ```python
-db_control_mysql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
-db_control_postgresql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_mysql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432)
+db_control_postgresql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432)
 db_control_sqlite.db_write_fine(parse, db_url)
 ```
 
@@ -520,7 +519,6 @@ db_control_sqlite.db_write_fine(parse, db_url)
 4. `db_username`：字符串类型，数据库用户名。对于SQLite，无此参数。
 5. `db_password`：字符串类型，数据库用户密码。对于SQLite，无此参数。
 6. `db_port`：整数类型，数据库端口号。对于MySQL，默认值为3306；对于PostgreSQL，默认值为5432。对于SQLite，无此参数。
-7. `uid`：整数类型，用户id（为未来预留）。对于SQLite，无此参数。
 
 无返回值。
 
