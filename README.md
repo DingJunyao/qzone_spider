@@ -66,21 +66,21 @@ fine = 1
 do_emotion_parse = 1
 
 [try]
-# 登录的时候错误重试次数
+# 尝试登录的最大次数
 login_try_time = 2
-# 获取粗JSON时错误重试次数
+# 获取粗JSON的最大尝试次数
 get_rough_json_try_time = 2
-# 获取细JSON时错误重试次数
+# 获取细JSON的最大尝试次数
 get_fine_json_try_time = 2
 
 [wait]
-# 登录的时候等待时间（秒）
+# 登录时的等待时间（秒）
 login_wait = 3
-# 扫码的时候等待时间
+# 等待扫码的时间（秒）
 scan_wait = 20
-# 爬虫每次执行后的等待时间
+# 爬虫每次执行后的等待时间（秒）
 spider_wait = 5
-# 发生错误后重试的等待时间
+# 发生错误后，重试的间隔时间（秒）
 error_wait = 60
 ```
 
@@ -128,7 +128,7 @@ PS D:\ana\qzone> qzone-spider 123456
 
 爬取得到的内容以下面的数据结构存在数据库中，你可以通过检索来获得数据，并对其分析。这至少需要一定的SQL经验和相关数据库的使用经验。
 
-经验证，对于emoji内容，MySQL、PostgreSQL和SQLite均可以存储。但展示它们需要软件支持，目前绝大多数数据库工具都无法正常展示emoji。
+经验证，对于emoji内容，MySQL、PostgreSQL和SQLite均可以存取。但展示它们需要软件支持，目前绝大多数数据库工具都无法正常展示emoji。
 
 ### 用户数据表（预留）
 
@@ -359,7 +359,7 @@ db_control.db_init()
 通过QQ号和密码，模拟登录手机网页版的QQ空间，以获取登录信息。
 
 ```python
-account_login(qq, password, debug=False)
+account_login(qq, password, debug=False, login_try_time=2, login_wait=3, error_wait=600)
 ```
 
 参数：
@@ -367,6 +367,9 @@ account_login(qq, password, debug=False)
 1. `qq`：字符串类型，QQ号。
 2. `password`：字符串类型，QQ密码
 3. `debug`：布尔类型，是否开启调试模式。默认值为False。当它设置为False时，开启浏览器的无头模式，启动时没有界面；当遇到需要验证的情况时，程序会提示需要打开调试模式，并退出。否则，浏览器不会开启无头模式，可以显示界面，以便验证和调试，但程序也会提示调试模式。
+4. `login_try_time`：整数类型，尝试登录的最大次数。当发生错误的时候，重试次数为这个数减1。默认值是2。
+5. `login_wait`：整数类型，登录时的等待时间（秒）。这段时间主要用于等待页面加载完成。默认值是3。
+6. `error_wait`：整数类型，发生错误后，重试的间隔时间（秒）。默认值是600。
 
 函数会返回三个值：
 
@@ -381,10 +384,14 @@ account_login(qq, password, debug=False)
 通过扫码的方式登录PC端的QQ空间，以获取登录信息。
 
 ```python
-scan_login()
+scan_login(login_try_time=2, scan_wait=20, error_wait=600)
 ```
 
-无参数。
+参数：
+
+1. `login_try_time`：整数类型，尝试登录的最大次数。当发生错误的时候，重试次数为这个数减1。默认值是2。
+2. `scan_wait`：整数类型，等待扫码的时间（秒）。在这段时间内，请扫描二维码。默认值是20。
+3. `error_wait`：整数类型，发生错误后，重试的间隔时间（秒）。默认值是600。
 
 运行时需要使用GUI界面，并且监视浏览器的行为，当出现二维码的时候使用手机QQ扫码即可。
 
@@ -395,7 +402,7 @@ scan_login()
 获取QQ空间动态的粗JSON。一般来说，一次可以爬取多条动态的粗JSON数据。
 
 ```python
-get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken)
+get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_rough_json_try_time=2, error_wait=600)
 ```
 
 参数：
@@ -407,6 +414,8 @@ get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken)
 5. `cookies`：字典类型，获取登录信息时得到的Cookies。
 6. `gtk`：字符串类型，获取登录信息时得到的gtk。
 7. `qzonetoken`：字符串类型，获取登录信息时得到的qzonetoken。
+8. `get_rough_json_try_time`：整数类型，获取粗JSON的最大尝试次数。当发生错误的时候，重试次数为这个数减1。默认值是2。
+9. `error_wait`：整数类型，发生错误后，重试的间隔时间（秒）。默认值是600。
 
 函数会返回三个值：
 
@@ -424,7 +433,7 @@ get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken)
 获取QQ空间动态的细JSON。一次只能爬取一条动态的细JSON数据。
 
 ```python
-get_fine_json(qq, tid, cookies, gtk, qzonetoken)
+get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, error_wait=600)
 ```
 
 参数：
@@ -434,6 +443,8 @@ get_fine_json(qq, tid, cookies, gtk, qzonetoken)
 3. `cookies`：字典类型，获取登录信息时得到的Cookies。
 4. `gtk`：字符串类型，获取登录信息时得到的gtk。
 5. `qzonetoken`：字符串类型，获取登录信息时得到的qzonetoken。
+6. `get_fine_json_try_time`：整数类型，获取细JSON的最大尝试次数。当发生错误的时候，重试次数为这个数减1。默认值是2。
+7. `error_wait`：整数类型，发生错误后，重试的间隔时间（秒）。默认值是600。
 
 函数会返回两个值：
 
@@ -443,22 +454,6 @@ get_fine_json(qq, tid, cookies, gtk, qzonetoken)
 如果爬取失败，返回两个整数值：`0, -1`。
 
 根据经验，不要频繁使用该函数，否则会无法正常使用QQ空间的功能，具体特征是：当打开动态的详细页时，会提示“操作失败”。这种状态少则持续一个小时，多则一天，不知道会不会永久受影响。
-
-### `rough_json_parse`
-
-对QQ空间动态的粗JSON数据进行，取有用的数据重新组合。
-
-```python
-rough_json_parse(rough_json_list, ordernum, catch_time=0)
-```
-
-参数：
-
-1. `rough_json_list`：列表类型，爬取的动态的粗JSON数据的Python表达方式。
-2. `ordernum`：整数类型，`rough_json_list`中的列表编号，代表其中的某一条动态的编号。
-3. `catch_time`：整数类型，爬取数据时的时间戳。默认值为0。
-
-函数会返回一个字典类型的数据，表示解析后的动态的粗数据的JSON的Python表达方式。
 
 ### `emotion_parse`
 
@@ -482,12 +477,29 @@ emotion_parse(content)
 
 函数会返回一个字符串类型的数据，表示解析后的文本。
 
+### `rough_json_parse`
+
+对QQ空间动态的粗JSON数据进行，取有用的数据重新组合。
+
+```python
+rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True)
+```
+
+参数：
+
+1. `rough_json_list`：列表类型，爬取的动态的粗JSON数据的Python表达方式。
+2. `ordernum`：整数类型，`rough_json_list`中的列表编号，代表其中的某一条动态的编号。
+3. `catch_time`：整数类型，爬取数据时的时间戳。默认值为0。
+4. `do_emotion_parse`：布尔类型，是否转换文本中的表情字符串。默认值为True。
+
+函数会返回一个字典类型的数据，表示解析后的动态的粗数据的JSON的Python表达方式。
+
 ### `fine_json_parse`
 
 对QQ空间动态的细JSON数据进行，取有用的数据重新组合。
 
 ```python
-rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0)
+rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True)
 ```
 
 参数：
@@ -496,6 +508,7 @@ rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0)
 2. `ordernum`：整数类型，`rough_json_list`中的列表编号，代表其中的某一条动态的编号。
 3. `fine_json`：字典类型，爬取的动态的细JSON数据的Python表达方式。
 4. `catch_time`：整数类型，爬取数据时的时间戳。默认值为0。建议使用细JSON的爬取时间。
+5. `do_emotion_parse`：布尔类型，是否转换文本中的表情字符串。默认值为True。
 
 函数会返回一个字典类型的数据，表示解析后的动态的细数据的JSON的Python表达方式。
 
@@ -506,10 +519,20 @@ rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0)
 需要另外导入数据库相关的模块。
 
 ```python
-db_init()
+db_control_mysql.db_init(db_url, db_database, db_username, db_password, db_port=3306)
+db_control_postgresql.db_init(db_url, db_database, db_username, db_password, db_port=5432)
+db_control_sqlite.db_init(db_url)
 ```
 
-无参数，无返回值。
+参数：
+
+1. `db_url`：字符串类型，数据库的地址。对于SQLite，指数据库文件的路径。
+2. `db_database`：字符串类型，数据库名称。对于SQLite，无此参数。
+3. `db_username`：字符串类型，数据库用户名。对于SQLite，无此参数。
+4. `db_password`：字符串类型，数据库用户密码。对于SQLite，无此参数。
+5. `db_port`：整数类型，数据库端口号。对于MySQL，默认值为3306；对于PostgreSQL，默认值为5432。对于SQLite，无此参数。
+
+无返回值。
 
 ### `db_write_rough`
 
@@ -518,12 +541,20 @@ db_init()
 需要另外导入数据库相关的模块。
 
 ```python
-db_write_rough(parse)
+db_control_mysql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_postgresql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_sqlite.db_write_rough(parse, db_url)
 ```
 
 参数：
 
-`parse`：字典类型，解析后的动态的粗数据的JSON的Python表达方式。
+1. `parse`：字典类型，解析后的动态的粗数据的JSON的Python表达方式。
+2. `db_url`：字符串类型，数据库的地址。对于SQLite，指数据库文件的路径。
+3. `db_database`：字符串类型，数据库名称。对于SQLite，无此参数。
+4. `db_username`：字符串类型，数据库用户名。对于SQLite，无此参数。
+5. `db_password`：字符串类型，数据库用户密码。对于SQLite，无此参数。
+6. `db_port`：整数类型，数据库端口号。对于MySQL，默认值为3306；对于PostgreSQL，默认值为5432。对于SQLite，无此参数。
+7. `uid`：整数类型，用户id（为未来预留）。对于SQLite，无此参数。
 
 无返回值。
 
@@ -534,18 +565,26 @@ db_write_rough(parse)
 需要另外导入数据库相关的模块。
 
 ```python
-db_write_fine(parse)
+db_control_mysql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_postgresql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_sqlite.db_write_fine(parse, db_url)
 ```
 
 参数：
 
-`parse`：字典类型，解析后的动态的细数据的JSON的Python表达方式。
+1. `parse`：字典类型，解析后的动态的细数据的JSON的Python表达方式。
+2. `db_url`：字符串类型，数据库的地址。对于SQLite，指数据库文件的路径。
+3. `db_database`：字符串类型，数据库名称。对于SQLite，无此参数。
+4. `db_username`：字符串类型，数据库用户名。对于SQLite，无此参数。
+5. `db_password`：字符串类型，数据库用户密码。对于SQLite，无此参数。
+6. `db_port`：整数类型，数据库端口号。对于MySQL，默认值为3306；对于PostgreSQL，默认值为5432。对于SQLite，无此参数。
+7. `uid`：整数类型，用户id（为未来预留）。对于SQLite，无此参数。
 
 无返回值。
 
 ## 许可
 
-由于软件著作权的关系，许可待议。
+待议。
 
 ### 使用到的组件
 
