@@ -31,7 +31,7 @@ setup(name='qzone_spider',
           'Topic :: Utilities',
           'Topic :: Software Development :: Libraries :: Python Modules',
       ],
-      keywords='spider Qzone QQ SNS',
+      keywords='spider Qzone QQ SNS data mining',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       entry_points={
         'console_scripts': [
