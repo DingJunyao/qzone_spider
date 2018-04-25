@@ -245,9 +245,15 @@ Default: [1] Yes''')
         config.set('wait', 'spider_wait', str(spider_wait))
         config.set('wait', 'error_wait', str(error_wait))
         config.write(open(args.config, 'w'))
-        print('Setup finished, and you need to remember the path of the config file: \n\t%s' % args.config)
+        print('Setup finished, and you need to remember the absolute path to the config file: \n\t%s'
+              % os.path.abspath(args.config))
         print('Note that the file is written in plain text, so keep it secret if necessary in case of password stolen.')
+        if db_type == 'SQLite':
+            print('If you define a relative path to SQLite database file, \
+remember it is based on the directory where config file is in. ')
+            print('Absolute path to the database file:\n\t%s' % os.path.abspath(db_url))
         print('=' * 40)
+        exit()
     config.read(args.config)
     db_type = config.get('database', 'type')
     db_url = config.get('database', 'url')

@@ -8,7 +8,7 @@
 
 ## 使用方法
 
-qzone_spider附带一些数据库的操作工具，目前支持MySQL（`db_control_mysql`）、PostgreSQL（`db_control_postgresql`）、SQLite（`db_control_sqlite`）。它们未集成在qzone_spider包内，需要通过`from qzone_spider import db_control_%s`这样的方式导入。
+qzone_spider目前原生支持MySQL、PostgreSQL、SQLite。
 
 ### 要求与准备
 
@@ -24,42 +24,64 @@ qzone_spider附带一些数据库的操作工具，目前支持MySQL（`db_contr
 
 当然，如果你有能力，也可以自行使用别的配置，只不过后面需要自己写代码。
 
-### 配置
+### 安装
 
-我们接下来以MySQL数据库为例介绍使用方法。
+qzone_spider未来会上传至PyPI，届时你只需要运行以下命令即可安装：
 
-更改qzone_spider中的svar.py：
-
-```python
-dbType = 'MySQL'			# 数据库类型，目前只是为了标识用
-dbURL = 'localhost'			# 数据库地址，如果是SQLite则写数据库文件路径名
-dbPort = 3306				# 数据库端口号，如果是SQLite则忽略
-dbUsername = 'root'			# 数据库用户名，如果是SQLite则忽略
-dbPassword = 'root'			# 数据库密码，如果是SQLite则忽略
-dbDatabase = 'mood2'		# 数据库名称，如果是SQLite则忽略
-
-emotionParse = True			# 是否转换表情符号
-
-loginFailTime = 2			# 登录的时候错误重试次数
-getRoughDataFailTime = 2	# 获取粗JSON时错误重试次数
-getFineDataFailTime = 2		# 获取细JSON时错误重试次数
-
-loginWaitTime = 3			# 登录的时候等待时间（秒）
-scanWaitTime = 20			# 扫码的时候等待时间
-spiderWaitTime = 5			# 爬虫每次执行后的等待时间
-errorWaitTime = 600			# 发生错误后重试的等待时间
+```shell
+pip install qzone_spider
 ```
 
-接下来的请参照后面的介绍自行编写。我也写了一个示例爬虫（spider.py），供参考。
+当然，目前也可以通过打包的文件来安装。
 
-## 示例爬虫
+```shell
+pip install ./qzone_spider-1.0.0a1.tar.gz
+```
 
-示例爬虫的主要功能是：使用某个QQ号取爬取某个QQ号的若干条动态，并存至之前设置的数据库。
+### 配置
 
-程序设置的是SQLite数据库。如果你需要使用别的数据库，请更改以下地方的代码：
+建立一个配置文件，名称一般为qzone_spider.conf（当然，你也可以稍后在运行的时候进行配置）：
 
-```python
-from qzone_spider import db_control_sqlite as db_control
+```ini
+[database]
+# 数据库类型
+type = MySQL
+# 数据库地址，如果是SQLite则写数据库文件路径名。如果是相对路径，注意工作目录路径
+url = localhost
+# 数据库端口号，如果是SQLite则不用写后面的值
+port = 3306
+# 数据库名称，如果是SQLite则不用写后面的值
+database = mood3
+# 数据库用户名，如果是SQLite则不用写后面的值
+username = spider
+# 数据库密码，如果是SQLite则不用写后面的值
+password = spider
+
+[mode]
+# 通过账号密码登录还是通过扫码登录，扫码登录为1，通过账号密码登录为0
+scan = 0
+# 获取粗数据还是细数据，细数据为1，粗数据为0
+fine = 1
+# 是否转换表情符号，是为1，否为0
+do_emotion_parse = 1
+
+[try]
+# 登录的时候错误重试次数
+login_try_time = 2
+# 获取粗JSON时错误重试次数
+get_rough_json_try_time = 2
+# 获取细JSON时错误重试次数
+get_fine_json_try_time = 2
+
+[wait]
+# 登录的时候等待时间（秒）
+login_wait = 3
+# 扫码的时候等待时间
+scan_wait = 20
+# 爬虫每次执行后的等待时间
+spider_wait = 5
+# 发生错误后重试的等待时间
+error_wait = 60
 ```
 
 ### 运行方式
@@ -67,38 +89,52 @@ from qzone_spider import db_control_sqlite as db_control
 请在命令行（Windows下的命令提示符、PowerShell，Unix或类Unix系统下的控制台、终端或SSH）下进行操作。`[]`内为可选参数，下同：
 
 ```shell
-qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL] [-c CONFIG]
+qzone-spider target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL] [-c CONFIG]
 ```
 
 各参数解释如下：
 
-- `user`：必需参数，作为爬虫的QQ号
 - `target`：必需参数，爬取的QQ号
-- `-p PASSWORD`：可选参数，作为爬虫的QQ号的密码（PASSWORD）。如果没有这个参数，在爬取前，程序会提醒你输入密码（注意，输入密码的时候没有任何提示），输完后按回车，爬虫即可运行。
+- `-u USER`：可选参数，作为爬虫的QQ号（USER）。如果通过扫码进行登录，可不填；如果通过账号密码登录，必填。
+- `-p PASSWORD`：可选参数，作为爬虫的QQ号的密码（PASSWORD）。如果没有这个参数，且通过账号密码登录，在爬取前，程序会提醒你输入密码（注意，输入密码的时候没有任何提示），输完后按回车，爬虫即可运行。
 - `-s START`：可选参数，爬取动态开始位置（START）。最近一条动态为0，之前的动态为1，以此类推。默认情况下为0。
 - `-q QUANTITY`：可选参数，爬取动态数量（QUANTITY）。默认情况下为5。
-- `-i`：可选参数，初始化命令。如果有这个参数，在爬取前会初始化数据库。一般用于数据库刚建好的情况下。对于SQLite，如果之前定义的数据库文件不存在，则会自动新建一个文件，并执行初始化命令。
+- `-i`：可选参数，初始化命令。如果有这个参数，在爬取前会初始化数据库。一般用于数据库刚建好的情况下。对于SQLite，如果之前定义的数据库文件不存在，则会自动按照配置文件新建一个文件，并执行初始化命令。
 - `-d`：可选参数，开启调试模式。如果有这个参数，在获取登录信息的时候会弹出浏览器界面，一般用于需要进行验证的情况下。
 - `-l LOGLEVEL`：可选参数，选择输出日志的级别（LOGLEVEL）。有调试（`DEBUG`）、信息（`INFO`）、警告（`WARNING`）、错误（`ERROR`）四个级别。如果定义了一个级别，则在此之后的级别也会输出（如：定义了信息级别，则会输出信息、警告、错误这三个级别）。默认为信息级别。
-- `-c CONFIG`：可选参数，指定一个配置文件。如果没有，则会新建一个，并且现场填写相关参数。默认情况下为spider.conf。
+- `-c CONFIG`：可选参数，配置文件的路径（CONFIG）。如果没有，则会新建一个，并且现场填写相关参数。默认情况下为工作目录下的qzone_spider.conf。
+
+### 运行
+
+程序启动时，会读配置文件。如果目标配置文件不存在，会提示创建配置文件，这时请按屏幕操作即可。
+
+注意：如果使用相对路径，配置文件和数据库文件的相对路径都是基于目前所在工作目录的。因此，在执行程序和配置前，请确保工作目录路径正确。
+
+例如：
+
+```powershell
+PS D:\ana\qzone> qzone-spider 123456
+```
+
+的工作目录为`D:\ana\qzone`。
 
 ### 验证
 
-一般来说，第一次使用，QQ空间会提示验证。这时，请在命令中加入`-d`后再次运行。这次需要有图形界面。浏览器将会显示以进行验证。
+一般来说，如果通过账号密码登录第一次使用，QQ空间会提示验证。这时，请在命令中加入`-d`后再次运行。这次需要有图形界面。浏览器将会显示以进行验证。
 
 一般来说，在一台设备登录QQ后，很长时间都不需要验证。所以，验证完后可以把代码改回来。
 
-# 数据结构
+## 数据结构
 
 爬取得到的内容以下面的数据结构存在数据库中，你可以通过检索来获得数据，并对其分析。这至少需要一定的SQL经验和相关数据库的使用经验。
 
 经验证，对于emoji内容，MySQL、PostgreSQL和SQLite均可以存储。但展示它们需要软件支持，目前绝大多数数据库工具都无法正常展示emoji。
 
-## 用户数据表（预留）
+### 用户数据表（预留）
 
 本节的表存放用户相关信息，为未来预留。
 
-### `user_loginfo`表
+#### `user_loginfo`表
 
 存放账号、密码。
 
@@ -110,11 +146,11 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `password` | 密码   | `VARCHAR(64)`     | `TEXT`                 | 否       | 采用SHA-256加密，必要时可以使用更安全的不可逆算法 |
 | `nickname` | 昵称   | `VARCHAR(64)`     | `TEXT`                 | 是       |                                                   |
 
-### `spider_qq`表
+#### `spider_qq`表
 
 存放用户自定义的爬虫QQ账号和密码。（待完善）
 
-### `target`表
+#### `target`表
 
 存放用户要爬取的qq账号。
 
@@ -124,7 +160,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `target_qq` | 要爬取的QQ账号 | `BIGINT(16)`      | `BIGINT`               | 否       | 主键     |
 | `mode`      | 爬取模式       | `INT(1)`          | `INT`                  | 否       | （待议） |
 
-### `service_record`表
+#### `service_record`表
 
 存放用户购买服务的详细记录。（待完善）
 
@@ -135,11 +171,11 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `uid`  | 用户id   | `INT(11)`         | `BIGINT`               | 否       |      |
 | ……     | ……       | ……                |                        | ……       | ……   |
 
-## 爬虫数据表
+### 爬虫数据表
 
 爬取数据分到以下的表中：
 
-### `message`表
+#### `message`表
 
 存放爬取的信息本体内容。
 
@@ -168,7 +204,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `forwardnum`    | 转发量                 | `INT(11)`         | `BIGINT`               | `INTEGER`          | 是       |      |
 | `commentnum`    | 评论量                 | `INT(11)`         | `BIGINT`               | `INTEGER`          | 是       |      |
 
-### `rt`表
+#### `rt`表
 
 存放被转发信息的本体内容。当然，也可以去爬取原来的信息。
 
@@ -190,7 +226,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `latitude`      | 纬度                   | `DOUBLE(11,7)`    | `DOUBLE PRECISION`     | `REAL`             | 是       |      |
 | `photo_time`    | 照片拍摄日期           | `DATETIME`        | `TIMESTAMP`            | `INTEGER`          | 是       |      |
 
-### `like_person`表
+#### `like_person`表
 
 存放**部分**点赞信息。
 
@@ -202,7 +238,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `commentid` | 评论id       | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键，如果不是评论则为0 |
 | `qq`        | 点赞的QQ账号 | `BIGINT(16)`      | `BIGINT`               | `INTEGER`          | 否       | 主键                    |
 
-### `forward`表
+#### `forward`表
 
 存放**部分**转发信息。
 
@@ -213,7 +249,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `tid`  | 信息tid      | `VARCHAR(26)`    | `TEXT`                 | `TEXT`             | 否       | 主键 |
 | `qq`   | 转发的QQ账号 | `BIGINT(16)`     | `BIGINT`               | `INTEGER`          | 否       | 主键 |
 
-### `comment_reply`表
+#### `comment_reply`表
 
 存放评论和回复信息。
 
@@ -234,7 +270,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `likenum`         | 赞数             | `INT(11)`         | `BIGINT`               | `INTEGER`          | 是       |                           |
 | `replynum`        | 回复数           | `INT(11)`         | `BIGINT`               | `INTEGER`          | 是       |                           |
 
-### `media`表
+#### `media`表
 
 存放媒体信息。
 
@@ -246,7 +282,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `thumb` | 缩略图   | `VARCHAR(255)`    | `TEXT`                 | `TEXT`             | 是       | 如果是视频则为封面，音频没有封面         |
 | `time`  | 时长     | `INT(11)`         | `BIGINT`               | `INTEGER`          | 是       | 单位为ms，如果`type`为`pic`则留空        |
 
-### `qq`表
+#### `qq`表
 
 存放QQ信息。
 
@@ -261,11 +297,11 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `name` | 昵称         | `VARCHAR(64)`     | `TEXT`                 | `TEXT`             | 是       |      |
 | `memo` | 备注         | `TEXT`            | `TEXT`                 | `INTEGER`          | 是       |      |
 
-## 数据备注表（预留）
+### 数据备注表（预留）
 
 本节的表作为数据备注所用，为未来预留。
 
-### `message_memo`表
+#### `message_memo`表
 
 存放信息备注。可被`message`、`rt`表使用。
 
@@ -276,7 +312,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `tid`  | 信息tid   | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       |            |
 | `memo` | 备注      | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |            |
 
-### `comment_reply_memo`表
+#### `comment_reply_memo`表
 
 存放评论、回复的备注。可被`comment`表使用。
 
@@ -289,7 +325,7 @@ qzone-spider user target [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LO
 | `replyid`   | 评论id的回复id | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 如果是直接评论则为0 |
 | `memo`      | 备注           | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |                     |
 
-### `media_memo`表
+#### `media_memo`表
 
 存放媒体备注。可被`media`表使用。
 
