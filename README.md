@@ -296,7 +296,9 @@ from qzone_spider import db_control_mysql as db_control
 db_control.db_init()
 ```
 
-### `account_login`
+运行的状态以logging的方式输出。
+
+### account_login`
 
 通过QQ号和密码，模拟登录手机网页版的QQ空间，以获取登录信息。
 
