@@ -10,9 +10,9 @@ import logging
 import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from qzone_spider import svar
 import os
 
+login_url = 'https://qzone.qq.com/'
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +24,10 @@ def _get_gtk(cookies):
     return hashes & 0x7fffffff
 
 
-def account_login(qq, password, debug=False):
+def account_login(qq, password, debug=False, login_try_time=2, login_wait=3, error_wait=600):
     logger.info('Trying to login with QQ and password')
     fail = 0
-    while fail < svar.loginFailTime:
+    while fail < login_try_time:
         mobile_emulation = {"deviceName": "Nexus 5"}
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
@@ -43,23 +43,23 @@ Or you need to delete the attribute 'debug=True' or related argument in %s''' % 
             chrome_options.add_argument('--disable-gpu')
         browser = webdriver.Chrome(chrome_options=chrome_options)
         try:
-            browser.get(svar.login_URL)
+            browser.get(login_url)
         except Exception:
             fail += 1
-            if fail == svar.loginFailTime:
+            if fail == login_try_time:
                 break
             logger.warning(
                 '''Failed to get when getting login information of %s.
 Sleep %s seconds before retrying. Remaining retry times: %s'''
-                % (qq, svar.errorWaitTime, svar.loginFailTime - fail))
-            time.sleep(svar.errorWaitTime)
+                % (qq, error_wait, login_try_time - fail))
+            time.sleep(error_wait)
             continue
         logger.debug("Successfully load page")
-        time.sleep(svar.loginWaitTime)
+        time.sleep(login_try_time)
         try:
             access = browser.find_element_by_id('guideSkip')
             access.click()
-            time.sleep(svar.loginWaitTime)
+            time.sleep(login_wait)
         except Exception:
             pass
         qq_input = browser.find_element_by_id('u')
@@ -71,7 +71,7 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
         pass_input.send_keys(password)
         go.click()
         logger.debug("Successfully input user name and password")
-        time.sleep(svar.loginWaitTime)
+        time.sleep(login_wait)
         if '验证码' in browser.page_source:  # TODO: 现在的验证码是拖动图片完成的，目前的做法是手工完成，未来将考虑自动完成
             if debug:
                 # logger.warning('获取QQ为 %s 的登录信息时需要验证，请在打开的网页内进行操作' % qq)
@@ -101,37 +101,37 @@ Generally speaking, you needn't do it for a long time if you use the same QQ num
             return cookies, gtk, g_qzonetoken.group(1)
         else:
             fail += 1
-            if fail == svar.loginFailTime:
+            if fail == login_try_time:
                 break
             logger.warning(
                 'Fail to get login information of %s. Sleep %s seconds before retrying. Remaining retry times: %s'
-                % (qq, svar.errorWaitTime, svar.loginFailTime - fail))
-            time.sleep(svar.errorWaitTime)
+                % (qq, error_wait, login_try_time - fail))
+            time.sleep(error_wait)
             continue
     logger.error('Failed to get login information of %s' % qq)
     return None, None, None
 
 
-def scan_login():
-    logger.info('Trying to login by scanning QR code')
+def scan_login(login_try_time=2, scan_wait=20, error_wait=600):
+    logger.info('Trying to login via QR Code scanning')
     fail = 0
-    while fail < svar.loginFailTime:
+    while fail < login_try_time:
         chrome_options = Options()
         browser = webdriver.Chrome(chrome_options=chrome_options)
         try:
-            browser.get(svar.login_URL)
+            browser.get(login_url)
         except Exception:
             fail += 1
-            if fail == svar.loginFailTime:
+            if fail == login_try_time:
                 break
             logger.warning(
                 '''Failed to get when getting login information.
 Sleep %s seconds before retrying. Remaining retry times: %s'''
-                % (svar.errorWaitTime, svar.loginFailTime - fail))
-            time.sleep(svar.errorWaitTime)
+                % (error_wait, login_try_time - fail))
+            time.sleep(error_wait)
             continue
-        logger.debug('Successfully load page, please scan the QR code in %s seconds' % svar.scanWaitTime)
-        time.sleep(svar.scanWaitTime)
+        logger.debug('Successfully load page, please scan the QR code in %s seconds' % scan_wait)
+        time.sleep(scan_wait)
         cookies = {}
         for i in browser.get_cookies():
             cookies[i['name']] = i['value']
@@ -145,12 +145,12 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
         logger.debug('g_qzonetoken.group(1) = %s' % g_qzonetoken.group(1))
         if cookies == {} or gtk is None or g_qzonetoken.group(1) is None:
             fail += 1
-            if fail == svar.loginFailTime:
+            if fail == login_try_time:
                 break
             logger.warning(
                 'Failed to get login information. Sleep %s seconds before retrying. Remaining retry times: %s'
-                % (svar.errorWaitTime, svar.loginFailTime - fail))
-            time.sleep(svar.errorWaitTime)
+                % (error_wait, login_try_time - fail))
+            time.sleep(error_wait)
             continue
         else:
             return cookies, gtk, g_qzonetoken.group(1)

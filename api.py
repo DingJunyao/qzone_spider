@@ -2,7 +2,7 @@ from flask import Flask
 from flask import request
 from flask import json
 import pymysql
-from qzone_spider import svar
+from qzone_spider import unused_svar
 from flask import current_app
 import datetime
 import logging
@@ -18,10 +18,10 @@ def intro():
 
 @app.route('/message_info/<tid>/all', methods=['GET'])
 def message_info_all(tid):
-    conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
-                           db=svar.dbDatabase, charset="utf8", use_unicode=True)
+    conn = pymysql.connect(host=unused_svar.dbURL, port=unused_svar.dbPort, user=unused_svar.dbUsername, passwd=unused_svar.dbPassword,
+                           db=unused_svar.dbDatabase, charset="utf8", use_unicode=True)
     app.logger.info('Successfully connect to %s database %s at %s:%s'
-                    % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+                    % (unused_svar.dbType, unused_svar.dbDatabase, unused_svar.dbURL, unused_svar.dbPort))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute('SELECT * FROM message WHERE tid = %s', tid)
     values = cursor.fetchall()
@@ -99,11 +99,11 @@ def message_info_all(tid):
 
 @app.route('/message_info/<tid>/latest', methods=['GET'])
 def message_info_latest(tid):
-    conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
-                           db=svar.dbDatabase, charset="utf8", use_unicode=True)
+    conn = pymysql.connect(host=unused_svar.dbURL, port=unused_svar.dbPort, user=unused_svar.dbUsername, passwd=unused_svar.dbPassword,
+                           db=unused_svar.dbDatabase, charset="utf8", use_unicode=True)
     # logger.info('成功连接至在 %s:%s 的 %s 数据库 %s' % (svar.dbURL, svar.dbPort, svar.dbType, svar.dbDatabase))
     app.logger.info('Successfully connect to %s database %s at %s:%s'
-                    % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+                    % (unused_svar.dbType, unused_svar.dbDatabase, unused_svar.dbURL, unused_svar.dbPort))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute('select * from message where tid = %s order by catch_time desc limit 1;', tid)
     values = cursor.fetchone()

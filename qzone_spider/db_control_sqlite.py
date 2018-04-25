@@ -7,7 +7,6 @@ __author__ = 'Ding Junyao'
 
 import sqlite3
 import logging
-from qzone_spider import svar
 
 logger = logging.getLogger(__name__)
 
@@ -106,9 +105,9 @@ create_table_sql = (
 # TODO: The SQL is not finished.
 
 
-def db_init():
-    conn = sqlite3.connect(svar.dbURL)
-    logger.info('Successfully connect to %s database %s' % (svar.dbType, svar.dbURL))
+def db_init(db_url):
+    conn = sqlite3.connect(db_url)
+    logger.info('Successfully connect to SQLite database %s' % db_url)
     cursor = conn.cursor()
     for i in create_table_sql:
         cursor.execute(i)
@@ -122,10 +121,10 @@ def _dict_factory(cursor, row):
 
 
 # noinspection PyTypeChecker
-def db_write_rough(parse):
-    conn = sqlite3.connect(svar.dbURL)
+def db_write_rough(parse, db_url):
+    conn = sqlite3.connect(db_url)
+    logger.info('Successfully connect to SQLite database %s' % db_url)
     conn.row_factory = _dict_factory
-    logger.info('Successfully connect to %s database %s' % (svar.dbType, svar.dbURL))
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM qq WHERE qq = ?;', (parse['qq'], ))
     qq_fetch = cursor.fetchone()
@@ -391,10 +390,10 @@ def db_write_rough(parse):
 
 
 # noinspection PyTypeChecker
-def db_write_fine(parse):
-    conn = sqlite3.connect(svar.dbURL)
+def db_write_fine(parse, db_url):
+    conn = sqlite3.connect(db_url)
+    logger.info('Successfully connect to SQLite database %s' % db_url)
     conn.row_factory = _dict_factory
-    logger.info('Successfully connect to %s database %s' % (svar.dbType, svar.dbURL))
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM qq WHERE qq = ?;', (parse['qq'],))
     qq_fetch = cursor.fetchone()

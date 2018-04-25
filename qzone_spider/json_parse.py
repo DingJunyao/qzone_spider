@@ -8,7 +8,6 @@ __author__ = 'Ding Junyao'
 import logging
 import csv
 import os
-from qzone_spider import svar
 import re
 
 logger = logging.getLogger(__name__)
@@ -23,16 +22,16 @@ def emotion_parse(content):
     return content
 
 
-def rough_json_parse(rough_json_list, ordernum, catch_time=0):
+def rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True):
     rough_json = rough_json_list[ordernum]
     parse = {'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
              'post_time': rough_json['created_time'], 'commentnum': rough_json['cmtnum']}
-    if svar.emotionParse:
+    if do_emotion_parse:
         parse['name'] = emotion_parse(rough_json['name'])
     else:
         parse['name'] = rough_json['name']
     if 'content' in rough_json and rough_json['content'] != '':
-        if svar.emotionParse:
+        if do_emotion_parse:
             parse['content'] = emotion_parse(rough_json['content'])
         else:
             parse['content'] = rough_json['content']
@@ -40,12 +39,12 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         parse['content'] = None
     if 'rt_tid' in rough_json:
         parse['rt'] = {'tid': rough_json['rt_tid'], 'qq': rough_json['rt_uin']}
-        if svar.emotionParse:
+        if do_emotion_parse:
             parse['rt']['name'] = emotion_parse(rough_json['rt_uinname'])
         else:
             parse['rt']['name'] = rough_json['rt_uinname']
         if 'rt_con' in rough_json and rough_json['rt_con']['content'] != '':
-            if svar.emotionParse:
+            if do_emotion_parse:
                 parse['rt']['content'] = emotion_parse(rough_json['rt_con']['content'])
             else:
                 parse['rt']['content'] = rough_json['rt_con']['content']
@@ -192,12 +191,12 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
         for comment in rough_json['commentlist']:
             one_comment = {'commentid': comment['tid'], 'qq': comment['uin'],
                            'post_time': comment['create_time'], 'replynum': comment['reply_num']}
-            if svar.emotionParse:
+            if do_emotion_parse:
                 one_comment['name'] = emotion_parse(comment['name'])
             else:
                 one_comment['name'] = comment['name']
             if 'content' in comment and comment['content'] != '':
-                if svar.emotionParse:
+                if do_emotion_parse:
                     one_comment['content'] = emotion_parse(comment['content'])
                 else:
                     one_comment['content'] = comment['content']
@@ -218,7 +217,7 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
                     one_reply = {'replyid': reply['tid'], 'qq': reply['uin'], 'post_time': reply['create_time']}
                     replyinfo = re.search(r'@{uin:([1-9][0-9]{4,}),nick:(.*),who:1,auto:1}(.*)', reply['content'])
                     one_reply['reply_target_qq'] = replyinfo.group(1)
-                    if svar.emotionParse:
+                    if do_emotion_parse:
                         one_reply['name'] = emotion_parse(reply['name'])
                         one_reply['reply_target_name'] = emotion_parse(replyinfo.group(2))
                         one_reply['content'] = emotion_parse(replyinfo.group(3))
@@ -237,24 +236,24 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0):
     return parse
 
 
-def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
+def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True):
     rough_json = rough_json_list[ordernum]
     msgdata = fine_json['data']
     parse = {'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
              'post_time': rough_json['created_time']}
-    if svar.emotionParse:
+    if do_emotion_parse:
         parse['name'] = emotion_parse(rough_json['name'])
     else:
         parse['name'] = rough_json['name']
     if 'rt_tid' in rough_json:
         parse['rt'] = {'tid': rough_json['rt_tid'], 'post_time': msgdata['cell_original']['cell_comm']['time'],
                        'qq': rough_json['rt_uin']}
-        if svar.emotionParse:
+        if do_emotion_parse:
             parse['rt']['name'] = emotion_parse(rough_json['rt_uinname'])
         else:
             parse['rt']['name'] = rough_json['rt_uinname']
         if 'rt_con' in rough_json and rough_json['rt_con']['content'] != '':
-            if svar.emotionParse:
+            if do_emotion_parse:
                 parse['rt']['content'] = emotion_parse(msgdata['cell_original']['cell_summary']['summary'])
             else:
                 parse['rt']['content'] = msgdata['cell_original']['cell_summary']['summary']
@@ -391,7 +390,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         else:
             parse['photo_time'] = None
     if 'content' in rough_json and rough_json['content'] != '':
-        if svar.emotionParse:
+        if do_emotion_parse:
             content = emotion_parse(msgdata['cell_summary']['summary'])
         else:
             content = msgdata['cell_summary']['summary']
@@ -416,7 +415,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
             parse['like'] = []
             for likeman in msgdata['cell_like']['likemans']:
                 one_likeman = {'qq': likeman['user']['uin']}
-                if svar.emotionParse:
+                if do_emotion_parse:
                     one_likeman['name'] = emotion_parse(likeman['user']['nickname'])
                 else:
                     one_likeman['name'] = likeman['user']['nickname']
@@ -431,7 +430,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         parse['forward'] = []
         for forwardman in msgdata['cell_forward_list']['fwdmans']:
             one_forward = {'qq': forwardman['uin']}
-            if svar.emotionParse:
+            if do_emotion_parse:
                 one_forward['name'] = emotion_parse(forwardman['nickname'])
             else:
                 one_forward['name'] = forwardman['nickname']
@@ -444,12 +443,12 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
         for comment in msgdata['cell_comment']['comments']:
             one_comment = {'commentid': int(comment['commentid']), 'qq': comment['user']['uin'],
                            'post_time': comment['date'], 'replynum': comment['replynum'], 'likenum': comment['likeNum']}
-            if svar.emotionParse:
+            if do_emotion_parse:
                 one_comment['name'] = emotion_parse(comment['user']['nickname'])
             else:
                 one_comment['name'] = comment['user']['nickname']
             if 'content' in comment and comment['content'] != '':
-                if svar.emotionParse:
+                if do_emotion_parse:
                     one_comment['content'] = emotion_parse(comment['content'])
                 else:
                     one_comment['content'] = comment['content']
@@ -468,7 +467,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
                 one_comment['like'] = []
                 for likeman in comment['likemans']:
                     one_comment_likeman = {'qq': likeman['user']['uin']}
-                    if svar.emotionParse:
+                    if do_emotion_parse:
                         one_comment_likeman['name'] = emotion_parse(likeman['user']['nickname'])
                     else:
                         one_comment_likeman['name'] = likeman['nickname']
@@ -481,7 +480,7 @@ def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0):
                     one_reply = {'replyid': reply['replyid'], 'qq': reply['user']['uin'],
                                  'name': reply['user']['nickname'], 'post_time': reply['date'],
                                  'reply_target_qq': reply['target']['uin']}
-                    if svar.emotionParse:
+                    if do_emotion_parse:
                         one_reply['reply_target_name'] = emotion_parse(reply['target']['nickname'])
                         one_reply['content'] = emotion_parse(reply['content'])
                     else:

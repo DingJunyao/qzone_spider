@@ -7,17 +7,28 @@ __author__ = 'Ding Junyao'
 
 import logging
 import requests
-from qzone_spider import svar
 import time
 import re
 import json
 
+request_header = {
+    'Host': 'h5.qzone.qq.com',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0',
+    'Accept': '*/*',
+    'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Referer': 'https://qzone.qq.com/',
+    'Connection': 'keep-alive'
+}
+
 logger = logging.getLogger(__name__)
 
 
-def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken):
+def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_rough_json_try_time=2,
+                   error_wait=600):
+    rough_json_url = 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msglist_v6'
     fail = 0
-    while fail < svar.getRoughJSONFailTime:
+    while fail < get_rough_json_try_time:
         s = requests.session()
         params = {
             'uin': qq,
@@ -35,15 +46,15 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken):
         }
         catch_time = int(time.time())
         try:
-            response = s.request('GET', svar.roughJSON_URL, params=params, headers=svar.requestHeader, cookies=cookies)
+            response = s.request('GET', rough_json_url, params=params, headers=request_header, cookies=cookies)
         except TimeoutError:
             fail += 1
-            if fail == svar.getRoughJSONFailTime:
+            if fail == get_rough_json_try_time:
                 break
             logger.warning('''Connection error when getting the rough JSON of messages #%s ~ #%s of %s.
             Sleep %s seconds before retrying. Remaining retry times: %s'''
-                           % (start, start + msgnum - 1, qq, svar.errorWaitTime, svar.getRoughJSONFailTime - fail))
-            time.sleep(svar.errorWaitTime)
+                           % (start, start + msgnum - 1, qq, error_wait, get_rough_json_try_time - fail))
+            time.sleep(error_wait)
             continue
         if (response.status_code == 200) & (response.text is not None):
             logger.info('Successfully get the rough JSON of messages #%s ~ #%s of %s' % (start, start + msgnum - 1, qq))
@@ -56,25 +67,26 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken):
             return catch_time, start+msgnum-1, response_json['msglist']
         else:
             fail += 1
-            if fail == svar.getRoughJSONFailTime:
+            if fail == get_rough_json_try_time:
                 break
             logger.warning('''Failed to request when getting the rough JSON of messages #%s ~ #%s of %s.
             Sleep %s seconds before retrying. Remaining retry times: %s'''
-                           % (start, start + msgnum - 1, qq, svar.errorWaitTime, svar.getRoughJSONFailTime - fail))
+                           % (start, start + msgnum - 1, qq, error_wait, get_rough_json_try_time - fail))
             logger.debug('HTTP status code is %s' % response.status_code)
-            time.sleep(svar.errorWaitTime)
+            time.sleep(error_wait)
             continue
     logger.error('Failed to get the rough JSON of messages #%s ~ #%s of %s' % (start, start + msgnum - 1, qq))
     return 0, -1, -1
 
 
-def get_fine_json(qq, tid, cookies, gtk, qzonetoken):
+def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, error_wait=600):
+    fine_json_url = 'https://h5.qzone.qq.com/webapp/json/mqzone_detail/shuoshuo'
     fail = 0
-    while fail < svar.getFineJSONFailTime:
+    while fail < get_fine_json_try_time:
         params_msg = {
             'qzonetoken': qzonetoken,
             'g_tk': gtk,
-            'appid': 311,  # 说说是311，分享是202
+            'appid': 311,
             'uin': qq,
             'refresh_type': 31,
             'cellid': tid,
@@ -83,17 +95,17 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken):
         s = requests.session()
         catch_time = int(time.time())
         try:
-            response_msg = s.request('GET', svar.fineJSON_URL, params=params_msg,
-                                     headers=svar.requestHeader, cookies=cookies)
+            response_msg = s.request('GET', fine_json_url, params=params_msg,
+                                     headers=request_header, cookies=cookies)
         except TimeoutError:
             fail += 1
-            if fail == svar.getFineJSONFailTime:
+            if fail == get_fine_json_try_time:
                 break
             logger.warning(
                 '''Connection error when getting the JSON of message of %s which tid is %s.
                 Sleep %s seconds before retrying. Remaining retry times: %s'''
-                % (qq, tid, svar.errorWaitTime, svar.getFineJSONFailTime - fail))
-            time.sleep(svar.errorWaitTime)
+                % (qq, tid, error_wait, get_fine_json_try_time - fail))
+            time.sleep(error_wait)
             continue
         if (response_msg.status_code == 200) & (response_msg.text is not None):
             response_msg_text = response_msg.text
@@ -104,24 +116,24 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken):
                 return catch_time, response_msg_json
             else:
                 fail += 1
-                if fail == svar.getFineJSONFailTime:
+                if fail == get_fine_json_try_time:
                     break
                 logger.warning('''Strange return when getting the JSON of message of %s which tid is %s.
                 Sleep %s seconds before retrying. Remaining retry times: %s'''
-                               % (qq, tid, svar.errorWaitTime, svar.getFineJSONFailTime - fail))
+                               % (qq, tid, error_wait, get_fine_json_try_time - fail))
                 logger.debug('Returned JSON in Python format is %s' % response_msg_json)
-                time.sleep(svar.errorWaitTime)
+                time.sleep(error_wait)
                 continue
         else:
             fail += 1
-            if fail == svar.getFineJSONFailTime:
+            if fail == get_fine_json_try_time:
                 break
             logger.warning(
                 '''Failed to request when getting the JSON of message of %s which tid is %s.
                 Sleep %s seconds before retrying. Remaining retry times: %s'''
-                % (qq, tid, svar.errorWaitTime, svar.getFineJSONFailTime - fail))
+                % (qq, tid, error_wait, get_fine_json_try_time - fail))
             logger.debug('HTTP status code is %s' % response_msg.status_code)
-            time.sleep(svar.errorWaitTime)
+            time.sleep(error_wait)
             continue
     logger.error('Failed to get the rough JSON of message of %s which tid is %s' % (qq, tid))
     return 0, -1

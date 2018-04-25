@@ -7,7 +7,6 @@ __author__ = 'Ding Junyao'
 
 import psycopg2
 import psycopg2.extras
-from qzone_spider import svar
 import datetime
 import logging
 
@@ -146,11 +145,11 @@ CREATE TABLE "media_memo" (
 # TODO: The SQL is not finished.
 
 
-def db_init():
-    conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
-                            port=svar.dbPort)
-    logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+def db_init(db_url, db_database, db_username, db_password, db_port=5432):
+    conn = psycopg2.connect(database=db_database, user=db_username, password=db_password, host=db_url,
+                            port=db_port)
+    logger.info('Successfully connect to PostgreSQL database %s at %s:%s'
+                % (db_database, db_url, db_port))
     cursor = conn.cursor()
     cursor.execute(create_table_sql)
     conn.commit()
@@ -163,11 +162,11 @@ def _timestamp_to_datetime(timestamp):
     return datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=timestamp)
 
 
-def db_write_rough(parse, uid=1):
-    conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
-                            port=svar.dbPort)
-    logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1):
+    conn = psycopg2.connect(database=db_database, user=db_username, password=db_password, host=db_url,
+                            port=db_port)
+    logger.info('Successfully connect to PostgreSQL database %s at %s:%s'
+                % (db_database, db_url, db_port))
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq']))
     qq_fetch = cursor.fetchone()
@@ -479,11 +478,11 @@ def db_write_rough(parse, uid=1):
     conn.close()
 
 
-def db_write_fine(parse, uid=1):
-    conn = psycopg2.connect(database=svar.dbDatabase, user=svar.dbUsername, password=svar.dbPassword, host=svar.dbURL,
-                            port=svar.dbPort)
-    logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1):
+    conn = psycopg2.connect(database=db_database, user=db_username, password=db_password, host=db_url,
+                            port=db_port)
+    logger.info('Successfully connect to PostgreSQL database %s at %s:%s'
+                % (db_database, db_url, db_port))
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq']))
     qq_fetch = cursor.fetchone()

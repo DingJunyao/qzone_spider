@@ -6,7 +6,6 @@
 __author__ = 'Ding Junyao'
 
 import pymysql
-from qzone_spider import svar
 import logging
 
 logger = logging.getLogger(__name__)
@@ -134,11 +133,11 @@ create_table_sql = (
 # TODO: The SQL is not finished.
 
 
-def db_init():
-    conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
-                           db=svar.dbDatabase, charset="utf8mb4", use_unicode=True)
-    logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+def db_init(db_url, db_database, db_username, db_password, db_port=3306):
+    conn = pymysql.connect(host=db_url, port=db_port, user=db_username, passwd=db_password,
+                           db=db_database, charset="utf8mb4", use_unicode=True)
+    logger.info('Successfully connect to MySQL database %s at %s:%s'
+                % (db_database, db_url, db_port))
     cursor = conn.cursor()
     for i in create_table_sql:
         cursor.execute(i)
@@ -147,11 +146,11 @@ def db_init():
     conn.close()
 
 
-def db_write_rough(parse, uid=1):
-    conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
-                           db=svar.dbDatabase, charset="utf8mb4", use_unicode=True)
-    logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=3306, uid=1):
+    conn = pymysql.connect(host=db_url, port=db_port, user=db_username, passwd=db_password,
+                           db=db_database, charset="utf8mb4", use_unicode=True)
+    logger.info('Successfully connect to MySQL database %s at %s:%s'
+                % (db_database, db_url, db_port))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq'])) == 0:
         try:
@@ -415,11 +414,11 @@ def db_write_rough(parse, uid=1):
     conn.close()
 
 
-def db_write_fine(parse, uid=1):
-    conn = pymysql.connect(host=svar.dbURL, port=svar.dbPort, user=svar.dbUsername, passwd=svar.dbPassword,
-                           db=svar.dbDatabase, charset="utf8mb4", use_unicode=True)
-    logger.info('Successfully connect to %s database %s at %s:%s'
-                % (svar.dbType, svar.dbDatabase, svar.dbURL, svar.dbPort))
+def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=3306, uid=1):
+    conn = pymysql.connect(host=db_url, port=db_port, user=db_username, passwd=db_password,
+                           db=db_database, charset="utf8mb4", use_unicode=True)
+    logger.info('Successfully connect to MySQL database %s at %s:%s'
+                % (db_database, db_url, db_port))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq'])) == 0:
         try:
