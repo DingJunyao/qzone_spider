@@ -180,7 +180,7 @@ def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port
     else:
         if qq_fetch['name'] != parse['name']:
             try:
-                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                (parse['name'], uid, parse['qq']))
                 conn.commit()
                 logger.info('Successfully update QQ information of %s in uid %s' % (parse['qq'], uid))
@@ -204,7 +204,7 @@ def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port
         else:
             if qq_fetch['name'] != rt['name']:
                 try:
-                    cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                    cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                    (rt['name'], uid, rt['qq']))
                     conn.commit()
                     logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
@@ -384,7 +384,7 @@ def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port
                 if qq_fetch['name'] != comment['name']:
                     try:
                         cursor.execute(
-                            'UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                            'UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                             (comment['name'], uid, comment['qq']))
                         conn.commit()
                         logger.info('Successfully update QQ information of %s in uid %s' % (comment['qq'], uid))
@@ -446,7 +446,7 @@ def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port
                     else:
                         if qq_fetch['name'] != reply['name']:
                             try:
-                                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                                (reply['name'], uid, reply['qq']))
                                 conn.commit()
                                 logger.info('Successfully update QQ information of %s in uid %s' % (reply['qq'], uid))
@@ -496,7 +496,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
     else:
         if qq_fetch['name'] != parse['name']:
             try:
-                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                (parse['name'], uid, parse['qq']))
                 conn.commit()
                 logger.info('Successfully update QQ information of %s in uid %s' % (parse['qq'], uid))
@@ -520,7 +520,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
         else:
             if qq_fetch['name'] != rt['name']:
                 try:
-                    cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;', (rt['name'], uid, rt['qq']))
+                    cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;', (rt['name'], uid, rt['qq']))
                     conn.commit()
                     logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
                 except Exception:
@@ -714,7 +714,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
             else:
                 if qq_fetch['name'] != likeman['name']:
                     try:
-                        cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                        cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                        (likeman['name'], uid, likeman['qq']))
                         conn.commit()
                         logger.info('Successfully update QQ information of %s in uid %s' % (likeman['qq'], uid))
@@ -747,7 +747,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
             else:
                 if qq_fetch['name'] != forwardman['name']:
                     try:
-                        cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                        cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                        (forwardman['name'], uid, forwardman['qq']))
                         conn.commit()
                         logger.info('Successfully update QQ information of %s in uid %s' % (forwardman['qq'], uid))
@@ -772,7 +772,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
                 if qq_fetch['name'] != comment['name']:
                     try:
                         cursor.execute(
-                            'UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                            'UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                             (comment['name'], uid, comment['qq']))
                         conn.commit()
                         logger.info('Successfully update QQ information of %s in uid %s' % (comment['qq'], uid))
@@ -846,7 +846,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
                         if qq_fetch['name'] != likeman['name']:
                             try:
                                 cursor.execute(
-                                    'UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                    'UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                     (likeman['name'], uid, likeman['qq']))
                                 conn.commit()
                                 logger.info('Successfully update QQ information of %s in uid %s' % (likeman['qq'], uid))
@@ -871,7 +871,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
                     else:
                         if qq_fetch['name'] != reply['name']:
                             try:
-                                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s and qq = %s;',
+                                cursor.execute('UPDATE qq SET "name" = %s WHERE uid = %s AND qq = %s;',
                                                (reply['name'], uid, reply['qq']))
                                 conn.commit()
                                 logger.info('Successfully update QQ information of %s in uid %s' % (reply['qq'], uid))
