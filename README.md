@@ -8,7 +8,7 @@
 
 ## 使用方法
 
-qzone_spider目前原生支持MySQL、PostgreSQL、SQLite。
+qzone_spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。
 
 ### 要求与准备
 
@@ -305,36 +305,33 @@ PS D:\ana\qzone> qzone-spider 123456
 
 存放信息备注。可被`message`、`rt`表使用。
 
-| 字段名 | 说明      | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注       |
-| ------ | --------- | ----------------- | ---------------------- | ------------------ | -------- | ---------- |
-| `id`   | 备注id    | `INT(11)`         | `SERIAL`               | `INTEGER`          | 否       | 主键，自增 |
-| `uid`  | 创建者uid | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       |            |
-| `tid`  | 信息tid   | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       |            |
-| `memo` | 备注      | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |            |
+| 字段名 | 说明      | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注 |
+| ------ | --------- | ----------------- | ---------------------- | ------------------ | -------- | ---- |
+| `uid`  | 创建者uid | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键 |
+| `tid`  | 信息tid   | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       | 主键 |
+| `memo` | 备注      | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |      |
 
 #### `comment_reply_memo`表
 
 存放评论、回复的备注。可被`comment`表使用。
 
-| 字段名      | 说明           | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注                |
-| ----------- | -------------- | ----------------- | ---------------------- | ------------------ | -------- | ------------------- |
-| `id`        | 备注id         | `INT(11)`         | `SERIAL`               | `INTEGER`          | 否       | 主键，自增          |
-| `uid`       | 创建者uid      | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       |                     |
-| `tid`       | 信息tid        | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       |                     |
-| `commentid` | 评论id         | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       |                     |
-| `replyid`   | 评论id的回复id | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 如果是直接评论则为0 |
-| `memo`      | 备注           | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |                     |
+| 字段名      | 说明           | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注                      |
+| ----------- | -------------- | ----------------- | ---------------------- | ------------------ | -------- | ------------------------- |
+| `uid`       | 创建者uid      | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键                      |
+| `tid`       | 信息tid        | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       | 主键                      |
+| `commentid` | 评论id         | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键                      |
+| `replyid`   | 评论id的回复id | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键，如果是直接评论则为0 |
+| `memo`      | 备注           | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |                           |
 
 #### `media_memo`表
 
 存放媒体备注。可被`media`表使用。
 
-| 字段名     | 说明      | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注       |
-| ---------- | --------- | ----------------- | ---------------------- | ------------------ | -------- | ---------- |
-| `id`       | 备注id    | `INT(11)`         | `SERIAL`               | `INTEGER`          | 否       | 主键，自增 |
-| `uid`      | 创建者uid | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       |            |
-| `media_id` | 媒体id    | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       |            |
-| `memo`     | 备注      | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |            |
+| 字段名     | 说明      | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注 |
+| ---------- | --------- | ----------------- | ---------------------- | ------------------ | -------- | ---- |
+| `uid`      | 创建者uid | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键 |
+| `media_id` | 媒体id    | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键 |
+| `memo`     | 备注      | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |      |
 
 ## 函数
 
