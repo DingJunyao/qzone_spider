@@ -11,20 +11,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 create_table_sql = (
-    '''CREATE TABLE `user_loginfo` (
-        `uid` INT(11) NOT NULL AUTO_INCREMENT,
-        `email` VARCHAR(127)  NOT NULL,
-        `mobile`  INT(11) NOT NULL,
-        `password`  VARCHAR(64) NOT NULL,
-        `nickname`  VARCHAR(64) DEFAULT NULL,
-        PRIMARY KEY (`uid`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
-    '''CREATE TABLE `target` (
-        `uid` INT(11) NOT NULL,
-        `target_qq` BIGINT(16)  NOT NULL,
-        `mode`  INT(1) NOT NULL,
-        PRIMARY KEY (`uid`, `target_qq`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
     '''CREATE TABLE `message` (
         `catch_time` DATETIME NOT NULL,
         `tid` VARCHAR(26) NOT NULL,
@@ -96,38 +82,27 @@ create_table_sql = (
         `url` VARCHAR(300)  NOT NULL,
         `thumb` VARCHAR(300)  DEFAULT NULL,
         `time` INT(11)  DEFAULT NULL,
+        `memo`  TEXT	DEFAULT NULL,
         PRIMARY KEY (`id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
     'ALTER TABLE `media` ADD UNIQUE `url` (`url`(191));',
     '''CREATE TABLE `qq`(
-        `uid`	INT(11)	NOT NULL,
         `qq`  BIGINT(16)  NOT NULL,
         `name`  VARCHAR(64) DEFAULT NULL,
         `memo`  TEXT	DEFAULT NULL,
-        PRIMARY KEY (`uid`,`qq`)
+        PRIMARY KEY (`qq`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
     '''CREATE TABLE `message_memo` (
-        `id`	INT(11)	NOT NULL AUTO_INCREMENT,
-        `uid`	INT(11)	NOT NULL,
         `tid` VARCHAR(26) NOT NULL,
         `memo`  TEXT	NOT NULL,
-        PRIMARY KEY (`id`)
+        PRIMARY KEY (`tid`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
     '''CREATE TABLE `comment_reply_memo`(
-        `id`	INT(11)	NOT NULL AUTO_INCREMENT,
-        `uid`	INT(11)	NOT NULL,
         `tid` VARCHAR(26) NOT NULL,
         `commentid` INT(11) NOT NULL,
         `replyid` INT(11) NOT NULL,
         `memo`  TEXT	NOT NULL,
-        PRIMARY KEY (`id`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;''',
-    '''CREATE TABLE `media_memo` (
-        `id`	INT(11)	NOT NULL AUTO_INCREMENT,
-        `uid`	INT(11)	NOT NULL,
-        `media_id` INT(11) NOT NULL,
-        `memo`  TEXT	NOT NULL,
-        PRIMARY KEY (`id`)
+        PRIMARY KEY (`tid`, `commentid`, `replyid`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'''
 )
 
@@ -145,48 +120,47 @@ def db_init(db_url, db_database, db_username, db_password, db_port=3306):
     conn.close()
 
 
-def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=3306, uid=1):
+def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=3306):
     conn = pymysql.connect(host=db_url, port=db_port, user=db_username, passwd=db_password,
                            db=db_database, charset="utf8mb4", use_unicode=True)
     logger.info('Successfully connect to MySQL database %s at %s:%s'
                 % (db_database, db_url, db_port))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
-    if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq'])) == 0:
+    if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (parse['qq'])) == 0:
         try:
-            cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);', (uid, parse['qq'], parse['name']))
+            cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);', (parse['qq'], parse['name']))
             conn.commit()
-            logger.info('Successfully insert QQ information of %s in uid %s' % (parse['qq'], uid))
+            logger.info('Successfully insert QQ information of %s' % parse['qq'])
         except Exception:
-            logger.error('Error when trying to insert QQ information of %s in uid %s' % (parse['qq'], uid))
+            logger.error('Error when trying to insert QQ information of %s' % parse['qq'])
     else:
         if cursor.fetchone()['name'] != parse['name']:
             try:
-                cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;', (parse['name'], uid, parse['qq']))
+                cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;', (parse['name'], parse['qq']))
                 conn.commit()
-                logger.info('Successfully update QQ information of %s in uid %s' % (parse['qq'], uid))
+                logger.info('Successfully update QQ information of %s' % parse['qq'])
             except Exception:
-                logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
+                logger.error('Error when trying to update QQ information of %s' % parse['qq'])
     if parse['rt'] is not None:
         rt = parse['rt']
         rt_tid = rt['tid']
-        if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, rt['qq'])) == 0:
+        if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (rt['qq'])) == 0:
             try:
-                cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                               (uid, rt['qq'], rt['name']))
+                cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);',
+                               (rt['qq'], rt['name']))
                 conn.commit()
-                logger.info('Successfully insert QQ information of %s in uid %s' % (rt['qq'], uid))
+                logger.info('Successfully insert QQ information of %s' % rt['qq'])
             except Exception:
-                logger.error('Error when trying to insert QQ information of %s in uid %s' % (rt['qq'], uid))
+                logger.error('Error when trying to insert QQ information of %s' % rt['qq'])
         else:
             if cursor.fetchone()['name'] != rt['name']:
                 try:
-                    cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                   (rt['name'], uid, rt['qq']))
+                    cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;',
+                                   (rt['name'], rt['qq']))
                     conn.commit()
-                    logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
+                    logger.info('Successfully update QQ information of %s' % rt['qq'])
                 except Exception:
-                    logger.error('Error when trying to update QQ information of %s in uid %s'
-                                 % (rt['qq'], uid))
+                    logger.error('Error when trying to update QQ information of %s' % rt['qq'])
         if rt['piclist'] is not None:
             rt_pic_id_list = []
             for one_pic in rt['piclist']:
@@ -326,25 +300,25 @@ def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port
         logger.error('Error when trying to insert data into database')
     if parse['comment'] is not None:
         for comment in parse['comment']:
-            if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, comment['qq'])) == 0:
+            if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (comment['qq'])) == 0:
                 try:
-                    cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                                   (uid, comment['qq'], comment['name']))
+                    cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);',
+                                   (comment['qq'], comment['name']))
                     conn.commit()
-                    logger.info('Successfully insert QQ information of %s in uid %s' % (comment['qq'], uid))
+                    logger.info('Successfully insert QQ information of %s' % comment['qq'])
                 except Exception:
-                    logger.error('Error when trying to insert QQ information of %s in uid %s' % (comment['qq'], uid))
+                    logger.error('Error when trying to insert QQ information of %s' % comment['qq'])
             else:
                 if cursor.fetchone()['name'] != comment['name']:
                     try:
                         cursor.execute(
-                            'UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                            (comment['name'], uid, comment['qq']))
+                            'UPDATE qq SET name = %s WHERE qq = %s;',
+                            (comment['name'], comment['qq']))
                         conn.commit()
-                        logger.info('Successfully update QQ information of %s in uid %s' % (comment['qq'], uid))
+                        logger.info('Successfully update QQ information of %s' % comment['qq'])
                     except Exception:
-                        logger.error('Error when trying to update QQ information of %s in uid %s'
-                                     % (comment['qq'], uid))
+                        logger.error('Error when trying to update QQ information of %s'
+                                     % (comment['qq']))
             if comment['piclist'] is not None:
                 pic_id_list = []
                 for one_comment_pic in comment['piclist']:
@@ -378,25 +352,23 @@ def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port
                 logger.error('Error when trying to insert comment data into database')
             if comment['reply'] is not None:
                 for reply in comment['reply']:
-                    if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, reply['qq'])) == 0:
+                    if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (reply['qq'])) == 0:
                         try:
-                            cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                                           (uid, reply['qq'], reply['name']))
+                            cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);',
+                                           (reply['qq'], reply['name']))
                             conn.commit()
-                            logger.info('Successfully insert QQ information of %s in uid %s' % (reply['qq'], uid))
+                            logger.info('Successfully insert QQ information of %s' % reply['qq'])
                         except Exception:
-                            logger.error('Error when trying to insert QQ information of %s in uid %s' %
-                                         (reply['qq'], uid))
+                            logger.error('Error when trying to insert QQ information of %s' % reply['qq'])
                     else:
                         if cursor.fetchone()['name'] != reply['name']:
                             try:
-                                cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                               (reply['name'], uid, reply['qq']))
+                                cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;',
+                                               (reply['name'], reply['qq']))
                                 conn.commit()
-                                logger.info('Successfully update QQ information of %s in uid %s' % (reply['qq'], uid))
+                                logger.info('Successfully update QQ information of %s' % reply['qq'])
                             except Exception:
-                                logger.error('Error when trying to update QQ information of %s in uid %s' %
-                                             (reply['qq'], uid))
+                                logger.error('Error when trying to update QQ information of %s' % reply['qq'])
                     try:
                         insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
@@ -413,48 +385,46 @@ def db_write_rough(parse, db_url, db_database, db_username, db_password, db_port
     conn.close()
 
 
-def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=3306, uid=1):
+def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=3306):
     conn = pymysql.connect(host=db_url, port=db_port, user=db_username, passwd=db_password,
                            db=db_database, charset="utf8mb4", use_unicode=True)
     logger.info('Successfully connect to MySQL database %s at %s:%s'
                 % (db_database, db_url, db_port))
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
-    if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, parse['qq'])) == 0:
+    if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (parse['qq'])) == 0:
         try:
-            cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);', (uid, parse['qq'], parse['name']))
+            cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);', (parse['qq'], parse['name']))
             conn.commit()
-            logger.info('Successfully insert QQ information of %s in uid %s' % (parse['qq'], uid))
+            logger.info('Successfully insert QQ information of %s' % parse['qq'])
         except Exception:
-            logger.error('Error when trying to insert QQ information of %s in uid %s' % (parse['qq'], uid))
+            logger.error('Error when trying to insert QQ information of %s' % parse['qq'])
     else:
         if cursor.fetchone()['name'] != parse['name']:
             try:
-                cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;', (parse['name'], uid, parse['qq']))
+                cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;', (parse['name'], parse['qq']))
                 conn.commit()
-                logger.info('Successfully update QQ information of %s in uid %s' % (parse['qq'], uid))
+                logger.info('Successfully update QQ information of %s' % parse['qq'])
             except Exception:
-                logger.error('Error when trying to update QQ information of %s in uid %s' % (parse['qq'], uid))
+                logger.error('Error when trying to update QQ information of %s' % parse['qq'])
     if parse['rt'] is not None:
         rt = parse['rt']
         rt_tid = rt['tid']
-        if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, rt['qq'])) == 0:
+        if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (rt['qq'])) == 0:
             try:
-                cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                               (uid, rt['qq'], rt['name']))
+                cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);', (rt['qq'], rt['name']))
                 conn.commit()
-                logger.info('Successfully insert QQ information of %s in uid %s' % (rt['qq'], uid))
+                logger.info('Successfully insert QQ information of %s' % rt['qq'])
             except Exception:
-                logger.error('Error when trying to insert QQ information of %s in uid %s' % (rt['qq'], uid))
+                logger.error('Error when trying to insert QQ information of %s' % rt['qq'])
         else:
             if cursor.fetchone()['name'] != rt['name']:
                 try:
-                    cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                   (rt['name'], uid, rt['qq']))
+                    cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;',
+                                   (rt['name'], rt['qq']))
                     conn.commit()
-                    logger.info('Successfully update QQ information of %s in uid %s' % (rt['qq'], uid))
+                    logger.info('Successfully update QQ information of %s' % rt['qq'])
                 except Exception:
-                    logger.error('Error when trying to update QQ information of %s in uid %s'
-                                 % (rt['qq'], uid))
+                    logger.error('Error when trying to update QQ information of %s' % rt['qq'])
         if rt['piclist'] is not None:
             rt_pic_id_list = []
             for one_pic in rt['piclist']:
@@ -599,73 +569,64 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
                 logger.info('Successfully insert like information of tid %s' % parse['tid'])
             except Exception:
                 logger.info('Error when trying to insert like information of tid %s' % parse['tid'])
-            if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, likeman['qq'])) == 0:
+            if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (likeman['qq'])) == 0:
                 try:
-                    cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                                   (uid, likeman['qq'], likeman['name']))
+                    cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);', (likeman['qq'], likeman['name']))
                     conn.commit()
-                    logger.info('Successfully insert QQ information of %s in uid %s' % (likeman['qq'], uid))
+                    logger.info('Successfully insert QQ information of %s' % likeman['qq'])
                 except Exception:
-                    logger.error('Error when trying to insert QQ information of %s in uid %s' %
-                                 (likeman['qq'], uid))
+                    logger.error('Error when trying to insert QQ information of %s' % likeman['qq'])
             else:
                 if cursor.fetchone()['name'] != likeman['name']:
                     try:
-                        cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                       (likeman['name'], uid, likeman['qq']))
+                        cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;',
+                                       (likeman['name'], likeman['qq']))
                         conn.commit()
-                        logger.info('Successfully update QQ information of %s in uid %s' % (likeman['qq'], uid))
+                        logger.info('Successfully update QQ information of %s' % likeman['qq'])
                     except Exception:
-                        logger.error('Error when trying to update QQ information of %s in uid %s' %
-                                     (likeman['qq'], uid))
+                        logger.error('Error when trying to update QQ information of %s' % likeman['qq'])
     if parse['forward'] is not None:
         for forwardman in parse['forward']:
             try:
-                cursor.execute('INSERT IGNORE INTO forward(tid, qq) VALUES (%s, %s);',
-                               (parse['tid'], forwardman['qq']))
+                cursor.execute('INSERT IGNORE INTO forward(tid, qq) VALUES (%s, %s);', (parse['tid'], forwardman['qq']))
                 conn.commit()
                 logger.info('Successfully insert forward information of tid %s' % parse['tid'])
             except Exception:
                 logger.info('Error when trying to insert forward information of tid %s' % parse['tid'])
-            if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, forwardman['qq'])) == 0:
+            if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (forwardman['qq'])) == 0:
                 try:
-                    cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                                   (uid, forwardman['qq'], forwardman['name']))
+                    cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);',
+                                   (forwardman['qq'], forwardman['name']))
                     conn.commit()
-                    logger.info('Successfully insert QQ information of %s in uid %s' % (forwardman['qq'], uid))
+                    logger.info('Successfully insert QQ information of %s' % forwardman['qq'])
                 except Exception:
-                    logger.error('Error when trying to insert QQ information of %s in uid %s' %
-                                 (forwardman['qq'], uid))
+                    logger.error('Error when trying to insert QQ information of %s' % forwardman['qq'])
             else:
                 if cursor.fetchone()['name'] != forwardman['name']:
                     try:
-                        cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                       (forwardman['name'], uid, forwardman['qq']))
+                        cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;', (forwardman['name'], forwardman['qq']))
                         conn.commit()
-                        logger.info('Successfully update QQ information of %s in uid %s' % (forwardman['qq'], uid))
+                        logger.info('Successfully update QQ information of %s' % forwardman['qq'])
                     except Exception:
-                        logger.error('Error when trying to update QQ information of %s in uid %s' %
-                                     (forwardman['qq'], uid))
+                        logger.error('Error when trying to update QQ information of %s' % forwardman['qq'])
     if parse['comment'] is not None:
         for comment in parse['comment']:
-            if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, comment['qq'])) == 0:
+            if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (comment['qq'])) == 0:
                 try:
-                    cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                                   (uid, comment['qq'], comment['name']))
+                    cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);',
+                                   (comment['qq'], comment['name']))
                     conn.commit()
-                    logger.info('Successfully insert QQ information of %s in uid %s' % (comment['qq'], uid))
+                    logger.info('Successfully insert QQ information of %s' % comment['qq'])
                 except Exception:
-                    logger.error('Error when trying to insert QQ information of %s in uid %s' % (comment['qq'], uid))
+                    logger.error('Error when trying to insert QQ information of %s' % comment['qq'])
             else:
                 if cursor.fetchone()['name'] != comment['name']:
                     try:
-                        cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                       (comment['name'], uid, comment['qq']))
+                        cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;', (comment['name'], comment['qq']))
                         conn.commit()
-                        logger.info('Successfully update QQ information of %s in uid %s' % (comment['qq'], uid))
+                        logger.info('Successfully update QQ information of %s' % comment['qq'])
                     except Exception:
-                        logger.error('Error when trying to update QQ information of %s in uid %s'
-                                     % (comment['qq'], uid))
+                        logger.error('Error when trying to update QQ information of %s' % comment['qq'])
             if comment['piclist'] is not None:
                 pic_id_list = []
                 for one_comment_pic in comment['piclist']:
@@ -708,46 +669,40 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
                     except Exception:
                         logger.info('Error when trying to insert like information of comment %s in tid %s'
                                     % (comment['commentid'], parse['tid']))
-                    if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, likeman['qq'])) == 0:
+                    if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (likeman['qq'])) == 0:
                         try:
-                            cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                                           (uid, likeman['qq'], likeman['name']))
+                            cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);',
+                                           (likeman['qq'], likeman['name']))
                             conn.commit()
-                            logger.info('Successfully insert QQ information of %s in uid %s' % (likeman['qq'], uid))
+                            logger.info('Successfully insert QQ information of %s' % likeman['qq'])
                         except Exception:
-                            logger.error('Error when trying to insert QQ information of %s in uid %s' %
-                                         (likeman['qq'], uid))
+                            logger.error('Error when trying to insert QQ information of %s' % likeman['qq'])
                     else:
                         if cursor.fetchone()['name'] != likeman['name']:
                             try:
-                                cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                               (likeman['name'], uid, likeman['qq']))
+                                cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;',
+                                               (likeman['name'], likeman['qq']))
                                 conn.commit()
-                                logger.info('Successfully update QQ information of %s in uid %s' % (likeman['qq'], uid))
+                                logger.info('Successfully update QQ information of %s' % likeman['qq'])
                             except Exception:
-                                logger.error('Error when trying to update QQ information of %s in uid %s' %
-                                             (likeman['qq'], uid))
+                                logger.error('Error when trying to update QQ information of %s' % likeman['qq'])
             if comment['reply'] is not None:
                 for reply in comment['reply']:
-                    if cursor.execute('SELECT * FROM qq WHERE uid = %s AND qq = %s;', (uid, reply['qq'])) == 0:
+                    if cursor.execute('SELECT * FROM qq WHERE qq = %s;', (reply['qq'])) == 0:
                         try:
-                            cursor.execute('INSERT INTO qq(uid, qq, name) VALUES (%s, %s, %s);',
-                                           (uid, reply['qq'], reply['name']))
+                            cursor.execute('INSERT INTO qq(qq, name) VALUES (%s, %s);', (reply['qq'], reply['name']))
                             conn.commit()
-                            logger.info('Successfully insert QQ information of %s in uid %s' % (reply['qq'], uid))
+                            logger.info('Successfully insert QQ information of %s' % reply['qq'])
                         except Exception:
-                            logger.error('Error when trying to insert QQ information of %s in uid %s' %
-                                         (reply['qq'], uid))
+                            logger.error('Error when trying to insert QQ information of %s' % reply['qq'])
                     else:
                         if cursor.fetchone()['name'] != reply['name']:
                             try:
-                                cursor.execute('UPDATE qq SET name = %s WHERE uid = %s and qq = %s;',
-                                               (reply['name'], uid, reply['qq']))
+                                cursor.execute('UPDATE qq SET name = %s WHERE qq = %s;', (reply['name'], reply['qq']))
                                 conn.commit()
-                                logger.info('Successfully update QQ information of %s in uid %s' % (reply['qq'], uid))
+                                logger.info('Successfully update QQ information of %s' % reply['qq'])
                             except Exception:
-                                logger.error('Error when trying to update QQ information of %s in uid %s' %
-                                             (reply['qq'], uid))
+                                logger.error('Error when trying to update QQ information of %s' % reply['qq'])
                     try:
                         insert_sql = '''INSERT IGNORE INTO comment_reply(catch_time, tid, commentid,
                                                                    replyid, qq, reply_target_qq, post_time, content)
