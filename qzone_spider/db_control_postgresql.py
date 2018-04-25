@@ -755,7 +755,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
                                 VALUES (%s, %s,
                                         %s, %s, %s,
                                         %s, %s,
-                                        %s, %s, %s,%s) ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
+                                        %s, %s, %s, %s) ON CONFLICT ON CONSTRAINT comment_reply_pkey do nothing;'''
                 cursor.execute(insert_sql, (_timestamp_to_datetime(parse['catch_time']), parse['tid'],
                                             comment['commentid'], 0, comment['qq'],
                                             _timestamp_to_datetime(comment['post_time']), comment['content'],
