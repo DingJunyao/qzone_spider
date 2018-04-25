@@ -58,7 +58,6 @@ Default: [3] SQLite''')
                 break
             elif db_type_num == '3' or db_type_num == '':
                 db_type = 'SQLite'
-                db_url = 'qzone.db'
                 break
             else:
                 print('Your choice must be 1, 2 or 3!')
@@ -253,7 +252,6 @@ Default: [1] Yes''')
 remember it is based on the directory where config file is in. ')
             print('Absolute path to the database file:\n\t%s' % os.path.abspath(db_url))
         print('=' * 40)
-        exit()
     config.read(args.config)
     db_type = config.get('database', 'type')
     db_url = config.get('database', 'url')
@@ -271,9 +269,10 @@ remember it is based on the directory where config file is in. ')
         db_password = config.get('database', 'password')
     elif db_type == 'SQLite':
         from qzone_spider import db_control_sqlite as db_control
+        db_port, db_database, db_username, db_password = None, None, None, None
     else:
         print('Config file error!')
-        exit()
+        return -1
     scan_mode = config.getboolean('mode', 'scan')
     fine_mode = config.getboolean('mode', 'fine')
     do_emotion_parse = config.getboolean('mode', 'do_emotion_parse')
@@ -303,17 +302,17 @@ remember it is based on the directory where config file is in. ')
             db_control.db_init(db_url, db_database, db_username, db_password, db_port)
     if args.start < 0:
         print('-s or --start must be not smaller than 0!')
-        exit()
+        return -1
     if args.quantity <= 0:
         print('-q or --quantity must be bigger than 0!')
-        exit()
+        return -1
     if scan_mode:
         cookies, gtk, qzonetoken = qzone_spider.scan_login(login_try_time=login_try_time, scan_wait=scan_wait,
                                                            error_wait=error_wait)
     else:
         if not args.user:
                 print('QQ number as the spider required!')
-                exit()
+                return -1
         else:
             if args.password:
                 password = args.password
@@ -361,6 +360,8 @@ remember it is based on the directory where config file is in. ')
                                               db_port=db_port)
             if i != len(rough_json) - 1 or end_order < args.quantity:
                 time.sleep(spider_wait)
+    logger.info('Spider task finishes')
+    return 0
 
 
 if __name__ == "__main__":

@@ -551,7 +551,7 @@ def db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=
             cursor.execute('SELECT id FROM media WHERE url = %s;', parse['video']['url'])
             video_id_dict = cursor.fetchone()
             video_id_list.append(video_id_dict['id'])
-            logger.info('Successfully insert vidio information into database')
+            logger.info('Successfully insert video information into database')
         except Exception:
             logger.error('Error when trying to insert video information into database')
         video_id_list = str(video_id_list)
