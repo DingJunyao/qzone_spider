@@ -102,7 +102,6 @@ create_table_sql = (
   "replyid" INTEGER NOT NULL,
   "memo"  TEXT	NOT NULL
 );''')
-# TODO: The SQL is not finished.
 
 
 def db_init(db_url):

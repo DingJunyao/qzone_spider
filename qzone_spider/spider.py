@@ -284,7 +284,6 @@ remember it is based on the directory where config file is in. ')
     scan_wait = int(config.get('wait', 'scan_wait'))
     spider_wait = int(config.get('wait', 'spider_wait'))
     error_wait = int(config.get('wait', 'error_wait'))
-    # TODO：将变量应用至程序
     if args.loglevel.lower == 'info':
         log_level = logging.INFO
     elif args.loglevel.lower == 'debug':

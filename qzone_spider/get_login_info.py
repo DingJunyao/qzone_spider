@@ -72,7 +72,7 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
         go.click()
         logger.debug("Successfully input user name and password")
         time.sleep(login_wait)
-        if '验证码' in browser.page_source:  # TODO: 现在的验证码是拖动图片完成的，目前的做法是手工完成，未来将考虑自动完成
+        if '验证码' in browser.page_source:
             if debug:
                 # logger.warning('获取QQ为 %s 的登录信息时需要验证，请在打开的网页内进行操作' % qq)
                 logger.warning(

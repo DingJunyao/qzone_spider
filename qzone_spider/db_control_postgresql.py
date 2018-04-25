@@ -142,7 +142,6 @@ CREATE TABLE "media_memo" (
   PRIMARY KEY ("id")
 );
 '''
-# TODO: The SQL is not finished.
 
 
 def db_init(db_url, db_database, db_username, db_password, db_port=5432):

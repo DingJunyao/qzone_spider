@@ -130,7 +130,6 @@ create_table_sql = (
         PRIMARY KEY (`id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'''
 )
-# TODO: The SQL is not finished.
 
 
 def db_init(db_url, db_database, db_username, db_password, db_port=3306):
