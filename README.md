@@ -353,7 +353,7 @@ db_control.db_init()
 
 运行的状态以logging的方式输出。
 
-### account_login`
+### `account_login`
 
 通过QQ号和密码，模拟登录手机网页版的QQ空间，以获取登录信息。
 
