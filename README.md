@@ -8,7 +8,7 @@
 
 ## 使用方法
 
-qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。
+qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。但是对于数据的读取，请自行使用对应的数据库工具。
 
 ### 要求与准备
 
