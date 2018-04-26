@@ -34,7 +34,7 @@ def main():
                         default='info')
     parser.add_argument('-c', '--config',
                         help="load a config file, the application will create it if it doesn't exist \
-                             (default: qzone_spider.conf)", type=str, default='qzone_spider.conf')
+                             (default: qzone-spider.conf)", type=str, default='qzone-spider.conf')
     args = parser.parse_args()
     if not os.path.exists(args.config):
         print('=' * 40 + "\nThe config file \"%s\" doesn't exist, it will be create soon,\

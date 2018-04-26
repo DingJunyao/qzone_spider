@@ -1,4 +1,4 @@
-# qzone_spider
+# qzone-spider
 
 一个爬取QQ空间信息的爬虫的模块。使用Python 3.6。
 
@@ -8,7 +8,7 @@
 
 ## 使用方法
 
-qzone_spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。
+qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。
 
 ### 要求与准备
 
@@ -26,7 +26,7 @@ qzone_spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。
 
 ### 安装
 
-qzone_spider未来会上传至PyPI，届时你只需要运行以下命令即可安装：
+qzone-spider未来会上传至PyPI，届时你只需要运行以下命令即可安装：
 
 ```shell
 pip install qzone-spider
@@ -35,7 +35,7 @@ pip install qzone-spider
 当然，目前也可以通过打包的文件来安装。
 
 ```shell
-pip install ./qzone_spider-1.0.0a8.tar.gz
+pip install ./qzone-spider-1.0.0a8.tar.gz
 ```
 
 由于版本号可能有更新，注意一下文件名。
@@ -44,7 +44,7 @@ pip install ./qzone_spider-1.0.0a8.tar.gz
 
 ### 配置
 
-建立一个配置文件，名称一般为qzone_spider.conf（当然，你也可以稍后在运行的时候进行配置）：
+建立一个配置文件，名称一般为qzone-spider.conf（当然，你也可以稍后在运行的时候进行配置）：
 
 ```ini
 [database]
@@ -106,7 +106,7 @@ qzone-spider target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [
 - `-i`：可选参数，初始化命令。如果有这个参数，在爬取前会初始化数据库。一般用于数据库刚建好的情况下。对于SQLite，如果之前定义的数据库文件不存在，则会自动按照配置文件新建一个文件，并执行初始化命令。
 - `-d`：可选参数，开启调试模式。如果有这个参数，在获取登录信息的时候会弹出浏览器界面，一般用于需要进行验证的情况下。
 - `-l LOGLEVEL`：可选参数，选择输出日志的级别（LOGLEVEL）。有调试（`DEBUG`）、信息（`INFO`）、警告（`WARNING`）、错误（`ERROR`）四个级别。如果定义了一个级别，则在此之后的级别也会输出（如：定义了信息级别，则会输出信息、警告、错误这三个级别）。默认为信息级别。
-- `-c CONFIG`：可选参数，配置文件的路径（CONFIG）。如果没有，则会新建一个，并且现场填写相关参数。默认情况下为工作目录下的qzone_spider.conf。
+- `-c CONFIG`：可选参数，配置文件的路径（CONFIG）。如果没有，则会新建一个，并且现场填写相关参数。默认情况下为工作目录下的qzone-spider.conf。
 
 ### 运行
 
