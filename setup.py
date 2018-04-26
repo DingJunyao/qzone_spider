@@ -33,6 +33,9 @@ setup(name='qzone_spider',
       ],
       keywords='spider Qzone QQ SNS data mining',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+      package_data={
+          'qzone_spider': ['emotion.csv'],
+      },
       entry_points={
         'console_scripts': [
             'qzone_spider = qzone_spider.spider:main',
