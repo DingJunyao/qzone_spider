@@ -8,7 +8,13 @@
 
 ## 使用方法
 
-qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。
+qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。但是对于数据的读取，请自行使用对应的数据库工具。
+
+### Windows下的单文件程序
+
+为方便使用，在Windows下，我对模块进行了打包，生成了一个单文件的exe文件：qzone-spider.exe。**在命令行中按“运行方式”节所述**执行该程序即可。
+
+该程序支持Windows Vista及以上的系统。执行该程序需要安装Chrome或Chromium，并下载chromedriver.exe，将其放在Windows目录下。
 
 ### 要求与准备
 
