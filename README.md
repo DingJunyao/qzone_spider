@@ -41,7 +41,7 @@ pip install qzone-spider
 当然，目前也可以通过打包的文件来安装。
 
 ```shell
-pip install ./qzone-spider-1.0.0a8.tar.gz
+pip install ./qzone-spider-1.0.0a9.tar.gz
 ```
 
 由于版本号可能有更新，注意一下文件名。
