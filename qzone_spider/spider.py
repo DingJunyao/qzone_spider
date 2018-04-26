@@ -328,7 +328,6 @@ remember it is based on the directory where config file is in. ')
             spider_quantity = 20
         else:
             spider_quantity = sub_quantity
-        print(spider_quantity)
         r_catch_time, end_order, rough_json = qzone_spider.get_rough_json(
             args.target, end_order, spider_quantity, 10, cookies, gtk, qzonetoken,
             get_rough_json_try_time=get_rough_json_try_time, error_wait=error_wait)

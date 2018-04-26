@@ -47,7 +47,7 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_ro
         catch_time = int(time.time())
         try:
             response = s.request('GET', rough_json_url, params=params, headers=request_header, cookies=cookies)
-        except TimeoutError:
+        except ConnectionError:
             fail += 1
             if fail == get_rough_json_try_time:
                 break
@@ -97,7 +97,7 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
         try:
             response_msg = s.request('GET', fine_json_url, params=params_msg,
                                      headers=request_header, cookies=cookies)
-        except TimeoutError:
+        except ConnectionError:
             fail += 1
             if fail == get_fine_json_try_time:
                 break
