@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 def emotion_parse(content):
-    with open(os.path.dirname(__file__) + '/emotion.csv', encoding='utf-8') as f:
+    emofile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'emotion.csv')
+    with open(emofile, encoding='utf-8') as f:
         reader = csv.DictReader(f)
         emotion_list = list(reader)
     for i in range(len(emotion_list)):
