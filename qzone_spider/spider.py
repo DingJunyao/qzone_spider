@@ -252,7 +252,6 @@ Default: [1] Yes''')
 remember it is based on the directory where config file is in. ')
             print('Absolute path to the database file:\n\t%s' % os.path.abspath(db_url))
         print('=' * 40)
-        return -1
     config.read(args.config)
     db_type = config.get('database', 'type')
     db_url = config.get('database', 'url')
