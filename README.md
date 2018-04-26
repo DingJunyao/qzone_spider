@@ -29,13 +29,13 @@ qzone_spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。
 qzone_spider未来会上传至PyPI，届时你只需要运行以下命令即可安装：
 
 ```shell
-pip install qzone_spider
+pip install qzone-spider
 ```
 
 当然，目前也可以通过打包的文件来安装。
 
 ```shell
-pip install ./qzone_spider-1.0.0a7.tar.gz
+pip install ./qzone_spider-1.0.0a8.tar.gz
 ```
 
 由于版本号可能有更新，注意一下文件名。
