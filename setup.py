@@ -7,8 +7,8 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-setup(name='qzone_spider',
-      version='1.0.0a6',
+setup(name='qzone-spider',
+      version='1.0.0a8+multi-user',
       description='Spider of Qzone',
       long_description=long_description,
       long_description_content_type='text/markdown',
