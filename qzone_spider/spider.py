@@ -30,8 +30,8 @@ def main():
     parser.add_argument('-i', '--init', help="init the database of the spider with it, add it at first run",
                         action="store_true")
     parser.add_argument('-d', '--debug', help="open GUI environment of browser with it", action="store_true")
-    parser.add_argument('-l', '--loglevel', help="set the log level (debug, info, warning, error)", type=str,
-                        default='info')
+    parser.add_argument('-l', '--loglevel', help="set the log level (debug, info, warning, error) (default: info)",
+                        type=str, default='info')
     parser.add_argument('-c', '--config',
                         help="load a config file, the application will create it if it doesn't exist \
                              (default: qzone-spider.conf)", type=str, default='qzone-spider.conf')
@@ -283,13 +283,13 @@ remember it is based on the directory where config file is in. ')
     scan_wait = int(config.get('wait', 'scan_wait'))
     spider_wait = int(config.get('wait', 'spider_wait'))
     error_wait = int(config.get('wait', 'error_wait'))
-    if args.loglevel.lower == 'info':
+    if args.loglevel.lower() == 'info':
         log_level = logging.INFO
-    elif args.loglevel.lower == 'debug':
+    elif args.loglevel.lower() == 'debug':
         log_level = logging.DEBUG
-    elif args.loglevel.lower == 'warning':
+    elif args.loglevel.lower() == 'warning':
         log_level = logging.WARNING
-    elif args.loglevel.lower == 'error':
+    elif args.loglevel.lower() == 'error':
         log_level = logging.ERROR
     else:
         log_level = logging.INFO
