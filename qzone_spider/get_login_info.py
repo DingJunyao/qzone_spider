@@ -31,13 +31,13 @@ def account_login(qq, password, debug=False, login_try_time=2, login_wait=3, err
         mobile_emulation = {"deviceName": "Nexus 5"}
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+        if 'geteuid' in dir(os) and os.geteuid() == 0:
+            chrome_options.add_argument('--no-sandbox')
         if debug:
             logger.info('''You are in debug mode. It requires GUI environment.
 If you are in console without GUI environment or SSH, please exit.
 If you really need it, please run it in GUI environment.
 Or you need to delete the attribute 'debug=True' or related argument in %s''' % __name__)
-            if 'geteuid' in dir(os) and os.geteuid() == 0:
-                chrome_options.add_argument('--no-sandbox')
         else:
             chrome_options.add_argument('--headless')
             chrome_options.add_argument('--disable-gpu')
@@ -117,6 +117,8 @@ def scan_login(login_try_time=2, scan_wait=20, error_wait=600):
     fail = 0
     while fail < login_try_time:
         chrome_options = Options()
+        if 'geteuid' in dir(os) and os.geteuid() == 0:
+            chrome_options.add_argument('--no-sandbox')
         browser = webdriver.Chrome(chrome_options=chrome_options)
         try:
             browser.get(login_url)
