@@ -89,7 +89,7 @@ Generally speaking, you needn't do it for a long time if you use the same QQ num
             cookies = {}
             for i in browser.get_cookies():
                 cookies[i['name']] = i['value']
-            g_qzonetoken = re.search(r'window\.shine0callback = \(function\(\){ try{return (.*?);} catch\(e\)',
+            g_qzonetoken = re.search(r'window\.shine0callback = \(function\(\){ try{return "(.*?)";} catch\(e\)',
                                      browser.page_source)
             browser.quit()
             gtk = _get_gtk(cookies)
@@ -137,7 +137,7 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
         cookies = {}
         for i in browser.get_cookies():
             cookies[i['name']] = i['value']
-        g_qzonetoken = re.search(r'window\.g_qzonetoken = \(function\(\){ try{return (.*?);} catch\(e\)',
+        g_qzonetoken = re.search(r'window\.g_qzonetoken = \(function\(\){ try{return "(.*?)";} catch\(e\)',
                                  browser.page_source)
         gtk = _get_gtk(cookies)
         browser.quit()
