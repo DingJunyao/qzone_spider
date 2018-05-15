@@ -26,6 +26,12 @@ logger = logging.getLogger(__name__)
 
 def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_rough_json_try_time=2,
                    error_wait=600):
+    if msgnum > 20:
+        msgnum = 20
+        logger.warning('msgnum should be less than 20. Change it to 20')
+    if start < 0:
+        start = 0
+        logger.warning('start should not be less than 0. Change it to 0')
     rough_json_url = 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msglist_v6'
     fail = 0
     while fail < get_rough_json_try_time:
@@ -57,14 +63,27 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_ro
             time.sleep(error_wait)
             continue
         if (response.status_code == 200) & (response.text is not None):
-            logger.info('Successfully get the rough JSON of messages #%s ~ #%s of %s' % (start, start + msgnum - 1, qq))
             response_text = response.text
             response_json = json.loads(response_text[17:-2])
             logger.debug('Returned JSON in Python format is %s' % response_json)
-            if not re.search('lbs', response_text):
-                logger.warning('Get all messages of %s finished, or an error had occurred, please check it' % qq)
+            if response_json['message'] == '请先登录空间':
+                logger.error('Log info invalid or expired')
+                return 0, -1, -2
+            if response_json['message'] == '对不起,主人设置了保密,您没有权限查看':
+                logger.error('''Can not access to Qzone of %s. 
+If the owner does not set authority, maybe the Qzone is blocked by official''' % qq)
+                return 0, -1, -3
+            if response_json['msglist'] == '':
+                logger.warning('No message in the range #%s ~ #%s of %s, maybe finished'
+                               % (start, start + msgnum - 1, qq))
                 return 0, -1, 0
-            return catch_time, start+msgnum-1, response_json['msglist']
+            real_msg_num = len(response_json['msglist'])
+            logger.info('Successfully get the rough JSON of messages #%s ~ #%s of %s'
+                        % (start, start + real_msg_num - 1, qq))
+            if real_msg_num != msgnum:
+                logger.info('Get all messages of %s finished' % qq)
+                return catch_time, -1, response_json['msglist']
+            return catch_time, start + real_msg_num - 1, response_json['msglist']
         else:
             fail += 1
             if fail == get_rough_json_try_time:
