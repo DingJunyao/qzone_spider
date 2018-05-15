@@ -359,6 +359,8 @@ remember it is based on the directory where config file is in. ')
                                               db_port=db_port)
             if i != len(rough_json) - 1 or end_order < args.quantity:
                 time.sleep(spider_wait)
+        if end_order == 0:
+            break
     logger.info('Spider task finishes')
     return 0
 
