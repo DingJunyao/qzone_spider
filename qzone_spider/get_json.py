@@ -141,6 +141,12 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
                     logger.error('''Can not access to Qzone of %s. 
 If the owner does not set authority, maybe the Qzone is blocked by official''' % qq)
                     return 0, -3
+                if response_msg_json['message'] == '说说通用失败':
+                    logger.error('tid not exist')
+                    return 0, -4
+                if response_msg_json['message'] == '该内容已删除':
+                    logger.error('The post had been deleted, or the post\'s author is not the QQ you set: %s' % qq)
+                    return 0, -5
                 fail += 1
                 if fail == get_fine_json_try_time:
                     break
