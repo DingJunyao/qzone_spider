@@ -134,6 +134,9 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
                 logger.debug('Returned JSON in Python format is %s' % json.dumps(response_msg_json, ensure_ascii=False))
                 return catch_time, response_msg_json
             else:
+                if response_msg_json['message'] == '没有登录态':
+                    logger.error('Log info invalid or expired')
+                    return 0, -2
                 fail += 1
                 if fail == get_fine_json_try_time:
                     break
