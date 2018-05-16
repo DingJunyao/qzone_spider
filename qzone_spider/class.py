@@ -5,8 +5,6 @@ from qzone_spider import get_json
 from qzone_spider import json_parse
 import logging
 
-logger = logging.getLogger(__name__)
-
 
 class QzoneSpider(object):
 
@@ -14,6 +12,7 @@ class QzoneSpider(object):
                  login_try_time=2, get_rough_json_try_time=2,
                  get_fine_json_try_time=2, login_wait=3, scan_wait=20, spider_wait=5, error_wait=600, proxy=None,
                  debug=False):
+        logger = logging.getLogger(__name__)
         self.status = 'init'
         self.queue = []
         self.spider_qq = spider_qq
@@ -41,7 +40,7 @@ class QzoneSpider(object):
             """
             catch_time, msg = get_json.get_fine_json('***REMOVED***', '4f8281307554d9573e2c0200', self.__cookies,
                                                      self.__gtk, self.__qzonetoken, 1, 10)"""
-            catch_time, _, msg = get_json.get_rough_json('490424586', 0, 1, 10,
+            catch_time, _, msg = get_json.get_rough_json(self.spider_qq, 0, 1, 10,
                                                          self.__cookies, self.__gtk, self.__qzonetoken, 1, 0)
             if msg == -1 or msg == -2:
                 logger.error('Can not get data with current log info')
@@ -77,6 +76,7 @@ class QzoneSpider(object):
         self.__qzonetoken = qzonetoken
         if self.check_login_info() == 0:
             self.status = 'idle'
+            logger.info('Successfully set log info')
             return 0
         else:
             logger.error('Failed to set log info')
@@ -104,7 +104,7 @@ class QzoneSpider(object):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
+    logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
     logger = logging.getLogger(__name__)
     sp = QzoneSpider(spider_qq='***REMOVED***', spider_qq_password='***REMOVED***', scan=False, do_emotion_parse=True,
                      login_try_time=2, get_rough_json_try_time=2, get_fine_json_try_time=2, login_wait=3, scan_wait=20,
