@@ -340,8 +340,12 @@ remember it is based on the directory where config file is in. ')
                                                                 cookies, gtk, qzonetoken,
                                                                 get_fine_json_try_time=get_fine_json_try_time,
                                                                 error_wait=error_wait)
-                if f_catch_time == 0 and fine == -1:
+                if f_catch_time == 0 and (fine == -1 or fine == -2 or fine == -3):
                     break
+                if f_catch_time == 0 and (fine == -4 or fine == -5):
+                    if i != len(rough_json) - 1 or end_order < args.quantity:
+                        time.sleep(spider_wait)
+                    continue
                 parse_fine = qzone_spider.fine_json_parse(rough_json, i, fine, f_catch_time,
                                                           do_emotion_parse=do_emotion_parse)
                 if db_type == 'SQLite':
