@@ -58,7 +58,7 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_ro
             if fail == get_rough_json_try_time:
                 break
             logger.warning('''Connection error when getting the rough JSON of messages #%s ~ #%s of %s.
-            Sleep %s seconds before retrying. Remaining retry times: %s'''
+Sleep %s seconds before retrying. Remaining retry times: %s'''
                            % (start, start + msgnum - 1, qq, error_wait, get_rough_json_try_time - fail))
             time.sleep(error_wait)
             continue
@@ -89,7 +89,7 @@ If the owner does not set authority, maybe the Qzone is blocked by official''' %
             if fail == get_rough_json_try_time:
                 break
             logger.warning('''Failed to request when getting the rough JSON of messages #%s ~ #%s of %s.
-            Sleep %s seconds before retrying. Remaining retry times: %s'''
+Sleep %s seconds before retrying. Remaining retry times: %s'''
                            % (start, start + msgnum - 1, qq, error_wait, get_rough_json_try_time - fail))
             logger.debug('HTTP status code is %s' % response.status_code)
             time.sleep(error_wait)
@@ -137,11 +137,15 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
                 if response_msg_json['message'] == '没有登录态':
                     logger.error('Log info invalid or expired')
                     return 0, -2
+                if response_msg_json['message'] == '没有权限访问':
+                    logger.error('''Can not access to Qzone of %s. 
+If the owner does not set authority, maybe the Qzone is blocked by official''' % qq)
+                    return 0, -3
                 fail += 1
                 if fail == get_fine_json_try_time:
                     break
                 logger.warning('''Strange return when getting the JSON of message of %s which tid is %s.
-                Sleep %s seconds before retrying. Remaining retry times: %s'''
+Sleep %s seconds before retrying. Remaining retry times: %s'''
                                % (qq, tid, error_wait, get_fine_json_try_time - fail))
                 logger.debug('Returned JSON in Python format is %s' % response_msg_json)
                 time.sleep(error_wait)
@@ -152,7 +156,7 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
                 break
             logger.warning(
                 '''Failed to request when getting the JSON of message of %s which tid is %s.
-                Sleep %s seconds before retrying. Remaining retry times: %s'''
+Sleep %s seconds before retrying. Remaining retry times: %s'''
                 % (qq, tid, error_wait, get_fine_json_try_time - fail))
             logger.debug('HTTP status code is %s' % response_msg.status_code)
             time.sleep(error_wait)
