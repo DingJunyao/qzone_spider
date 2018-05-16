@@ -37,11 +37,11 @@ class QzoneSpider(object):
             logger.warning('No log info')
             return -1
         else:
-            """
-            catch_time, msg = get_json.get_fine_json('***REMOVED***', '4f8281307554d9573e2c0200', self.__cookies,
-                                                     self.__gtk, self.__qzonetoken, 1, 10)"""
-            catch_time, _, msg = get_json.get_rough_json(self.spider_qq, 0, 1, 10,
-                                                         self.__cookies, self.__gtk, self.__qzonetoken, 1, 0)
+
+            catch_time, msg = get_json.get_fine_json('490424586', '4f8281307554d9573e2c0200', self.__cookies,
+                                                     self.__gtk, self.__qzonetoken, 1, 10)
+            """catch_time, _, msg = get_json.get_rough_json(self.spider_qq, 0, 1, 10,
+                                             self.__cookies, self.__gtk, self.__qzonetoken, 1, 0)"""
             if msg == -1 or msg == -2:
                 logger.error('Can not get data with current log info')
                 return 1
@@ -104,14 +104,14 @@ class QzoneSpider(object):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
+    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(name)s: %(levelname)s: %(message)s')
     logger = logging.getLogger(__name__)
     sp = QzoneSpider(spider_qq='***REMOVED***', spider_qq_password='***REMOVED***', scan=False, do_emotion_parse=True,
                      login_try_time=2, get_rough_json_try_time=2, get_fine_json_try_time=2, login_wait=3, scan_wait=20,
                      spider_wait=5, error_wait=600, proxy=None, debug=False)
-    user_cookies = {'skey': '@ThExjTnjq', 'pt2gguin': 'o0***REMOVED***', '_qpsvr_localtk': '0.24119287784595977', 'pgv_pvi': '4202695680', 'uin': 'o0***REMOVED***', 'pgv_si': 's7208889344', 'ptcz': '6c9585ed5f58daad190f5b8fc6c76bef55c918a2b5018eedbd8ec78f1ff0a372', 'pgv_pvid': '5171932800', 'ptisp': 'ctc', 'p_uin': 'o0***REMOVED***', 'pgv_info': 'ssid=s4954116000', 'RK': 'JTiYMszwQU', 'pt4_token': '4gpKXwOXxjN*qj8vUrGSNlajtb18tt78qMCC8dQSc*o_', 'QZ_FE_WEBP_SUPPORT': '1', 'p_skey': 'eiwFR5-chVl50szlF1Tc9BKmXitc2bCIt-FtsSE7Y0M_', 'qqmusic_uin': '', 'fnc': '2', 'Loading': 'Yes', 'qz_screen': '1920x1080', 'qzmusicplayer': 'qzone_player_***REMOVED***_1526358833925', 'qqmusic_key': '', 'qqmusic_fromtag': ''}
-    user_gtk = 410675130
-    user_qzonetoken = 'bb1187d1d229f95735cdd91ecb216b4fe69eca336458d2c8762bf777ac1f78572c02a302d7244620a3'
-    # sp.login()
+    user_cookies = {'ptisp': 'ctc', 'x-stgw-ssl-info': '86581239788db2cee2662917d834f2c0_0.332_1526476773.744_1_h2_N_Y_TLSv1.2_ECDHE-RSA-AES128-GCM-SHA256_19500_0', '_qz_referrer': 'qzone.qq.com', 'pgv_pvi': '70567936', 'uin': 'o0***REMOVED***', 'pgv_si': 's8204765184', 'skey': '@moAOm0BTz', 'pt2gguin': 'o0***REMOVED***', 'RK': 'AbiQZuzwR0', 'ptcz': 'ca602c5199ad4fd268cb417efcd03ff33e83adf98658c6aea56a040f9c7f1782', 'p_uin': 'o0***REMOVED***', 'pt4_token': 'MwOkoF2pC8TiDPHRh1xVUSyOqtGCLXhzuczJURV5GnU_', 'p_skey': 'tzqNdYoVNp8OyGb4NAlLgXsIoBmnJp6x*CTnZLPEj2Q_'}
+    user_gtk = 1131313531
+    user_qzonetoken = '9ba738e70497216bf1e57475ff84129d3e9e979edea0e5263fd965d343628f343ab5c6286f360fbeb1d1b837d0cb'
     sp.set_login_info(user_cookies, user_gtk, user_qzonetoken)
+    # sp.login()
     print(sp.status)
