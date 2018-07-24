@@ -23,9 +23,12 @@ def emotion_parse(content):
     return content
 
 
-def rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True):
-    rough_json = rough_json_list[ordernum]
-    parse = {'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
+def rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True, single_rough_json=False):
+    if single_rough_json:
+        rough_json = rough_json_list
+    else:
+        rough_json = rough_json_list[ordernum]
+    parse = {'mode': 'rough', 'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
              'post_time': rough_json['created_time'], 'commentnum': rough_json['cmtnum']}
     if do_emotion_parse:
         parse['name'] = emotion_parse(rough_json['name'])
@@ -237,10 +240,14 @@ def rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=T
     return parse
 
 
-def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True):
-    rough_json = rough_json_list[ordernum]
+def fine_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True,
+                    single_rough_json=False):
+    if single_rough_json:
+        rough_json = rough_json_list
+    else:
+        rough_json = rough_json_list[ordernum]
     msgdata = fine_json['data']
-    parse = {'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
+    parse = {'mode': 'fine', 'catch_time': catch_time, 'tid': rough_json['tid'], 'qq': rough_json['uin'],
              'post_time': rough_json['created_time']}
     if do_emotion_parse:
         parse['name'] = emotion_parse(rough_json['name'])

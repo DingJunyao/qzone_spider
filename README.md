@@ -446,7 +446,7 @@ emotion_parse(content)
 对QQ空间动态的粗JSON数据进行，取有用的数据重新组合。
 
 ```python
-rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True)
+rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True, single_rough_json=False)
 ```
 
 参数：
@@ -455,6 +455,7 @@ rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True)
 2. `ordernum`：整数类型，`rough_json_list`中的列表编号，代表其中的某一条动态的编号。
 3. `catch_time`：整数类型，爬取数据时的时间戳。默认值为0。
 4. `do_emotion_parse`：布尔类型，是否转换文本中的表情字符串。默认值为True。
+5. `single_rough_json`：布尔类型，粗JSON是否为单条。默认值为False。
 
 函数会返回一个字典类型的数据，表示解析后的动态的粗数据的JSON的Python表达方式。
 
@@ -463,7 +464,7 @@ rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True)
 对QQ空间动态的细JSON数据进行，取有用的数据重新组合。
 
 ```python
-rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True)
+rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True, single_rough_json=False)
 ```
 
 参数：
@@ -473,6 +474,7 @@ rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_
 3. `fine_json`：字典类型，爬取的动态的细JSON数据的Python表达方式。
 4. `catch_time`：整数类型，爬取数据时的时间戳。默认值为0。建议使用细JSON的爬取时间。
 5. `do_emotion_parse`：布尔类型，是否转换文本中的表情字符串。默认值为True。
+6. `single_rough_json`：布尔类型，粗JSON是否为单条。默认值为False。
 
 函数会返回一个字典类型的数据，表示解析后的动态的细数据的JSON的Python表达方式。
 
