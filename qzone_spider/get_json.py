@@ -34,8 +34,8 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_ro
         logger.warning('start should not be less than 0. Change it to 0')
     rough_json_url = 'https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/cgi-bin/emotion_cgi_msglist_v6'
     fail = 0
+    s = requests.session()
     while fail < get_rough_json_try_time:
-        s = requests.session()
         params = {
             'uin': qq,
             'ftype': '0',
@@ -68,10 +68,12 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             logger.debug('Returned JSON in Python format is %s' % response_json)
             if response_json['message'] == '请先登录空间':
                 logger.error('Log info invalid or expired')
+                s.close()
                 return 0, -1, -2
             if response_json['message'] == '对不起,主人设置了保密,您没有权限查看':
                 logger.error('''Can not access to Qzone of %s. 
 If the owner does not set authority, maybe the Qzone is blocked by official''' % qq)
+                s.close()
                 return 0, -1, -3
             if response_json['msglist'] == '':
                 logger.warning('No message in the range #%s ~ #%s of %s, maybe finished'
@@ -82,6 +84,7 @@ If the owner does not set authority, maybe the Qzone is blocked by official''' %
                         % (start, start + real_msg_num - 1, qq))
             if real_msg_num != msgnum:
                 logger.info('Get all messages of %s finished' % qq)
+                s.close()
                 return catch_time, -1, response_json['msglist']
             return catch_time, start + real_msg_num - 1, response_json['msglist']
         else:
@@ -95,12 +98,14 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             time.sleep(error_wait)
             continue
     logger.error('Failed to get the rough JSON of messages #%s ~ #%s of %s' % (start, start + msgnum - 1, qq))
+    s.close()
     return 0, -1, -1
 
 
 def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, error_wait=600):
     fine_json_url = 'https://h5.qzone.qq.com/webapp/json/mqzone_detail/shuoshuo'
     fail = 0
+    s = requests.session()
     while fail < get_fine_json_try_time:
         params_msg = {
             'qzonetoken': qzonetoken,
@@ -111,7 +116,6 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
             'cellid': tid,
             'subid': '',
         }
-        s = requests.session()
         catch_time = int(time.time())
         try:
             response_msg = s.request('GET', fine_json_url, params=params_msg,
@@ -136,16 +140,20 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
             else:
                 if response_msg_json['message'] == '没有登录态':
                     logger.error('Log info invalid or expired')
+                    s.close()
                     return 0, -2
                 if response_msg_json['message'] == '没有权限访问':
                     logger.error('''Can not access to Qzone of %s. 
 If the owner does not set authority, maybe the Qzone is blocked by official''' % qq)
+                    s.close()
                     return 0, -3
                 if response_msg_json['message'] == '说说通用失败':
                     logger.error('tid not exist')
+                    s.close()
                     return 0, -4
                 if response_msg_json['message'] == '该内容已删除':
                     logger.error('The post had been deleted, or the post\'s author is not the QQ you set: %s' % qq)
+                    s.close()
                     return 0, -5
                 fail += 1
                 if fail == get_fine_json_try_time:
@@ -168,4 +176,5 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             time.sleep(error_wait)
             continue
     logger.error('Failed to get the rough JSON of message of %s which tid is %s' % (qq, tid))
+    s.close()
     return 0, -1
