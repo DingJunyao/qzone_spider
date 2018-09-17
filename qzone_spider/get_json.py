@@ -155,6 +155,9 @@ If the owner does not set authority, maybe the Qzone is blocked by official''' %
                     logger.error('The post had been deleted, or the post\'s author is not the QQ you set: %s' % qq)
                     s.close()
                     return 0, -5
+                if response_msg_json['message'] == '操作失败':
+                    logger.error('Spider %s has been blocked by Qzone' % qq)
+                    return 0, -6
                 fail += 1
                 if fail == get_fine_json_try_time:
                     break
@@ -175,6 +178,6 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             logger.debug('HTTP status code is %s' % response_msg.status_code)
             time.sleep(error_wait)
             continue
-    logger.error('Failed to get the rough JSON of message of %s which tid is %s' % (qq, tid))
+    logger.error('Failed to get the fine JSON of message of %s which tid is %s' % (qq, tid))
     s.close()
     return 0, -1
