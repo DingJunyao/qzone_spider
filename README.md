@@ -10,12 +10,6 @@
 
 qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。但是对于数据的读取，请自行使用对应的数据库工具。
 
-### Windows下的单文件程序
-
-为方便使用，在Windows下，我对模块进行了打包，生成了一个单文件的exe文件：qzone-spider.exe。**在命令行中按“运行方式”节所述**执行该程序即可。程序不能通过双击程序文件来运行。
-
-该程序支持Windows Vista及以上的系统。执行该程序需要安装Chrome或Chromium，并下载chromedriver.exe，将其放在Windows目录下或者是其他Path目录下。
-
 ### 要求与准备
 
 系统方面，只要能够运行Python 3的最新版本就可以。建议有图形界面用于偶尔需要验证时进行操作，但大多数情况下都不需要图形界面。
@@ -140,6 +134,47 @@ PS D:\ana\qzone> qzone-spider 123456
 
 经验证，对于emoji内容，MySQL、PostgreSQL和SQLite均可以存取。但展示它们需要软件支持，目前绝大多数数据库工具都无法正常展示emoji。
 
+### 用户数据表（预留）
+
+本节的表存放用户相关信息，为未来预留。
+
+#### `user_loginfo`表
+
+存放账号、密码。
+
+| 字段名     | 说明   | 数据类型（MySQL） | 数据类型（PostgreSQL） | 是否可空 | 备注                                              |
+| ---------- | ------ | ----------------- | ---------------------- | -------- | ------------------------------------------------- |
+| `uid`      | 用户id | `INT(11)`         | `SERIAL`               | 否       | 主键，自增                                        |
+| `email`    | 邮箱   | `VARCHAR(127)`    | `TEXT`                 | 否       |                                                   |
+| `mobile`   | 手机   | `INT(11)`         | `BIGINT`               | 否       |                                                   |
+| `password` | 密码   | `VARCHAR(64)`     | `TEXT`                 | 否       | 采用SHA-256加密，必要时可以使用更安全的不可逆算法 |
+| `nickname` | 昵称   | `VARCHAR(64)`     | `TEXT`                 | 是       |                                                   |
+
+#### `spider_qq`表
+
+存放用户自定义的爬虫QQ账号和密码。（待完善）
+
+#### `target`表
+
+存放用户要爬取的qq账号。
+
+| 字段名      | 说明           | 数据类型（MySQL） | 数据类型（PostgreSQL） | 是否可空 | 备注     |
+| ----------- | -------------- | ----------------- | ---------------------- | -------- | -------- |
+| `uid`       | 用户id         | `INT(11)`         | `BIGINT`               | 否       | 主键     |
+| `target_qq` | 要爬取的QQ账号 | `BIGINT(16)`      | `BIGINT`               | 否       | 主键     |
+| `mode`      | 爬取模式       | `INT(1)`          | `INT`                  | 否       | （待议） |
+
+#### `service_record`表
+
+存放用户购买服务的详细记录。（待完善）
+
+| 字段名 | 说明     | 数据类型（MySQL） | 数据类型（PostgreSQL） | 是否可空 | 备注 |
+| ------ | -------- | ----------------- | ---------------------- | -------- | ---- |
+| `rid`  | 记录id   | `VARCHAR(64)`     | `TEXT`                 | 否       | 主键 |
+| `time` | 购买时间 | `DATETIME`        | `TIMESTAMP`            | 否       |      |
+| `uid`  | 用户id   | `INT(11)`         | `BIGINT`               | 否       |      |
+| ……     | ……       | ……                |                        | ……       | ……   |
+
 ### 爬虫数据表
 
 爬取数据分到以下的表中：
@@ -250,32 +285,35 @@ PS D:\ana\qzone> qzone-spider 123456
 | `url`   | 媒体     | `VARCHAR(255)`    | `TEXT`                 | `TEXT`             | 否       | 唯一                                     |
 | `thumb` | 缩略图   | `VARCHAR(255)`    | `TEXT`                 | `TEXT`             | 是       | 如果是视频则为封面，音频没有封面         |
 | `time`  | 时长     | `INT(11)`         | `BIGINT`               | `INTEGER`          | 是       | 单位为ms，如果`type`为`pic`则留空        |
-| `memo`  | 备注     | `TEXT`            | `TEXT`                 | `TEXT`             | 是       |                                          |
 
 #### `qq`表
 
 存放QQ信息。
 
+为了保护QQ用户隐私，对于不同QQ的信息按使用者uid分开存放。本功能为未来预留，且在SQLite中无`uid`列。目前的操作中，`uid`的默认值均为1。
+
 对于重复的QQ信息，只记录最新的。若已存在数据，则使用修改的方式进行写入。
 
 | 字段名 | 说明         | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注 |
 | ------ | ------------ | ----------------- | ---------------------- | ------------------ | -------- | ---- |
+| `uid`  | 使用者uid    | `INT(11)`         | `BIGINT`               | 无                 | 否       | 主键 |
 | `qq`   | 点赞的QQ账号 | `BIGINT(16)`      | `BIGINT`               | `INTEGER`          | 否       | 主键 |
 | `name` | 昵称         | `VARCHAR(64)`     | `TEXT`                 | `TEXT`             | 是       |      |
 | `memo` | 备注         | `TEXT`            | `TEXT`                 | `INTEGER`          | 是       |      |
 
-### 数据备注表
+### 数据备注表（预留）
 
-本节的表作为数据备注所用。
+本节的表作为数据备注所用，为未来预留。
 
 #### `message_memo`表
 
 存放信息备注。可被`message`、`rt`表使用。
 
-| 字段名 | 说明    | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注 |
-| ------ | ------- | ----------------- | ---------------------- | ------------------ | -------- | ---- |
-| `tid`  | 信息tid | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       |      |
-| `memo` | 备注    | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |      |
+| 字段名 | 说明      | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注 |
+| ------ | --------- | ----------------- | ---------------------- | ------------------ | -------- | ---- |
+| `uid`  | 创建者uid | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键 |
+| `tid`  | 信息tid   | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       | 主键 |
+| `memo` | 备注      | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |      |
 
 #### `comment_reply_memo`表
 
@@ -283,10 +321,21 @@ PS D:\ana\qzone> qzone-spider 123456
 
 | 字段名      | 说明           | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注                      |
 | ----------- | -------------- | ----------------- | ---------------------- | ------------------ | -------- | ------------------------- |
+| `uid`       | 创建者uid      | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键                      |
 | `tid`       | 信息tid        | `VARCHAR(26)`     | `TEXT`                 | `TEXT`             | 否       | 主键                      |
 | `commentid` | 评论id         | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键                      |
 | `replyid`   | 评论id的回复id | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键，如果是直接评论则为0 |
 | `memo`      | 备注           | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |                           |
+
+#### `media_memo`表
+
+存放媒体备注。可被`media`表使用。
+
+| 字段名     | 说明      | 数据类型（MySQL） | 数据类型（PostgreSQL） | 数据类型（SQLite） | 是否可空 | 备注 |
+| ---------- | --------- | ----------------- | ---------------------- | ------------------ | -------- | ---- |
+| `uid`      | 创建者uid | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键 |
+| `media_id` | 媒体id    | `INT(11)`         | `BIGINT`               | `INTEGER`          | 否       | 主键 |
+| `memo`     | 备注      | `TEXT`            | `TEXT`                 | `TEXT`             | 否       |      |
 
 ## 函数
 
@@ -507,8 +556,8 @@ db_control_sqlite.db_init(db_url)
 需要另外导入数据库相关的模块。
 
 ```python
-db_control_mysql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432)
-db_control_postgresql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432)
+db_control_mysql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_postgresql.db_write_rough(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
 db_control_sqlite.db_write_rough(parse, db_url)
 ```
 
@@ -520,6 +569,7 @@ db_control_sqlite.db_write_rough(parse, db_url)
 4. `db_username`：字符串类型，数据库用户名。对于SQLite，无此参数。
 5. `db_password`：字符串类型，数据库用户密码。对于SQLite，无此参数。
 6. `db_port`：整数类型，数据库端口号。对于MySQL，默认值为3306；对于PostgreSQL，默认值为5432。对于SQLite，无此参数。
+7. `uid`：整数类型，用户id（为未来预留）。对于SQLite，无此参数。
 
 无返回值。
 
@@ -530,8 +580,8 @@ db_control_sqlite.db_write_rough(parse, db_url)
 需要另外导入数据库相关的模块。
 
 ```python
-db_control_mysql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432)
-db_control_postgresql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432)
+db_control_mysql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
+db_control_postgresql.db_write_fine(parse, db_url, db_database, db_username, db_password, db_port=5432, uid=1)
 db_control_sqlite.db_write_fine(parse, db_url)
 ```
 
@@ -543,6 +593,7 @@ db_control_sqlite.db_write_fine(parse, db_url)
 4. `db_username`：字符串类型，数据库用户名。对于SQLite，无此参数。
 5. `db_password`：字符串类型，数据库用户密码。对于SQLite，无此参数。
 6. `db_port`：整数类型，数据库端口号。对于MySQL，默认值为3306；对于PostgreSQL，默认值为5432。对于SQLite，无此参数。
+7. `uid`：整数类型，用户id（为未来预留）。对于SQLite，无此参数。
 
 无返回值。
 
