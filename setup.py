@@ -7,15 +7,16 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-setup(name='qzone-spider',
-      version='1.0.0a10+multi-user',
-      description='Spider of Qzone',
+setup(name='qzone_spider_pro',
+      version='1.0.0',
+      description='Spider of Qzone for Pro users',
       long_description=long_description,
       long_description_content_type='text/markdown',
       author='Ding Junyao',
       author_email='dingjunyao0703@163.com',
+      url='https://github.com/DingJunyao/qzone_spider_pro',
       classifiers=[
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 5 - Production/Stable',
           'Environment :: Console',
           'Intended Audience :: Developers',
           'Intended Audience :: Education',
@@ -31,16 +32,16 @@ setup(name='qzone-spider',
           'Topic :: Utilities',
           'Topic :: Software Development :: Libraries :: Python Modules',
       ],
-      keywords='spider Qzone QQ SNS data mining',
+      keywords='spider Qzone QQ SNS data mining crawler',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       package_data={
           'qzone_spider': ['emotion.csv'],
       },
       entry_points={
-        'console_scripts': [
-            'qzone_spider = qzone_spider.spider:main',
-            'qzone-spider = qzone_spider.spider:main',
-        ],
+          'console_scripts': [
+              'qzone_spider = qzone_spider.spider:main',
+              'qzone-spider = qzone_spider.spider:main',
+          ],
       },
       python_requires='>=3.6',
       install_requires=[
@@ -48,7 +49,7 @@ setup(name='qzone-spider',
           'requests'
       ],
       extras_require={
-        'mysql': ['pymysql'],
-        'postgresql': ['psycopg2'],
-        },
+          'mysql': ['pymysql'],
+          'postgresql': ['psycopg2'],
+      },
       )
