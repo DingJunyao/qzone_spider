@@ -131,7 +131,8 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
                 % (error_wait, login_try_time - fail))
             time.sleep(error_wait)
             continue
-        logger.debug('Successfully load page, please scan the QR code in %s seconds' % scan_wait)
+        logger.debug(
+            'Successfully load page, please scan the QR code in %s seconds' % scan_wait)
         time.sleep(scan_wait)
         cookies = {}
         for i in browser.get_cookies():
@@ -140,7 +141,8 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
                                  browser.page_source)
         gtk = _get_gtk(cookies)
         browser.quit()
-        logger.info('Successfully get login information of %s' % cookies['uin'][2:])
+        logger.info('Successfully get login information of %s' %
+                    cookies['uin'][2:])
         logger.debug('cookies = %s' % cookies)
         logger.debug('gtk = %s' % gtk)
         logger.debug('g_qzonetoken.group(1) = %s' % g_qzonetoken.group(1))

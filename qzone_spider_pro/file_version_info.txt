@@ -32,9 +32,9 @@ VSVersionInfo(
         [StringStruct(u'CompanyName', u'Ding Junyao'),
         StringStruct(u'FileDescription', u'Qzone Spider One-file Executable File'),
         StringStruct(u'FileVersion', u'1.0.0a9'),
-        StringStruct(u'InternalName', u'qzone-spider'),
+        StringStruct(u'InternalName', u'qzone_spider'),
         StringStruct(u'LegalCopyright', u'© Ding Junyao. All rights reserved.'),
-        StringStruct(u'OriginalFilename', u'qzone-spider.exe'),
+        StringStruct(u'OriginalFilename', u'qzone_spider.exe'),
         StringStruct(u'ProductName', u'Qzone Spider'),
         StringStruct(u'ProductVersion', u'1.0.0a9')])
       ]), 

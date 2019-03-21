@@ -39,12 +39,12 @@ setup(name='qzone_spider_pro',
           'qzone_spider_pro': ['emotion.csv'],
       },
       entry_points={
-          'console_scripts': [
-              'qzone_spider_pro = qzone_spider_pro.spider:main',
-              'qzone-spider_pro = qzone_spider_pro.spider:main',
-              'qzone-spider-pro = qzone_spider_pro.spider:main',
-              'qzone_spider-pro = qzone_spider_pro.spider:main',
-          ],
+        'console_scripts': [
+            'qzone_spider_pro = qzone_spider_pro.spider:main',
+            'qzone-spider_pro = qzone_spider_pro.spider:main',
+            'qzone-spider-pro = qzone_spider_pro.spider:main',
+            'qzone_spider-pro = qzone_spider_pro.spider:main',
+        ],
       },
       python_requires='>=3.6',
       install_requires=[

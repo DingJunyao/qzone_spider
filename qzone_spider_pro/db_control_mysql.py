@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" MySQL connection and insert of qzone_spider """
+""" MySQL connection and insert of qzone_spider_pro """
 
 __author__ = 'Ding Junyao'
 

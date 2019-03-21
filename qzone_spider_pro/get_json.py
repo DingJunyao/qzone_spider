@@ -98,7 +98,8 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             logger.debug('HTTP status code is %s' % response.status_code)
             time.sleep(error_wait)
             continue
-    logger.error('Failed to get the rough JSON of messages #%s ~ #%s of %s' % (start, start + msgnum - 1, qq))
+    logger.error('Failed to get the rough JSON of messages #%s ~ #%s of %s' % (
+        start, start + msgnum - 1, qq))
     s.close()
     return 0, -1, -1
 
@@ -137,8 +138,10 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
             response_msg_text = response_msg.text
             response_msg_json = json.loads(response_msg_text)
             if response_msg_json['ret'] >= 0:
-                logger.info('Successfully get the JSON of message of %s which tid is %s' % (qq, tid))
-                logger.debug('Returned JSON in Python format is %s' % json.dumps(response_msg_json, ensure_ascii=False))
+                logger.info(
+                    'Successfully get the JSON of message of %s which tid is %s' % (qq, tid))
+                logger.debug('Returned JSON in Python format is %s' %
+                             json.dumps(response_msg_json, ensure_ascii=False))
                 return catch_time, response_msg_json
             else:
                 if response_msg_json['message'] == '没有登录态':
@@ -155,7 +158,8 @@ If the owner does not set authority, maybe the Qzone is blocked by official''' %
                     s.close()
                     return 0, -4
                 if response_msg_json['message'] == '该内容已删除':
-                    logger.error('The post had been deleted, or the post\'s author is not the QQ you set: %s' % qq)
+                    logger.error(
+                        'The post had been deleted, or the post\'s author is not the QQ you set: %s' % qq)
                     s.close()
                     return 0, -5
                 if response_msg_json['message'] == '操作失败':
@@ -167,7 +171,8 @@ If the owner does not set authority, maybe the Qzone is blocked by official''' %
                 logger.warning('''Strange return when getting the JSON of message of %s which tid is %s.
 Sleep %s seconds before retrying. Remaining retry times: %s'''
                                % (qq, tid, error_wait, get_fine_json_try_time - fail))
-                logger.debug('Returned JSON in Python format is %s' % response_msg_json)
+                logger.debug('Returned JSON in Python format is %s' %
+                             response_msg_json)
                 time.sleep(error_wait)
                 continue
         else:

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from qzone_spider import get_login_info
-from qzone_spider import get_json
-from qzone_spider import json_parse
+from qzone_spider_pro import get_login_info
+from qzone_spider_pro import get_json
+from qzone_spider_pro import json_parse
 import logging
 
 
