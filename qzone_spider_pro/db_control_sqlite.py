@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" SQLite connection and insert of qzone_spider """
+""" SQLite connection and insert of qzone_spider_pro """
 
 __author__ = 'Ding Junyao'
 

@@ -13,10 +13,10 @@ import json
 
 request_header = {
     'Host': 'h5.qzone.qq.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0',
-    'Accept': '*/*',
-    'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
-    'Accept-Encoding': 'gzip, deflate, br',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Mobile Safari/537.36',
+    'Accept': 'application/json',
+    'DNT': '1',
+    'Origin': 'https://qzone.qq.com/',
     'Referer': 'https://qzone.qq.com/',
     'Connection': 'keep-alive'
 }
@@ -46,13 +46,14 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_ro
             'g_tk': gtk,
             'callback': '_preloadCallback',
             'code_version': '1',
-            'format': 'jsonp',
+            'format': 'json',
             'need_private_comment': '1',
             'qzonetoken': qzonetoken
         }
         catch_time = int(time.time())
         try:
-            response = s.request('GET', rough_json_url, params=params, headers=request_header, cookies=cookies)
+            response = s.get(rough_json_url, params=params,
+                             headers=request_header, cookies=cookies)
         except Exception:
             fail += 1
             if fail == get_rough_json_try_time:
@@ -64,8 +65,9 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             continue
         if (response.status_code == 200) & (response.text is not None):
             response_text = response.text
-            response_json = json.loads(response_text[17:-2])
-            logger.debug('Returned JSON in Python format is %s' % response_json)
+            response_json = json.loads(response_text)
+            logger.debug('Returned JSON in Python format is %s' %
+                         response_json)
             if response_json['message'] == '请先登录空间':
                 logger.error('Log info invalid or expired')
                 s.close()
@@ -97,7 +99,8 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             logger.debug('HTTP status code is %s' % response.status_code)
             time.sleep(error_wait)
             continue
-    logger.error('Failed to get the rough JSON of messages #%s ~ #%s of %s' % (start, start + msgnum - 1, qq))
+    logger.error('Failed to get the rough JSON of messages #%s ~ #%s of %s' % (
+        start, start + msgnum - 1, qq))
     s.close()
     return 0, -1, -1
 
@@ -112,14 +115,16 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
             'g_tk': gtk,
             'appid': 311,
             'uin': qq,
+            'count': '20',
             'refresh_type': 31,
             'cellid': tid,
             'subid': '',
+            'format': 'json'
         }
         catch_time = int(time.time())
         try:
-            response_msg = s.request('GET', fine_json_url, params=params_msg,
-                                     headers=request_header, cookies=cookies)
+            response_msg = s.get(fine_json_url, params=params_msg,
+                                 headers=request_header, cookies=cookies)
         except Exception:
             fail += 1
             if fail == get_fine_json_try_time:
@@ -134,8 +139,10 @@ def get_fine_json(qq, tid, cookies, gtk, qzonetoken, get_fine_json_try_time=2, e
             response_msg_text = response_msg.text
             response_msg_json = json.loads(response_msg_text)
             if response_msg_json['ret'] >= 0:
-                logger.info('Successfully get the JSON of message of %s which tid is %s' % (qq, tid))
-                logger.debug('Returned JSON in Python format is %s' % json.dumps(response_msg_json, ensure_ascii=False))
+                logger.info(
+                    'Successfully get the JSON of message of %s which tid is %s' % (qq, tid))
+                logger.debug('Returned JSON in Python format is %s' %
+                             json.dumps(response_msg_json, ensure_ascii=False))
                 return catch_time, response_msg_json
             else:
                 if response_msg_json['message'] == '没有登录态':
@@ -152,7 +159,8 @@ If the owner does not set authority, maybe the Qzone is blocked by official''' %
                     s.close()
                     return 0, -4
                 if response_msg_json['message'] == '该内容已删除':
-                    logger.error('The post had been deleted, or the post\'s author is not the QQ you set: %s' % qq)
+                    logger.error(
+                        'The post had been deleted, or the post\'s author is not the QQ you set: %s' % qq)
                     s.close()
                     return 0, -5
                 if response_msg_json['message'] == '操作失败':
@@ -164,7 +172,8 @@ If the owner does not set authority, maybe the Qzone is blocked by official''' %
                 logger.warning('''Strange return when getting the JSON of message of %s which tid is %s.
 Sleep %s seconds before retrying. Remaining retry times: %s'''
                                % (qq, tid, error_wait, get_fine_json_try_time - fail))
-                logger.debug('Returned JSON in Python format is %s' % response_msg_json)
+                logger.debug('Returned JSON in Python format is %s' %
+                             response_msg_json)
                 time.sleep(error_wait)
                 continue
         else:
@@ -178,6 +187,7 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             logger.debug('HTTP status code is %s' % response_msg.status_code)
             time.sleep(error_wait)
             continue
-    logger.error('Failed to get the fine JSON of message of %s which tid is %s' % (qq, tid))
+    logger.error(
+        'Failed to get the fine JSON of message of %s which tid is %s' % (qq, tid))
     s.close()
     return 0, -1
