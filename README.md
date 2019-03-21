@@ -1,6 +1,6 @@
-# qzone-spider
+# qzone_spider_pro
 
-一个简单的爬取QQ空间信息的爬虫的模块。使用Python 3.6。
+一个简单的爬取QQ空间信息的爬虫的模块。使用Python 3.6，是[qzone_spider](https://github.com/DingJunyao/qzone_spider)的可商业化版本。
 
 如果你只是想使用现成的爬虫，只看前三节就行了，但是你需要有SQL的基本知识。
 
@@ -8,7 +8,7 @@
 
 ## 使用方法
 
-qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。但是对于数据的读取，请自行使用对应的数据库工具。
+qzone_spider_pro目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。但是对于数据的读取，请自行使用对应的数据库工具。
 
 ### 要求与准备
 
@@ -26,16 +26,10 @@ qzone-spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。�
 
 ### 安装
 
-qzone-spider未来会上传至PyPI，届时你只需要运行以下命令即可安装：
+通过打包的文件来安装。
 
 ```shell
-pip install qzone-spider
-```
-
-当然，目前也可以通过打包的文件来安装。
-
-```shell
-pip install ./qzone-spider-1.0.0.tar.gz
+pip install ./qzone_spider_pro-1.0.0.tar.gz
 ```
 
 由于版本号可能有更新，注意一下文件名。
@@ -44,7 +38,7 @@ pip install ./qzone-spider-1.0.0.tar.gz
 
 ### 配置
 
-建立一个配置文件，名称一般为qzone-spider.conf（当然，你也可以稍后在运行的时候进行配置）：
+建立一个配置文件，名称一般为qzone_spider.conf（当然，你也可以稍后在运行的时候进行配置）：
 
 ```ini
 [database]
@@ -93,7 +87,7 @@ error_wait = 60
 请在命令行（Windows下的命令提示符、PowerShell，Unix或类Unix系统下的控制台、终端或SSH）下进行操作。`[]`内为可选参数，下同：
 
 ```shell
-qzone-spider target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL] [-c CONFIG]
+qzone-spider-pro target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL] [-c CONFIG]
 ```
 
 各参数解释如下：
@@ -106,7 +100,7 @@ qzone-spider target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [
 - `-i`：可选参数，初始化命令。如果有这个参数，在爬取前会初始化数据库。一般用于数据库刚建好的情况下。对于SQLite，如果之前定义的数据库文件不存在，则会自动按照配置文件新建一个文件，并执行初始化命令。
 - `-d`：可选参数，开启调试模式。如果有这个参数，在获取登录信息的时候会弹出浏览器界面，一般用于需要进行验证的情况下。
 - `-l LOGLEVEL`：可选参数，选择输出日志的级别（LOGLEVEL）。有调试（`DEBUG`）、信息（`INFO`）、警告（`WARNING`）、错误（`ERROR`）四个级别。如果定义了一个级别，则在此之后的级别也会输出（如：定义了信息级别，则会输出信息、警告、错误这三个级别）。默认为信息级别。
-- `-c CONFIG`：可选参数，配置文件的路径（CONFIG）。如果没有，则会新建一个，并且现场填写相关参数。默认情况下为工作目录下的qzone-spider.conf。
+- `-c CONFIG`：可选参数，配置文件的路径（CONFIG）。如果没有，则会新建一个，并且现场填写相关参数。默认情况下为工作目录下的qzone_spider.conf。
 
 ### 运行
 
@@ -117,7 +111,7 @@ qzone-spider target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [
 例如：
 
 ```powershell
-PS D:\ana\qzone> qzone-spider 123456
+PS D:\ana\qzone> qzone-spider-pro 123456
 ```
 
 的工作目录为`D:\ana\qzone`。
@@ -344,14 +338,14 @@ PS D:\ana\qzone> qzone-spider 123456
 如无说明，以下函数在使用前可以通过导入模块的方式导入。如：
 
 ```python
-import qzone_spider
-a, b, c = qzone_spider.account_login('123456', 'password', debug=True)
+import qzone_spider_pro
+a, b, c = qzone_spider_pro.account_login('123456', 'password', debug=True)
 ```
 
 但涉及到数据库操作的模块需要另外导入。如：
 
 ```python
-from qzone_spider import db_control_mysql as db_control
+from qzone_spider_pro import db_control_mysql as db_control
 db_control.db_init()
 ```
 
@@ -495,7 +489,7 @@ emotion_parse(content)
 对QQ空间动态的粗JSON数据进行，取有用的数据重新组合。
 
 ```python
-rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True, single_rough_json=False)
+rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True)
 ```
 
 参数：
@@ -504,7 +498,6 @@ rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True,
 2. `ordernum`：整数类型，`rough_json_list`中的列表编号，代表其中的某一条动态的编号。
 3. `catch_time`：整数类型，爬取数据时的时间戳。默认值为0。
 4. `do_emotion_parse`：布尔类型，是否转换文本中的表情字符串。默认值为True。
-5. `single_rough_json`：布尔类型，粗JSON是否为单条。默认值为False。
 
 函数会返回一个字典类型的数据，表示解析后的动态的粗数据的JSON的Python表达方式。
 
@@ -513,7 +506,7 @@ rough_json_parse(rough_json_list, ordernum, catch_time=0, do_emotion_parse=True,
 对QQ空间动态的细JSON数据进行，取有用的数据重新组合。
 
 ```python
-rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True, single_rough_json=False)
+rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_parse=True)
 ```
 
 参数：
@@ -523,7 +516,6 @@ rough_json_parse(rough_json_list, ordernum, fine_json, catch_time=0, do_emotion_
 3. `fine_json`：字典类型，爬取的动态的细JSON数据的Python表达方式。
 4. `catch_time`：整数类型，爬取数据时的时间戳。默认值为0。建议使用细JSON的爬取时间。
 5. `do_emotion_parse`：布尔类型，是否转换文本中的表情字符串。默认值为True。
-6. `single_rough_json`：布尔类型，粗JSON是否为单条。默认值为False。
 
 函数会返回一个字典类型的数据，表示解析后的动态的细数据的JSON的Python表达方式。
 
@@ -610,34 +602,4 @@ db_control_sqlite.db_write_fine(parse, db_url)
 
 ## 许可
 
-本模块的版权归制作者丁俊尧（Github: [DingJunyao](https://github.com/DingJunyao); Gitee: [DingJunyao](https://gitee.com/DingJunyao/)）所有，采用[GNU Affero General Public License, Version 3](http://www.gnu.org/licenses/agpl-3.0.html)许可，增加附加条件。当两者冲突时，以附加条件为准。[本链接](./LICENSE.txt)指向完整的许可文本。
-
-在遵循这些许可的条件下，你可以自由使用、介绍、分发、修改并再分发该模块。但本模块和制作者不提供任何担保，通过本模块造成的一切后果由使用者承担。
-
-### 附加条件
-
-下文中的“模块”，包括模块和模块的部分代码。
-
-上文的“部分”的界定，以能够使用原有代码或者使用原有代码经轻度修改能够基本完成功能（获取登录信息、获取JSON、解析JSON、存入数据库）中两个或两个以上的为准。
-
-上文的“基本完成”的界定如下：
-
-- 获取登录信息：能够通过账号密码或扫码登录，在遇到验证码时提示或退出、在遇到502错误时导向正确的页面，最终获取到需要的登录信息，足已完成获取JSON所需；
-- 获取JSON：获取粗JSON或细JSON，能够考虑到两种及以上错误情况；
-- 解析JSON：对“获取JSON”环节获取到的粗JSON或细JSON进行解析，能够解析出JSON中8种及以上信息，对表情的解析不做要求；
-- 存入数据库：能够将解析到的信息存入至少一种数据库中，并处理好冲突。
-
-未经作者书面许可，任何个人和/或组织不得将本模块用于商业用途。
-
-这里所述的“商业用途”，包括但不限于以下方面:
-
-- 以获取自己拥有和/或管理的自媒体的日常运营状态，进而方便为自己的自媒体运营制定、规划策略，或以此作为商业洽谈的资本为目的，直接或者间接地使用本模块进行自媒体数据的爬取；
-- 以获取非自己拥有和/或管理的自媒体的日常运营状态，进而方便针对这个/这些自媒体进行正面的和/或负面的影响，从而让自己拥有和/或管理的自媒体获利为目的，直接或者间接地使用本模块进行自媒体数据的爬取。但是，如果被爬取的自媒体存在过错，而爬取目的是为了保存证据、公开发表以伸张正义，则不受此限制；
-- 直接或者间接地使用本模块进行爬虫服务器的搭建并对外提供服务；
-- 直接或者间接地使用本模块对外提供付费服务；
-- 直接或者间接地通过本模块申请著作权、专利等知识产权权利；
-- 直接或者间接地将本模块以任何价格出售给他人，或者为他人提供付费服务，无论是否注明作者；
-- 将本模块直接或者间接爬取、生成的数据以任何价格出售给他人，无论是否声明或注明数据来源和爬取、生成数据的工具；
-- 以营利为目的，直接或者间接地针对本模块进行教学工作。比如：培训机构提供付费的课程对该模块进行讲解。但是公立学校或具有学位或学历资质的民办学校开办的针对于本校学生或报考本校第二学位的学生的课程内课程不受此限制。
-
-作者保留追究不正当使用的责任的权利。
+待议。
