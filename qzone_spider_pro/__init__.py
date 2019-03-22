@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" Spider of Qzone """
+""" Spider of Qzone for Pro users """
 
 __author__ = 'Ding Junyao'
 
