@@ -52,8 +52,7 @@ def get_rough_json(qq, start, msgnum, replynum, cookies, gtk, qzonetoken, get_ro
         }
         catch_time = int(time.time())
         try:
-            response = s.get(rough_json_url, params=params,
-                             headers=request_header, cookies=cookies)
+            response = s.get(rough_json_url, params=params, headers=request_header, cookies=cookies)
         except Exception:
             fail += 1
             if fail == get_rough_json_try_time:
@@ -187,7 +186,6 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             logger.debug('HTTP status code is %s' % response_msg.status_code)
             time.sleep(error_wait)
             continue
-    logger.error(
-        'Failed to get the fine JSON of message of %s which tid is %s' % (qq, tid))
+    logger.error('Failed to get the fine JSON of message of %s which tid is %s' % (qq, tid))
     s.close()
     return 0, -1

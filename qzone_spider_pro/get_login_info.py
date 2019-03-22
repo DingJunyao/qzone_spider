@@ -115,8 +115,7 @@ def scan_login(login_try_time=2, scan_wait=20, error_wait=600):
     fail = 0
     while fail < login_try_time:
         chrome_options = Options()
-        chrome_options.add_experimental_option(
-            'excludeSwitches', ['enable-automation'])
+        chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         if 'geteuid' in dir(os) and os.geteuid() == 0:
             chrome_options.add_argument('--no-sandbox')
         browser = webdriver.Chrome(options=chrome_options)
