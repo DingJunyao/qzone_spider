@@ -14,8 +14,7 @@ import os
 
 def main():
     config = configparser.ConfigParser()
-    parser = argparse.ArgumentParser(
-        description='An example of qzone_spider_pro')
+    parser = argparse.ArgumentParser(description='An example of qzone_spider_pro')
     parser.add_argument('target', help="QQ number as the target", type=str)
     parser.add_argument('-u', '--user',
                         help="QQ number as the spider; if you login via QR Code scan, you needn't input it",
@@ -188,6 +187,18 @@ Default: [1] Yes''')
                 break
         print('-' * 40)
         while True:
+            vcode_wait_str = input('Please input wait seconds when verification page appears (Default: 10): ')
+            if vcode_wait_str != '':
+                if vcode_wait_str.isdigit() and int(vcode_wait_str) >= 1:
+                    vcode_wait = int(vcode_wait_str)
+                    break
+                else:
+                    print('Seconds must be integer not smaller than 1!')
+            else:
+                vcode_wait = 10
+                break
+        print('-' * 40)
+        while True:
             scan_wait_str = input('Please input seconds waiting for scan QR Code (Default: 20): ')
             if scan_wait_str != '':
                 if scan_wait_str.isdigit() and int(scan_wait_str) >= 1:
@@ -241,6 +252,7 @@ Default: [1] Yes''')
         config.set('try', 'get_fine_json_try_time', str(get_fine_json_try_time))
         config.add_section('wait')
         config.set('wait', 'login_wait', str(login_wait))
+        config.set('wait', 'vcode_wait', str(vcode_wait))
         config.set('wait', 'scan_wait', str(scan_wait))
         config.set('wait', 'spider_wait', str(spider_wait))
         config.set('wait', 'error_wait', str(error_wait))
@@ -281,6 +293,7 @@ remember it is based on the directory where config file is in. ')
     get_rough_json_try_time = int(config.get('try', 'get_rough_json_try_time'))
     get_fine_json_try_time = int(config.get('try', 'get_fine_json_try_time'))
     login_wait = int(config.get('wait', 'login_wait'))
+    vcode_wait = int(config.get('wait', 'vcode_wait'))
     scan_wait = int(config.get('wait', 'scan_wait'))
     spider_wait = int(config.get('wait', 'spider_wait'))
     error_wait = int(config.get('wait', 'error_wait'))
@@ -321,7 +334,7 @@ remember it is based on the directory where config file is in. ')
                 password = getpass.getpass("Password: ")
             cookies, gtk, qzonetoken = qzone_spider_pro.account_login(args.user, password, debug=args.debug,
                                                                   login_try_time=login_try_time, login_wait=login_wait,
-                                                                  error_wait=error_wait)
+                                                                  vcode_wait=vcode_wait, error_wait=error_wait)
     sub_quantity = args.quantity % 20
     end_order = args.start
     while end_order < args.quantity:
