@@ -25,7 +25,7 @@ def _get_gtk(cookies):
     return o & 2147483647
 
 
-def account_login(qq, password, debug=False, login_try_time=2, login_wait=3, error_wait=600):
+def account_login(qq, password, debug=False, login_try_time=2, login_wait=3, vcode_wait=10, error_wait=600):
     logger.info('Trying to login with QQ and password')
     fail = 0
     while fail < login_try_time:
@@ -74,6 +74,7 @@ Sleep %s seconds before retrying. Remaining retry times: %s'''
             if debug:
                 logger.warning(
                     'Verification needed when getting login information of %s, please check it in the browser' % qq)
+                time.sleep(vcode_wait)
             else:
                 browser.quit()
                 logger.error('''Verification needed when getting login information of %s.

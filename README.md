@@ -74,6 +74,8 @@ get_fine_json_try_time = 2
 [wait]
 # 登录时的等待时间（秒）
 login_wait = 3
+# 当出现验证码时的等待时间（秒）
+vcode_wait = 10
 # 等待扫码的时间（秒）
 scan_wait = 20
 # 爬虫每次执行后的等待时间（秒）
@@ -356,7 +358,7 @@ db_control.db_init()
 通过QQ号和密码，模拟登录手机网页版的QQ空间，以获取登录信息。
 
 ```python
-account_login(qq, password, debug=False, login_try_time=2, login_wait=3, error_wait=600)
+account_login(qq, password, debug=False, login_try_time=2, login_wait=3, vcode_wait=10, error_wait=600)
 ```
 
 参数：
@@ -366,7 +368,8 @@ account_login(qq, password, debug=False, login_try_time=2, login_wait=3, error_w
 3. `debug`：布尔类型，是否开启调试模式。默认值为False。当它设置为False时，开启浏览器的无头模式，启动时没有界面；当遇到需要验证的情况时，程序会提示需要打开调试模式，并退出。否则，浏览器不会开启无头模式，可以显示界面，以便验证和调试，但程序也会提示调试模式。
 4. `login_try_time`：整数类型，尝试登录的最大次数。当发生错误的时候，重试次数为这个数减1。默认值是2。
 5. `login_wait`：整数类型，登录时的等待时间（秒）。这段时间主要用于等待页面加载完成。默认值是3。
-6. `error_wait`：整数类型，发生错误后，重试的间隔时间（秒）。默认值是600。
+6. `vcode_wait`：整数类型，出现验证页面时的等待时间（秒）。这段时间主要用于验证身份。默认值是10。
+7. `error_wait`：整数类型，发生错误后，重试的间隔时间（秒）。默认值是600。
 
 函数会返回三个值：
 
