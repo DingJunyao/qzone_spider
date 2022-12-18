@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-"""An example of qzone_spider_pro"""
+"""An example of qzone_spider"""
 
-import qzone_spider_pro
+import qzone_spider
 import logging
 import time
 import argparse
@@ -14,7 +14,7 @@ import os
 
 def main():
     config = configparser.ConfigParser()
-    parser = argparse.ArgumentParser(description='An example of qzone_spider_pro')
+    parser = argparse.ArgumentParser(description='An example of qzone_spider')
     parser.add_argument('target', help="QQ number as the target", type=str)
     parser.add_argument('-u', '--user',
                         help="QQ number as the spider; if you login via QR Code scan, you needn't input it",
@@ -269,19 +269,19 @@ remember it is based on the directory where config file is in. ')
     db_type = config.get('database', 'type')
     db_url = config.get('database', 'url')
     if db_type == 'MySQL':
-        from qzone_spider_pro import db_control_mysql as db_control
+        from qzone_spider import db_control_mysql as db_control
         db_port = int(config.get('database', 'port'))
         db_database = config.get('database', 'database')
         db_username = config.get('database', 'username')
         db_password = config.get('database', 'password')
     elif db_type == 'PostgreSQL':
-        from qzone_spider_pro import db_control_postgresql as db_control
+        from qzone_spider import db_control_postgresql as db_control
         db_port = int(config.get('database', 'port'))
         db_database = config.get('database', 'database')
         db_username = config.get('database', 'username')
         db_password = config.get('database', 'password')
     elif db_type == 'SQLite':
-        from qzone_spider_pro import db_control_sqlite as db_control
+        from qzone_spider import db_control_sqlite as db_control
         db_port, db_database, db_username, db_password = None, None, None, None
     else:
         print('Config file error!')
@@ -321,7 +321,7 @@ remember it is based on the directory where config file is in. ')
         print('-q or --quantity must be bigger than 0!')
         return -1
     if scan_mode:
-        cookies, gtk, qzonetoken = qzone_spider_pro.scan_login(login_try_time=login_try_time, scan_wait=scan_wait,
+        cookies, gtk, qzonetoken = qzone_spider.scan_login(login_try_time=login_try_time, scan_wait=scan_wait,
                                                            error_wait=error_wait)
     else:
         if not args.user:
@@ -332,7 +332,7 @@ remember it is based on the directory where config file is in. ')
                 password = args.password
             else:
                 password = getpass.getpass("Password: ")
-            cookies, gtk, qzonetoken = qzone_spider_pro.account_login(args.user, password, debug=args.debug,
+            cookies, gtk, qzonetoken = qzone_spider.account_login(args.user, password, debug=args.debug,
                                                                   login_try_time=login_try_time, login_wait=login_wait,
                                                                   vcode_wait=vcode_wait, error_wait=error_wait)
     sub_quantity = args.quantity % 20
@@ -342,7 +342,7 @@ remember it is based on the directory where config file is in. ')
             spider_quantity = 20
         else:
             spider_quantity = sub_quantity
-        r_catch_time, end_order, rough_json = qzone_spider_pro.get_rough_json(
+        r_catch_time, end_order, rough_json = qzone_spider.get_rough_json(
             args.target, end_order, spider_quantity, 10, cookies, gtk, qzonetoken,
             get_rough_json_try_time=get_rough_json_try_time, error_wait=error_wait)
         if r_catch_time == 0 and end_order == -1:
@@ -350,7 +350,7 @@ remember it is based on the directory where config file is in. ')
         end_order += 1
         for i in range(len(rough_json)):
             if fine_mode:
-                f_catch_time, fine = qzone_spider_pro.get_fine_json(args.target, rough_json[i]['tid'],
+                f_catch_time, fine = qzone_spider.get_fine_json(args.target, rough_json[i]['tid'],
                                                                 cookies, gtk, qzonetoken,
                                                                 get_fine_json_try_time=get_fine_json_try_time,
                                                                 error_wait=error_wait)
@@ -360,7 +360,7 @@ remember it is based on the directory where config file is in. ')
                     if i != len(rough_json) - 1 or end_order < args.quantity:
                         time.sleep(spider_wait)
                     continue
-                parse_fine = qzone_spider_pro.fine_json_parse(rough_json, i, fine, f_catch_time,
+                parse_fine = qzone_spider.fine_json_parse(rough_json, i, fine, f_catch_time,
                                                           do_emotion_parse=do_emotion_parse)
                 if db_type == 'SQLite':
                     db_control.db_write_fine(parse_fine, db_url)
@@ -368,7 +368,7 @@ remember it is based on the directory where config file is in. ')
                     db_control.db_write_fine(parse_fine, db_url, db_database, db_username, db_password,
                                              db_port=db_port)
             else:
-                parse_rough = qzone_spider_pro.rough_json_parse(rough_json, i, r_catch_time,
+                parse_rough = qzone_spider.rough_json_parse(rough_json, i, r_catch_time,
                                                             do_emotion_parse=do_emotion_parse)
                 if db_type == 'SQLite':
                     db_control.db_write_rough(parse_rough, db_url)

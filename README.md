@@ -1,6 +1,6 @@
 > 该项目写于数年前，仅作为教学研究用，已不适用于现在，仅供参考。如果因为使用该项目造成任何纠纷，本人概不负责。
 
-# qzone_spider_pro
+# qzone_spider
 
 一个简单的爬取QQ空间信息的爬虫的模块。使用Python 3.6。
 
@@ -10,7 +10,7 @@
 
 ## 使用方法
 
-qzone_spider_pro目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。但是对于数据的读取，请自行使用对应的数据库工具。
+qzone_spider目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite。但是对于数据的读取，请自行使用对应的数据库工具。
 
 ### 要求与准备
 
@@ -31,7 +31,7 @@ qzone_spider_pro目前原生支持MySQL（包括MariaDB）、PostgreSQL、SQLite
 通过打包的文件来安装。
 
 ```shell
-pip install ./qzone_spider_pro-1.0.0.tar.gz
+pip install ./qzone_spider-1.0.0.tar.gz
 ```
 
 由于版本号可能有更新，注意一下文件名。
@@ -89,7 +89,7 @@ error_wait = 60
 请在命令行（Windows下的命令提示符、PowerShell，Unix或类Unix系统下的控制台、终端或SSH）下进行操作。`[]`内为可选参数，下同：
 
 ```shell
-qzone-spider-pro target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL] [-c CONFIG]
+qzone-spider target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-d] [-l LOGLEVEL] [-c CONFIG]
 ```
 
 各参数解释如下：
@@ -113,7 +113,7 @@ qzone-spider-pro target [-u USER] [-p PASSWORD] [-s START] [-q QUANTITY] [-i] [-
 例如：
 
 ```powershell
-PS D:\ana\qzone> qzone-spider-pro 123456
+PS D:\ana\qzone> qzone-spider 123456
 ```
 
 的工作目录为`D:\ana\qzone`。
@@ -340,14 +340,14 @@ PS D:\ana\qzone> qzone-spider-pro 123456
 如无说明，以下函数在使用前可以通过导入模块的方式导入。如：
 
 ```python
-import qzone_spider_pro
-a, b, c = qzone_spider_pro.account_login('123456', 'password', debug=True)
+import qzone_spider
+a, b, c = qzone_spider.account_login('123456', 'password', debug=True)
 ```
 
 但涉及到数据库操作的模块需要另外导入。如：
 
 ```python
-from qzone_spider_pro import db_control_mysql as db_control
+from qzone_spider import db_control_mysql as db_control
 db_control.db_init()
 ```
 
