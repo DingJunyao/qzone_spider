@@ -1,6 +1,8 @@
+> 该项目写于数年前，仅作为教学研究用，已不适用于现在，仅供参考。如果因为使用该项目造成任何纠纷，本人概不负责。
+
 # qzone_spider_pro
 
-一个简单的爬取QQ空间信息的爬虫的模块。使用Python 3.6，是[qzone_spider](https://github.com/DingJunyao/qzone_spider)的可商业化版本。
+一个简单的爬取QQ空间信息的爬虫的模块。使用Python 3.6。
 
 如果你只是想使用现成的爬虫，只看前三节就行了，但是你需要有SQL的基本知识。
 
@@ -601,6 +603,8 @@ db_control_sqlite.db_write_fine(parse, db_url)
 
 考虑到API的变化等问题，本模块可能会无法使用。如果有问题，请提issue。但这不代表我有能力或有时间去修正，也不代表我一定去修正。最靠谱的方法是自己动手：fork、修正、如果愿意的话提交PR。
 
-## 许可
+## 致谢
 
-待议。
+- [LiuXingMing/QQSpider: QQ空间爬虫（日志、说说、个人信息）](https://github.com/LiuXingMing/QQSpider)
+- [doctorwho77/qq_mood: qq说说爬虫+简单的数据分析](https://github.com/doctorwho77/qq_mood)
+- 时属南京林业大学经济管理学院的郭承龙、陈艾芳老师，以及两个团队的成员（张某，王某，陈某；姚某，刘唐某，徐某，叶某（不知道他们愿不愿意透露姓名，就怎么写吧））
