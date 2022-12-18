@@ -607,4 +607,4 @@ db_control_sqlite.db_write_fine(parse, db_url)
 
 - [LiuXingMing/QQSpider: QQ空间爬虫（日志、说说、个人信息）](https://github.com/LiuXingMing/QQSpider)
 - [doctorwho77/qq_mood: qq说说爬虫+简单的数据分析](https://github.com/doctorwho77/qq_mood)
-- 时属南京林业大学经济管理学院的郭承龙、陈艾芳老师，以及两个团队的成员（张某，王某，陈某；姚某，刘唐某，徐某，叶某（不知道他们愿不愿意透露姓名，就怎么写吧））
+- 时属南京林业大学经济管理学院的郭承龙、陈艾芳老师，以及两个团队的成员（张某，王某，陈某；姚某，刘唐某，徐某，叶某（不知道他们愿不愿意透露姓名，就这么写吧））
